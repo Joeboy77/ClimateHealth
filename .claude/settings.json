@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 60 .venv/bin/python -c ' *)",
+      "Bash(timeout 90 .venv/bin/python -c ' *)",
+      "Bash(timeout 100 .venv/bin/python -m pytest tests/api/test_demo_endpoints.py::test_heavy_rain_puts_a_water_borne_disease_at_the_top)",
+      "Bash(python3 -c ' *)",
+      "Bash(uv run *)",
+      "Bash(uv run python -c ' *)",
+      "Bash(curl -s http://127.0.0.1:8000/openapi.json -o openapi.json)",
+      "Bash(curl -s http://127.0.0.1:8000/openapi.json)",
+      "Bash(node scripts/design-audit.mjs)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8000/matrix)",
+      "Bash(curl -s -i -X OPTIONS http://127.0.0.1:8000/login -H \"Origin: http://127.0.0.1:3000\" -H \"Access-Control-Request-Method: POST\")",
+      "Bash(curl -s -i -X OPTIONS http://127.0.0.1:8000/login -H \"Origin: http://127.0.0.1:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\")",
+      "Bash(curl -s -X OPTIONS http://127.0.0.1:8000/login -H \"Origin: http://127.0.0.1:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\")",
+      "Bash(curl -s -o /dev/null -w \"next %{http_code}\\\\n\" http://127.0.0.1:3000/)",
+      "Bash(/Users/acheampongjoseph/.claude/skills/gstack/browse/dist/browse --help)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:3000/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://127.0.0.1:3000/_next/static/chunks/webpack-caa21fb8525f2992.js\")",
+      "Bash(git -C . status)"
+    ]
+  }
+}

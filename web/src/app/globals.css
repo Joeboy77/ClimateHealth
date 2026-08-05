@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #fbfaf8;
+  --color-surface: #ffffff;
+  --color-raised: #f5f4f1;
+  --color-border: #e4e2dc;
+  --color-border-strong: #cfccc4;
+  --color-muted: #6f6d66;
+  --color-ink: #1a1d1b;
+
+  --color-accent: #0e6e63;
+  --color-accent-hover: #0b564d;
+  --color-accent-subtle: #e6f2f0;
+  --color-accent-ink: #ffffff;
+
+  --color-risk-low: #1f7a5c;
+  --color-risk-low-surface: #e8f3ee;
+  --color-risk-moderate: #b07908;
+  --color-risk-moderate-surface: #fbf1dc;
+  --color-risk-high: #c4551f;
+  --color-risk-high-surface: #fbebe1;
+  --color-risk-severe: #a32118;
+  --color-risk-severe-surface: #fae7e5;
+
+  --color-confidence-demo: #5b54a8;
+  --color-confidence-demo-surface: #ecebf7;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-2: 0 4px 12px rgb(0 0 0 / 0.08);
+  --shadow-3: 0 12px 32px rgb(0 0 0 / 0.12);
+
+  --ease-out: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --ease-emphasis: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-instant: 90ms;
+  --duration-short: 160ms;
+  --duration-medium: 260ms;
+  --duration-risk: 420ms;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --color-canvas: #0c0e0d;
+  --color-surface: #151817;
+  --color-raised: #1d211f;
+  --color-border: #2a2f2c;
+  --color-border-strong: #3b423e;
+  --color-muted: #8b8f8a;
+  --color-ink: #eceeeb;
+
+  --color-accent: #2f9c8e;
+  --color-accent-hover: #3fb3a3;
+  --color-accent-subtle: #10241f;
+  --color-accent-ink: #05100e;
+
+  --color-risk-low: #43a882;
+  --color-risk-low-surface: #0f2a22;
+  --color-risk-moderate: #d9a02b;
+  --color-risk-moderate-surface: #2e230a;
+  --color-risk-high: #e2793f;
+  --color-risk-high-surface: #33190c;
+  --color-risk-severe: #e0554a;
+  --color-risk-severe-surface: #33110f;
+
+  --color-confidence-demo: #8f88d6;
+  --color-confidence-demo-surface: #1b1930;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 4px 12px rgb(0 0 0 / 0.45);
+  --shadow-3: 0 12px 32px rgb(0 0 0 / 0.55);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@utility text-display {
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h1 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+@utility text-h2 {
+  font-size: 1.125rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+@utility text-h3 {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+@utility text-small {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+@utility text-micro {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+@utility text-metric {
+  font-size: 1.75rem;
+  line-height: 1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes risk-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* Raise edge and text contrast for viewers who ask for it. Risk colours are
+   already the strongest signal on screen and are left alone. */
+@media (prefers-contrast: more) {
+  :root {
+    --color-border: #b8b4aa;
+    --color-border-strong: #8d887c;
+    --color-muted: #4a4842;
+  }
+
+  .dark {
+    --color-border: #4d544f;
+    --color-border-strong: #6c756f;
+    --color-muted: #b4b8b2;
+  }
+
+  :focus-visible {
+    outline-width: 3px;
+  }
+}
+
+/* Weather field. Each particle sets --weather-duration inline; the animations
+   below only describe the motion. All are suppressed by prefers-reduced-motion. */
+@keyframes weather-rain {
+  0% {
+    transform: translateY(-9px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(11px);
+    opacity: 0;
+  }
+}
+
+@keyframes weather-drift {
+  0% {
+    transform: translate(-5px, 0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.6;
+  }
+  75% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(9px, -3px);
+    opacity: 0;
+  }
+}
+
+@keyframes weather-shimmer {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes weather-rise {
+  0% {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+}
