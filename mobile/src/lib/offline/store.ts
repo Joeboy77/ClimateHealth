@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import Constants from "expo-constants";
 
 /**
  * Small persistent key-value storage, for data rather than credentials.
@@ -42,6 +43,10 @@ function browserStore(): KeyValueStore {
 }
 
 function nativeStore(): KeyValueStore {
+  const isExpoGo =
+    Constants.appOwnership === "expo" || Constants.executionEnvironment === "storeClient";
+  if (Platform.OS === "web" || isExpoGo) return memoryStore();
+
   // Required inline so the web bundle never reaches for a native module.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { createMMKV } =
