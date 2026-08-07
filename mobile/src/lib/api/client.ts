@@ -45,6 +45,22 @@ export const API_BASE_URL =
 
 export const REQUEST_TIMEOUT_MS = 20_000;
 
+type SessionExpiredListener = () => void;
+const sessionExpiredListeners = new Set<SessionExpiredListener>();
+
+export function addSessionExpiredListener(listener: SessionExpiredListener): () => void {
+  sessionExpiredListeners.add(listener);
+  return () => {
+    sessionExpiredListeners.delete(listener);
+  };
+}
+
+function notifySessionExpired(): void {
+  for (const listener of sessionExpiredListeners) {
+    listener();
+  }
+}
+
 export class ApiError extends Error {
   readonly status: number;
 
@@ -108,7 +124,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });
 
-    if (!response.ok) throw new ApiError(response.status, await readError(response));
+    if (!response.ok) {
+      if (response.status === 401) {
+        notifySessionExpired();
+      }
+      throw new ApiError(response.status, await readError(response));
+    }
     if (response.status === 204) return undefined as T;
     return (await response.json()) as T;
   } catch (error) {

@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { clearSecret, readSecret, writeSecret } from "./storage";
+import { addSessionExpiredListener } from "@/lib/api/client";
 import type { CitizenIdentity, CitizenSession } from "@/lib/api/types";
 
 const TOKEN_KEY = "dawuro.token";
@@ -37,6 +38,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [citizen, setCitizen] = useState<CitizenIdentity | null>(null);
 
+  const clearSession = useCallback(async () => {
+    await Promise.all([clearSecret(TOKEN_KEY), clearSecret(CITIZEN_KEY)]);
+    setToken(null);
+    setCitizen(null);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -59,11 +66,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     };
 
+    const removeListener = addSessionExpiredListener(() => {
+      void clearSession();
+    });
+
     void restore();
     return () => {
       cancelled = true;
+      removeListener();
     };
-  }, []);
+  }, [clearSession]);
 
   const join = useCallback(async (session: CitizenSession) => {
     await Promise.all([
@@ -75,10 +87,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const leave = useCallback(async () => {
-    await Promise.all([clearSecret(TOKEN_KEY), clearSecret(CITIZEN_KEY)]);
-    setToken(null);
-    setCitizen(null);
-  }, []);
+    await clearSession();
+  }, [clearSession]);
 
   const value = useMemo<Session>(
     () => ({ loading, token, citizen, join, leave }),
