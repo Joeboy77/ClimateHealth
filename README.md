@@ -44,23 +44,31 @@ The platform connects citizens and institutions into one cohesive defense system
 ### 🖥️ Agency Command Platform (Web Dashboard)
 
 #### 1. National Command Matrix & Interactive Map
-![National Risk Picture Map](docs/screenshots/Screenshot%202026-08-07%20at%201.18.58%20PM.png)
+![National Risk Picture Map](docs/screenshots/Screenshot2026-08-07at1.18.58PM.png)
 *Real-time risk map of Ghana displaying 85 of 260 districts at high risk or above, color-coded hazard filters (Rainfall, Humidity, Peak Heat, Dust & PM10), and ordered district triage queues.*
 
+---
+
 #### 2. District Deep-Dive & Explainable Risk Brief (Wa Municipal)
-![District Deep Dive Brief](docs/screenshots/Screenshot%202026-08-07%20at%201.07.18%20PM.png)
+![District Deep Dive Brief](docs/screenshots/Screenshot2026-08-07at1.07.18PM.png)
 *District risk profile detailing ranked health conditions (Malaria 56.2, Yellow fever 34.6, Dengue 29.5), specific epidemiological triggers, lag windows, and confidence indicators (`TIER A · MODEL` vs `TIER B · THRESHOLD`).*
 
+---
+
 #### 3. Active Epidemiological Alerts Console
-![Active Alerts Triage Console](docs/screenshots/Screenshot%202026-08-07%20at%201.12.32%20PM.png)
+![Active Alerts Triage Console](docs/screenshots/Screenshot2026-08-07at1.12.32PM.png)
 *Alert triage queue displaying active district alerts requiring executive action, evidence breakdown, and lead agency recommended interventions.*
 
+---
+
 #### 4. Shared Multi-Agency Incident Response Board
-![Shared Incident Room Board](docs/screenshots/Screenshot%202026-08-07%20at%201.13.03%20PM.png)
+![Shared Incident Room Board](docs/screenshots/Screenshot2026-08-07at1.13.03PM.png)
 *Cross-agency response coordinator tracking assigned actions across GHS, NADMO, EPA, and Assemblies on a single timeline of accountability.*
 
+---
+
 #### 5. Multi-Channel Outreach & USSD Simulator
-![Outreach & USSD Simulator](docs/screenshots/Screenshot%202026-08-07%20at%201.17.51%20PM.png)
+![Outreach & USSD Simulator](docs/screenshots/Screenshot2026-08-07at1.17.51PM.png)
 *Outreach console showing live Twi language SMS warning generation and interactive USSD feature-phone shortcode simulator (`*203*109#`).*
 
 ---
@@ -69,12 +77,12 @@ The platform connects citizens and institutions into one cohesive defense system
 
 | Splash Screen & Brand | Native Language Forecast (Twi) | Today's Action Cards |
 | :---: | :---: | :---: |
-| ![Dawuro Splash](docs/screenshots/Screenshot202026-08-0720at201.10.3020PM.png) | ![Twi Forecast](docs/screenshots/Screenshot202026-08-0720at201.55.2620PM.png) | ![Action Cards](docs/screenshots/Screenshot202026-08-0720at201.55.3620PM.png) |
+| <img src="docs/screenshots/Screenshot2026-08-07at1.10.30PM.png" width="260" alt="Dawuro Splash" /> | <img src="docs/screenshots/Screenshot2026-08-07at1.55.26PM.png" width="260" alt="Twi Forecast" /> | <img src="docs/screenshots/Screenshot2026-08-07at1.55.36PM.png" width="260" alt="Action Cards" /> |
 | *Gong-gong bell emblem & district health tagline* | *Twi forecast for Nsawam Adoagyiri ("Atiridii ɛreforo...")* | *Action of the day, report trigger & learning hub* |
 
 | Weather Micro-Lesson | Climate Quiz Game | Quiz Reward & Level-Up |
 | :---: | :---: | :---: |
-| ![Micro Lesson](docs/screenshots/Screenshot202026-08-0720at202.28.4520PM.png) | ![Climate Quiz](docs/screenshots/Screenshot202026-08-0720at202.34.1920PM.png) | ![Quiz Reward](docs/screenshots/Screenshot202026-08-0720at202.34.3420PM.png) |
+| <img src="docs/screenshots/Screenshot2026-08-07at2.28.45PM.png" width="260" alt="Micro Lesson" /> | <img src="docs/screenshots/Screenshot2026-08-07at2.34.19PM.png" width="260" alt="Climate Quiz" /> | <img src="docs/screenshots/Screenshot2026-08-07at2.34.34PM.png" width="260" alt="Quiz Reward" /> |
 | *Just-in-time lesson with audio playback* | *Interactive quiz with instant epidemiological feedback* | *Level Up (+5 XP, Climate Learner badge)* |
 
 ---
