@@ -69,12 +69,12 @@ The platform connects citizens and institutions into one cohesive defense system
 
 | Splash Screen & Brand | Native Language Forecast (Twi) | Today's Action Cards |
 | :---: | :---: | :---: |
-| ![Dawuro Splash](docs/screenshots/Screenshot%202026-08-07%20at%201.10.30%20PM.png) | ![Twi Forecast](docs/screenshots/Screenshot%202026-08-07%20at%201.55.26%20PM.png) | ![Action Cards](docs/screenshots/Screenshot%202026-08-07%20at%201.55.36%20PM.png) |
+| ![Dawuro Splash](docs/screenshots/Screenshot202026-08-0720at201.10.3020PM.png) | ![Twi Forecast](docs/screenshots/Screenshot202026-08-0720at201.55.2620PM.png) | ![Action Cards](docs/screenshots/Screenshot202026-08-0720at201.55.3620PM.png) |
 | *Gong-gong bell emblem & district health tagline* | *Twi forecast for Nsawam Adoagyiri ("Atiridii ɛreforo...")* | *Action of the day, report trigger & learning hub* |
 
 | Weather Micro-Lesson | Climate Quiz Game | Quiz Reward & Level-Up |
 | :---: | :---: | :---: |
-| ![Micro Lesson](docs/screenshots/Screenshot%202026-08-07%20at%202.28.45%20PM.png) | ![Climate Quiz](docs/screenshots/Screenshot%202026-08-07%20at%202.34.19%20PM.png) | ![Quiz Reward](docs/screenshots/Screenshot%202026-08-07%20at%202.34.34%20PM.png) |
+| ![Micro Lesson](docs/screenshots/Screenshot202026-08-0720at202.28.4520PM.png) | ![Climate Quiz](docs/screenshots/Screenshot202026-08-0720at202.34.1920PM.png) | ![Quiz Reward](docs/screenshots/Screenshot202026-08-0720at202.34.3420PM.png) |
 | *Just-in-time lesson with audio playback* | *Interactive quiz with instant epidemiological feedback* | *Level Up (+5 XP, Climate Learner badge)* |
 
 ---
