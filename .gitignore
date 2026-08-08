@@ -25,3 +25,5 @@ out/
 .gstack/
 
 SMS.md
+
+scripts/generate_pdf.py
