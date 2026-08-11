@@ -364,7 +364,24 @@ class GamificationService:
     def _resolve_guardian(self, user: AuthenticatedUser, user_id: str) -> Guardian:
         guardian = self._guardians.find(user_id)
         if guardian is None:
+            guardian = self._enrol_on_first_use(user, user_id)
+        if guardian is None:
             raise GuardianNotFound(f"Unknown guardian '{user_id}'")
         if user.user_id != guardian.user_id and not user.scope.permits(guardian.district_id):
             raise DistrictAccessDenied(guardian.district_id)
         return guardian
+
+    def _enrol_on_first_use(self, user: AuthenticatedUser, user_id: str) -> Guardian | None:
+        """Enrol a signed-in citizen who somehow has no Guardian record.
+
+        Everyone who joins Dawuro is enrolled at registration, but accounts created
+        before that existed have no record, and a missing one used to end a finished
+        quiz in a 404 with the answers already given. Nobody should lose a completed
+        run to a gap in their own account.
+
+        Only the account holder is created this way, and only from claims already in
+        their token, so this cannot mint a Guardian for anybody else.
+        """
+        if user_id != user.user_id or user.scope.district_id is None:
+            return None
+        return self._guardians.enrol(user.user_id, user.display_name, user.scope.district_id)
