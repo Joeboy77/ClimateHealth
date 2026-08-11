@@ -124,3 +124,36 @@ def test_an_age_without_its_own_question_still_gets_one(
 
     assert adult["prompt"]
     assert adult["options"]
+
+
+def test_every_quiz_question_has_a_unique_id():
+    """A reused id silently pushes the same question into a session twice, which is how
+    a five-question run ends up asking four."""
+    from collections import Counter
+
+    from climahealth.infrastructure.seed.gamification import QUIZ_BANK
+
+    repeated = {
+        question_id: count
+        for question_id, count in Counter(q.question_id for q in QUIZ_BANK).items()
+        if count > 1
+    }
+
+    assert repeated == {}
+
+
+def test_a_session_never_repeats_a_question():
+    from datetime import date as date_type
+
+    from climahealth.domain.models import HealthCondition as Condition
+    from climahealth.infrastructure.seed.gamification import InMemoryQuizRepository
+    from climahealth.services.citizens import GuardianTier as Tier
+
+    repository = InMemoryQuizRepository()
+    for tier, length in ((Tier.ANANSI, 5), (Tier.COMMUNITY_CHAMPION, 3), (Tier.VOICE_FIRST, 2)):
+        for offset in range(14):
+            day = date_type.fromordinal(date_type(2026, 8, 5).toordinal() + offset)
+            asked = repository.session_for(Condition.MALARIA, day, tier, length)
+            ids = [question.question_id for question in asked]
+
+            assert len(set(ids)) == len(ids), f"{tier.value} on {day} repeated: {ids}"
