@@ -42,6 +42,10 @@ from climahealth.infrastructure.database.incident_repository import (
 )
 from climahealth.infrastructure.database.reports_repository import PostgresReportStore
 from climahealth.infrastructure.events.broadcaster import InMemoryEventBroadcaster
+from climahealth.infrastructure.payments.moolre_payouts import (
+    MoolrePayoutSender,
+    PreviewPayoutSender,
+)
 from climahealth.infrastructure.security.passwords import Pbkdf2PasswordHasher
 from climahealth.infrastructure.security.tokens import JwtTokenIssuer
 from climahealth.infrastructure.seed.citizens import InMemoryCitizenStore
@@ -77,6 +81,7 @@ from climahealth.services.ports import (
 )
 from climahealth.services.readiness_service import ReadinessService
 from climahealth.services.reports_service import ReportsService
+from climahealth.services.rewards_service import RewardsService
 from climahealth.services.risk_service import RiskService
 from climahealth.services.tickets import InMemoryTicketStore
 
@@ -95,6 +100,9 @@ class Container:
     gamification_service: GamificationService
     outreach_service: OutreachService
     citizen_service: CitizenService
+    rewards_service: RewardsService
+    guardians: InMemoryGuardianStore
+    quizzes: InMemoryQuizRepository
     broadcaster: InMemoryEventBroadcaster
     clock: SystemClock
     district_repository: InMemoryDistrictRepository
@@ -147,6 +155,18 @@ def build_container(settings: Settings | None = None) -> Container:
     resolved_settings = settings or load_settings()
     clock = SystemClock()
     guardians = InMemoryGuardianStore()
+    quizzes = InMemoryQuizRepository()
+    citizen_store = InMemoryCitizenStore()
+    payout_sender = (
+        MoolrePayoutSender(
+            base_url=settings.moolre_base_url,
+            api_user=settings.moolre_api_user or "",
+            api_key=settings.moolre_api_key or "",
+            account_number=settings.moolre_account_number or "",
+        )
+        if settings.can_pay_out
+        else PreviewPayoutSender()
+    )
     moolre = (
         MoolreSmsSender(
             base_url=resolved_settings.moolre_base_url,
@@ -184,6 +204,13 @@ def build_container(settings: Settings | None = None) -> Container:
     risk_context = CommunityReportContextProvider(context_provider, report_store)
 
     risk_service = RiskService(provider=provider, context_provider=risk_context, clock=clock)
+    gamification_service = GamificationService(
+        guardians=guardians,
+        quizzes=quizzes,
+        reports=report_store,
+        risk_service=risk_service,
+        clock=clock,
+    )
     # Curated Twi first, machine translation second, English last. Wording written for the
     # language beats wording translated into it, and both beat leaving somebody with a
     # warning they cannot read.
@@ -223,15 +250,16 @@ def build_container(settings: Settings | None = None) -> Container:
             clock=clock,
             events=broadcaster,
         ),
-        gamification_service=GamificationService(
-            guardians=guardians,
-            quizzes=InMemoryQuizRepository(),
-            reports=report_store,
-            risk_service=risk_service,
-            clock=clock,
+        gamification_service=gamification_service,
+        rewards_service=RewardsService(
+            gamification=gamification_service,
+            citizens=citizen_store,
+            payouts=payout_sender,
         ),
+        guardians=guardians,
+        quizzes=quizzes,
         citizen_service=CitizenService(
-            citizens=InMemoryCitizenStore(),
+            citizens=citizen_store,
             districts=districts,
             tokens=tokens,
             guardians=guardians,
