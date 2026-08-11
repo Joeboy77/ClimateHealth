@@ -5,16 +5,17 @@ from pydantic import Field
 from climahealth.services.citizens import GuardianTier
 from climahealth.services.models import ServiceModel
 
-# How many questions a session asks, by age band. Same skeleton, different pacing: a
-# nine-year-old will happily do five, and an elder reading with the audio on should not be
-# held for more than two.
+# Five questions is the floor for everybody: fewer than that and a run is over before it
+# has taught anything. Pacing for older readers is carried by audio, larger type and no
+# timer rather than by a shorter session.
+MINIMUM_SESSION_LENGTH = 5
 SESSION_LENGTH: dict[GuardianTier, int] = {
-    GuardianTier.ANANSI: 5,
-    GuardianTier.RISK_SCOUT: 4,
-    GuardianTier.COMMUNITY_CHAMPION: 3,
-    GuardianTier.VOICE_FIRST: 2,
+    GuardianTier.ANANSI: 6,
+    GuardianTier.RISK_SCOUT: 6,
+    GuardianTier.COMMUNITY_CHAMPION: 5,
+    GuardianTier.VOICE_FIRST: 5,
 }
-DEFAULT_SESSION_LENGTH = 3
+DEFAULT_SESSION_LENGTH = MINIMUM_SESSION_LENGTH
 
 CORRECT_POINTS = 20
 ATTEMPT_POINTS = 5
@@ -46,7 +47,7 @@ class Streak(ServiceModel):
 def session_length_for(tier: GuardianTier | None) -> int:
     if tier is None:
         return DEFAULT_SESSION_LENGTH
-    return SESSION_LENGTH.get(tier, DEFAULT_SESSION_LENGTH)
+    return max(SESSION_LENGTH.get(tier, DEFAULT_SESSION_LENGTH), MINIMUM_SESSION_LENGTH)
 
 
 def advance_streak(streak: Streak, today: date) -> Streak:

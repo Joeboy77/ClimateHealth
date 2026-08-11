@@ -27,9 +27,19 @@ router = APIRouter(tags=["play"])
 
 
 class SessionQuestion(ApiModel):
+    """A question, with its answer.
+
+    The answer travels with the question so the phone can react the instant somebody
+    chooses, and so a run still works with no signal. Scoring stays on the server, so a
+    tampered client cannot award itself points: it sends the indices it chose and the
+    server decides what they were worth.
+    """
+
     question_id: str
     prompt: str
     options: list[str]
+    correct_option_index: int
+    explanation: str
 
 
 class QuizSessionResponse(ApiModel):
@@ -50,6 +60,8 @@ def _as_session_question(question: QuizQuestion) -> SessionQuestion:
         question_id=question.question_id,
         prompt=question.prompt,
         options=list(question.options),
+        correct_option_index=question.correct_option_index,
+        explanation=question.explanation,
     )
 
 

@@ -414,7 +414,7 @@ function Today({
                 marginTop: 2,
               }}
             >
-              A short run, written for your age. Earn points.
+              A short run, written for your age. Earn XP.
             </Text>
           </View>
           <Text

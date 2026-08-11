@@ -2124,7 +2124,15 @@ export interface components {
             /** Selected Option Index */
             selected_option_index: number;
         };
-        /** SessionQuestion */
+        /**
+         * SessionQuestion
+         * @description A question, with its answer.
+         *
+         *     The answer travels with the question so the phone can react the instant somebody
+         *     chooses, and so a run still works with no signal. Scoring stays on the server, so a
+         *     tampered client cannot award itself points: it sends the indices it chose and the
+         *     server decides what they were worth.
+         */
         SessionQuestion: {
             /** Question Id */
             question_id: string;
@@ -2132,6 +2140,10 @@ export interface components {
             prompt: string;
             /** Options */
             options: string[];
+            /** Correct Option Index */
+            correct_option_index: number;
+            /** Explanation */
+            explanation: string;
         };
         /** SessionResult */
         SessionResult: {
