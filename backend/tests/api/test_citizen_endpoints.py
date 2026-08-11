@@ -143,3 +143,40 @@ def test_a_new_guardian_can_answer_the_daily_quiz(
 
     assert result.status_code == 200
     assert result.json()["points_awarded"] > 0
+
+
+def finish_a_run(client: TestClient, token: str, user_id: str):
+    session = client.get(
+        "/play/session/madina", headers={"authorization": f"Bearer {token}"}
+    ).json()
+    answers = [
+        {"question_id": question["question_id"], "selected_option_index": 0}
+        for question in session["questions"]
+    ]
+    return client.post(
+        "/play/session",
+        headers={"authorization": f"Bearer {token}"},
+        json={"user_id": user_id, "answers": answers},
+    )
+
+
+def test_a_citizen_without_a_guardian_record_can_still_finish_a_run(client: TestClient, container):
+    """Accounts made before enrolment existed at registration have no Guardian row,
+    and a finished quiz used to 404 with the answers already given. Nobody should
+    lose a completed run to a gap in their own account."""
+    registered = client.post("/citizens", json=REGISTRATION).json()
+    user_id = registered["citizen"]["user_id"]
+    container.guardians._guardians.pop(user_id)
+
+    response = finish_a_run(client, registered["access_token"], user_id)
+
+    assert response.status_code == 200
+    assert response.json()["total"] > 0
+
+
+def test_one_citizen_cannot_mint_a_guardian_for_another_account(client: TestClient):
+    registered = client.post("/citizens", json=REGISTRATION).json()
+
+    response = finish_a_run(client, registered["access_token"], "somebody-else")
+
+    assert response.status_code == 404
