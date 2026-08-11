@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ListenButton } from "@/components/listen-button";
+import { GuardianBar } from "@/components/guardian-bar";
 import { PressableCard } from "@/components/pressable-card";
 import { RiskDial, RISK_DIAL_SIZE } from "@/components/risk-dial";
 import { duration, staggerDelay } from "@/design/motion";
@@ -64,6 +65,12 @@ export default function TodayScreen() {
     enabled: token !== null && districtId !== "",
   });
 
+  const guardian = useQuery({
+    queryKey: ["guardian", citizen?.user_id],
+    queryFn: () => api.guardian(token ?? "", citizen?.user_id ?? ""),
+    enabled: token !== null && (citizen?.user_id ?? "") !== "",
+  });
+
   // What we last knew, for when the network is gone.
   const saved = useMemo(
     () => (districtId === "" ? null : savedForecast(districtId)),
@@ -93,6 +100,14 @@ export default function TodayScreen() {
         />
       }
     >
+      {guardian.data ? (
+        <GuardianBar
+          points={guardian.data.points}
+          streakDays={guardian.data.streak.current_days}
+          levelName={guardian.data.level.name}
+        />
+      ) : null}
+
       {held > 0 ? <Held count={held} /> : null}
 
       {forecast.data ? (

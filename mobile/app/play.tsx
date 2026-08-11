@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
 import { Confetti } from "@/components/confetti";
+import { Flame } from "@/components/flame";
 import { GongMascot, type MascotMood } from "@/components/gong-mascot";
 import { ListenButton } from "@/components/listen-button";
 import { duration } from "@/design/motion";
@@ -80,10 +81,17 @@ export default function PlayScreen() {
     enabled: token !== null && districtId !== "",
   });
 
+  const queryClient = useQueryClient();
+
   const submit = useMutation({
     mutationFn: (finished: { question_id: string; selected_option_index: number }[]) =>
       api.submitSession(token ?? "", citizen?.user_id ?? "", finished),
-    onSuccess: (result) => setOutcome(result),
+    onSuccess: (result) => {
+      setOutcome(result);
+      // The points and streak on the home screen are five minutes stale by default,
+      // which is long enough for somebody to finish a run and see their old total.
+      void queryClient.invalidateQueries({ queryKey: ["guardian"] });
+    },
   });
 
   const questions = useMemo(() => session.data?.questions ?? [], [session.data]);
@@ -528,17 +536,6 @@ function Tick() {
         strokeWidth={2.8}
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
-
-function Flame() {
-  return (
-    <Svg width={16} height={16} viewBox="0 0 24 24">
-      <Path
-        d="M12 2c1.5 3.5-1 5 .5 7.5C14 12 16 10 16 10s2 2.2 2 5a6 6 0 1 1-12 0c0-3.6 2.8-5.5 3.5-7.5C10.2 5.4 10 3.4 12 2Z"
-        fill={colour.riskModerate}
       />
     </Svg>
   );
