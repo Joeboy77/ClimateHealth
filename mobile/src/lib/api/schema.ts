@@ -1534,6 +1534,7 @@ export interface components {
             level: components["schemas"]["GuardianLevel"];
             /** Missions Completed */
             missions_completed: number;
+            streak: components["schemas"]["Streak"];
         };
         /**
          * GuardianTier
