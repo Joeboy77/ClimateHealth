@@ -26,6 +26,11 @@ import { finishLine, starsFor, verdictLine } from "@/features/play/encouragement
 import { api } from "@/lib/api/client";
 import type { SessionResult } from "@/lib/api/types";
 import { useSession } from "@/lib/identity/session";
+import {
+  playQuizSound,
+  prepareQuizSounds,
+  releaseQuizSounds,
+} from "@/lib/sound/quiz-sounds";
 
 /**
  * The daily run.
@@ -52,6 +57,11 @@ export default function PlayScreen() {
   useEffect(() => {
     if (!loading && token === null) router.replace("/join");
   }, [loading, token, router]);
+
+  useEffect(() => {
+    prepareQuizSounds();
+    return releaseQuizSounds;
+  }, []);
 
   const districtId = citizen?.district_id ?? "";
   const language = citizen?.language ?? "en";
@@ -84,7 +94,9 @@ export default function PlayScreen() {
   const check = () => {
     if (picked === null || question === undefined || checked) return;
     setChecked(true);
-    void (picked === question.correct_option_index ? confirm() : reject());
+    const correct = picked === question.correct_option_index;
+    playQuizSound(correct ? "correct" : "wrong");
+    void (correct ? confirm() : reject());
   };
 
   const advance = () => {
@@ -339,6 +351,7 @@ function Finished({
   const stars = starsFor(result.correct_count, result.total);
 
   useEffect(() => {
+    playQuizSound("finished");
     void confirm();
   }, []);
 
