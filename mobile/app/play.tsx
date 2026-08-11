@@ -99,21 +99,31 @@ export default function PlayScreen() {
     void (correct ? confirm() : reject());
   };
 
+  const onLastQuestion = total > 0 && index + 1 >= total;
+
   const advance = () => {
-    if (question === undefined || picked === null) return;
+    if (question === undefined || picked === null || submit.isPending) return;
     const recorded = [
       ...answers,
       { question_id: question.question_id, selected_option_index: picked },
     ];
     setAnswers(recorded);
-    setPicked(null);
-    setChecked(false);
 
-    if (index + 1 < total) {
+    if (!onLastQuestion) {
+      setPicked(null);
+      setChecked(false);
       setIndex(index + 1);
       return;
     }
+    // The answer stays selected while the run is scored. Clearing it here used to
+    // leave the finish button disabled on its own guard, so a failed submission
+    // stranded the reader on the last question with no way forward.
     submit.mutate(recorded);
+  };
+
+  const retrySubmit = () => {
+    if (submit.isPending || answers.length === 0) return;
+    submit.mutate(answers);
   };
 
   if (outcome !== null) {
@@ -127,6 +137,8 @@ export default function PlayScreen() {
   }
 
   const mood: MascotMood = !checked ? "waiting" : right ? "right" : "wrong";
+
+  const buttonDisabled = submit.isPending || (!submit.isError && picked === null);
 
   return (
     <View style={[styles.host, { paddingTop: insets.top + space.base }]}>
@@ -205,32 +217,45 @@ export default function PlayScreen() {
       <View
         style={[styles.footer, { paddingBottom: insets.bottom + space.comfortable }]}
       >
+        {submit.isError ? (
+          <Text style={styles.submitError} accessibilityRole="alert">
+            Your answers could not be sent. Check your connection and try again. Nothing
+            you answered has been lost.
+          </Text>
+        ) : null}
+
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={
-            !checked
-              ? "Check this answer"
-              : index + 1 < total
-                ? "Next question"
-                : "Finish the run"
+            submit.isError
+              ? "Try sending your answers again"
+              : !checked
+                ? "Check this answer"
+                : onLastQuestion
+                  ? "Finish the run"
+                  : "Next question"
           }
-          accessibilityState={{ disabled: picked === null || submit.isPending }}
-          disabled={picked === null || submit.isPending}
-          onPress={checked ? advance : check}
+          accessibilityState={{ disabled: buttonDisabled }}
+          disabled={buttonDisabled}
+          onPress={submit.isError ? retrySubmit : checked ? advance : check}
           style={[
             styles.primary,
-            picked === null && styles.primaryOff,
-            checked && (right ? styles.primaryRight : styles.primaryWrong),
+            buttonDisabled && styles.primaryOff,
+            checked &&
+              !submit.isError &&
+              (right ? styles.primaryRight : styles.primaryWrong),
           ]}
         >
           <Text style={styles.primaryText}>
             {submit.isPending
               ? "Counting up…"
-              : !checked
-                ? "Check"
-                : index + 1 < total
-                  ? "Continue"
-                  : "Finish"}
+              : submit.isError
+                ? "Try again"
+                : !checked
+                  ? "Check"
+                  : onLastQuestion
+                    ? "Finish"
+                    : "Continue"}
           </Text>
         </Pressable>
       </View>
@@ -590,6 +615,12 @@ const styles = StyleSheet.create({
     fontFamily: family.body,
     color: colour.inkMuted,
     marginTop: space.section,
+  },
+  submitError: {
+    ...type.caption,
+    color: colour.riskSevere,
+    marginBottom: space.snug,
+    textAlign: "center",
   },
   teach: {
     marginHorizontal: space.comfortable,
