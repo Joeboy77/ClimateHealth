@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,6 +10,13 @@ import { colour, family, radius, space, type } from "@/design/tokens";
 import { api } from "@/lib/api/client";
 import type { GuardianLevel } from "@/lib/api/types";
 import { useSession } from "@/lib/identity/session";
+import {
+  disableReminder,
+  enableReminder,
+  reminderEnabled,
+} from "@/lib/reminders/daily";
+import { setSoundMuted, soundMuted } from "@/lib/sound/quiz-sounds";
+import { SettingSwitch } from "@/components/setting-switch";
 
 /**
  * The Guardian card.
@@ -125,6 +132,8 @@ export default function GuardianScreen() {
         </View>
       ) : null}
 
+      <Settings />
+
       {shield.data ? (
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>YOUR DISTRICT&rsquo;S SHIELD</Text>
@@ -138,6 +147,45 @@ export default function GuardianScreen() {
         </View>
       ) : null}
     </ScrollView>
+  );
+}
+
+/** Both toggles are off-by-default and opt-in. Nothing here nags anybody. */
+function Settings() {
+  const [reminder, setReminder] = useState(false);
+  const [sound, setSound] = useState(true);
+
+  useEffect(() => {
+    setReminder(reminderEnabled());
+    setSound(!soundMuted());
+  }, []);
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>SETTINGS</Text>
+      <SettingSwitch
+        label="Quiz sounds"
+        description="A chime for a right answer, a softer note for a wrong one."
+        value={sound}
+        onChange={(next) => {
+          setSound(next);
+          setSoundMuted(!next);
+        }}
+      />
+      <SettingSwitch
+        label="Morning reminder"
+        description="One notification at 7am, never more. Turn it off any time."
+        value={reminder}
+        onChange={(next) => {
+          if (!next) {
+            setReminder(false);
+            void disableReminder();
+            return;
+          }
+          void enableReminder().then(setReminder);
+        }}
+      />
+    </View>
   );
 }
 

@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 from typing import Any
 
@@ -54,11 +55,17 @@ class OpenMeteoClient:
         if not coordinates:
             return []
 
+        batches = [
+            list(coordinates[start : start + MAX_LOCATIONS_PER_REQUEST])
+            for start in range(0, len(coordinates), MAX_LOCATIONS_PER_REQUEST)
+        ]
+
+        weather_by_batch, air_quality_by_batch = self._fetch_batches_concurrently(batches)
+
         results: list[RawClimateObservations] = []
-        for start in range(0, len(coordinates), MAX_LOCATIONS_PER_REQUEST):
-            batch = list(coordinates[start : start + MAX_LOCATIONS_PER_REQUEST])
-            weather = self._fetch_weather_batch(batch)
-            air_quality = self._fetch_air_quality_batch(batch)
+        for batch, weather, air_quality in zip(
+            batches, weather_by_batch, air_quality_by_batch, strict=True
+        ):
             for index, (latitude, longitude) in enumerate(batch):
                 results.append(
                     RawClimateObservations(
@@ -71,6 +78,25 @@ class OpenMeteoClient:
                     )
                 )
         return results
+
+    def _fetch_batches_concurrently(
+        self, batches: Sequence[Sequence[tuple[float, float]]]
+    ) -> tuple[list[list[dict[str, Any]]], list[list[dict[str, Any]]]]:
+        """A national sweep is six independent HTTP calls that used to run one after
+        another, so the reader waited for their sum rather than for the slowest. They
+        share nothing, so they run together and the wait collapses to the longest one."""
+        if len(batches) == 1:
+            return [self._fetch_weather_batch(batches[0])], [
+                self._fetch_air_quality_batch(batches[0])
+            ]
+
+        with ThreadPoolExecutor(max_workers=len(batches) * 2) as pool:
+            weather = [pool.submit(self._fetch_weather_batch, batch) for batch in batches]
+            air_quality = [pool.submit(self._fetch_air_quality_batch, batch) for batch in batches]
+            return (
+                [future.result() for future in weather],
+                [future.result() for future in air_quality],
+            )
 
     def _as_list(self, payload: object, expected: int) -> list[dict[str, Any]]:
         if isinstance(payload, list):
