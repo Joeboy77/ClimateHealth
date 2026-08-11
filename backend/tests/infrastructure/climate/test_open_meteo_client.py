@@ -1,3 +1,4 @@
+import threading
 from datetime import date
 
 import httpx
@@ -156,3 +157,59 @@ def test_requests_target_the_documented_open_meteo_endpoints():
     assert any(url.startswith(WEATHER_ENDPOINT) for url in requested)
     assert any(url.startswith(AIR_QUALITY_ENDPOINT) for url in requested)
     assert all("past_days=14" in url for url in requested)
+
+
+def test_results_stay_aligned_with_coordinates_across_concurrent_batches():
+    """A national sweep spans several batches fetched in parallel. Each reading must
+    still come back attached to the district that asked for it."""
+    coordinates = [(float(index), float(index) + 0.5) for index in range(250)]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        count = len(request.url.params["latitude"].split(","))
+        payload = (
+            WEATHER_PAYLOAD
+            if request.url.host in httpx.URL(WEATHER_ENDPOINT).host
+            else AIR_QUALITY_PAYLOAD
+        )
+        return httpx.Response(200, json=[payload] * count)
+
+    client = OpenMeteoClient(httpx.Client(transport=httpx.MockTransport(handler)))
+    results = client.fetch_many(coordinates)
+
+    assert [(result.latitude, result.longitude) for result in results] == coordinates
+
+
+def test_a_failed_weather_batch_still_raises_when_fetched_concurrently():
+    coordinates = [(float(index), float(index)) for index in range(150)]
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.host in httpx.URL(WEATHER_ENDPOINT).host:
+            return httpx.Response(503)
+        return httpx.Response(200, json=[AIR_QUALITY_PAYLOAD] * 100)
+
+    client = OpenMeteoClient(httpx.Client(transport=httpx.MockTransport(handler)))
+
+    with pytest.raises(ClimateDataUnavailable):
+        client.fetch_many(coordinates)
+
+
+def test_batches_are_fetched_concurrently_rather_than_one_after_another():
+    """A barrier that every request must reach before any may return. Serial fetching
+    cannot satisfy it, so this fails the moment the sweep goes back to a loop."""
+    coordinates = [(float(index), float(index)) for index in range(250)]
+    expected_requests = 6
+    barrier = threading.Barrier(expected_requests, timeout=10)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        barrier.wait()
+        count = len(request.url.params["latitude"].split(","))
+        payload = (
+            WEATHER_PAYLOAD
+            if request.url.host in httpx.URL(WEATHER_ENDPOINT).host
+            else AIR_QUALITY_PAYLOAD
+        )
+        return httpx.Response(200, json=[payload] * count)
+
+    client = OpenMeteoClient(httpx.Client(transport=httpx.MockTransport(handler)))
+
+    assert len(client.fetch_many(coordinates)) == len(coordinates)

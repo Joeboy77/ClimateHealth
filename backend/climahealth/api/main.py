@@ -1,4 +1,7 @@
+import asyncio
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,6 +41,23 @@ DEVELOPMENT_SECRET_WARNING = (
 
 logger = logging.getLogger(__name__)
 
+
+def warm_climate_cache(container: Container) -> None:
+    """Fill the climate cache before anybody asks for it.
+
+    A national sweep is the one genuinely slow call in the system: every district's
+    reading has to come back from Open-Meteo before the first dashboard can render.
+    Running it at startup means that cost lands while nobody is waiting, and the
+    officer who signs in a moment later is served from the cache.
+
+    A failure here is not fatal. The sweep happens again on the first request.
+    """
+    try:
+        container.risk_service.reports_for(container.district_repository.all_districts())
+    except Exception:
+        logger.warning("Could not warm the climate cache at startup", exc_info=True)
+
+
 ROUTERS = (
     access.router,
     districts.router,
@@ -64,8 +84,20 @@ def create_app(
     resolved_settings = settings or load_settings()
     if resolved_settings.uses_development_token_secret:
         logger.warning(DEVELOPMENT_SECRET_WARNING)
-    app = FastAPI(title=API_TITLE, description=API_DESCRIPTION, version=API_VERSION)
     resolved_container = container or build_container(resolved_settings)
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        warming = asyncio.create_task(asyncio.to_thread(warm_climate_cache, resolved_container))
+        yield
+        warming.cancel()
+
+    app = FastAPI(
+        title=API_TITLE,
+        description=API_DESCRIPTION,
+        version=API_VERSION,
+        lifespan=lifespan,
+    )
     app.state.container = resolved_container
     app.state.broadcaster = resolved_container.broadcaster
 
