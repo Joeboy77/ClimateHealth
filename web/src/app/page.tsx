@@ -1,7 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowUpRight, BellRing, RefreshCw, Search } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowsClockwise,
+  BellRinging,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -205,49 +210,51 @@ function Lead({
     severe.length > 0 ? "severe" : elevated.length > 0 ? "high" : "low";
 
   return (
-    <header className="flex flex-wrap items-start justify-between gap-6">
-      <div className="min-w-0">
-        <p className="text-micro text-[var(--color-muted)]">
-          National risk picture
-        </p>
-        <h1 className="mt-2 max-w-2xl text-display">
-          <span style={{ color: RISK_CSS_VARIABLE[tone] }}>
-            {elevated.length} of {districts.length} districts
-          </span>{" "}
-          are at high risk or above
-        </h1>
-        <p className="mt-2.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-small text-[var(--color-muted)]">
-          <span>
-            {severe.length > 0
-              ? `${severe.length} rated severe`
-              : "None rated severe"}
-          </span>
-          <Dot />
-          <span>{alerts?.length ?? 0} active alerts</span>
-          <Dot />
-          <span>
-            Climate observed{" "}
+    <header className="border-b border-[var(--color-border)] pb-7">
+      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
+        <div className="min-w-0 max-w-3xl">
+          <p className="text-micro text-[var(--color-muted)]">
+            National risk picture &middot;{" "}
             {districts[0] ? relativeDay(districts[0].generated_on) : "today"}
-          </span>
-          {worst?.leading_condition ? (
-            <>
-              <Dot />
-              <span>
-                Leading concern{" "}
-                <span className="text-[var(--color-ink)]">
-                  {conditionLabel(worst.leading_condition)}
-                </span>{" "}
-                in {worst.name}
-              </span>
-            </>
-          ) : null}
-        </p>
+          </p>
+
+          <h1 className="mt-3 text-statement text-[var(--color-ink)]">
+            <span style={{ color: RISK_CSS_VARIABLE[tone] }}>
+              {elevated.length}
+            </span>
+            <span className="text-[var(--color-muted)]">
+              /{districts.length}
+            </span>{" "}
+            districts
+          </h1>
+          <p className="mt-2 text-h1 font-normal text-[var(--color-muted)]">
+            are at high risk or above
+          </p>
+        </div>
+
+        <dl className="flex shrink-0 divide-x divide-[var(--color-border)]">
+          <Figure
+            value={severe.length}
+            label="rated severe"
+            tone={severe.length > 0 ? RISK_CSS_VARIABLE.severe : undefined}
+            first
+          />
+          <Figure value={alerts?.length ?? 0} label="active alerts" />
+          <Figure
+            value={
+              worst?.leading_condition
+                ? conditionLabel(worst.leading_condition)
+                : "—"
+            }
+            label={worst ? `worst in ${worst.name}` : "leading concern"}
+            small
+          />
+        </dl>
       </div>
 
       <Button size="sm" onClick={onRefresh} disabled={refreshing}>
-        <RefreshCw
+        <ArrowsClockwise
           aria-hidden
-          strokeWidth={2}
           className={refreshing ? "size-4 animate-spin" : "size-4"}
         />
         Refresh
@@ -256,11 +263,30 @@ function Lead({
   );
 }
 
-function Dot() {
+/** A figure and its label. The label is what makes a number mean something. */
+function Figure({
+  value,
+  label,
+  tone,
+  small = false,
+  first = false,
+}: {
+  value: string | number;
+  label: string;
+  tone?: string;
+  small?: boolean;
+  first?: boolean;
+}) {
   return (
-    <span aria-hidden className="text-[var(--color-border-strong)]">
-      ·
-    </span>
+    <div className={first ? "pr-6" : "px-6 last:pr-0"}>
+      <dd
+        className={small ? "text-h1 tabular" : "text-figure"}
+        style={tone ? { color: tone } : undefined}
+      >
+        {value}
+      </dd>
+      <dt className="mt-1.5 text-eyebrow text-[var(--color-muted)]">{label}</dt>
+    </div>
   );
 }
 
@@ -310,9 +336,8 @@ function DistrictList({
     <>
       <div className="border-b border-[var(--color-border)] px-5 py-2.5">
         <div className="relative">
-          <Search
+          <MagnifyingGlass
             aria-hidden
-            strokeWidth={2}
             className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--color-muted)]"
           />
           <label htmlFor="district-search" className="sr-only">
@@ -375,7 +400,6 @@ function DistrictList({
                   </span>
                   <Icon
                     aria-hidden
-                    strokeWidth={2}
                     className={cn("size-4 shrink-0", foreground)}
                   />
                   <RiskBadge
@@ -385,7 +409,6 @@ function DistrictList({
                   />
                   <ArrowUpRight
                     aria-hidden
-                    strokeWidth={2}
                     className="size-3.5 shrink-0 text-[var(--color-muted)] opacity-0 transition-opacity duration-[var(--duration-instant)] group-hover:opacity-100"
                   />
                 </button>
@@ -422,7 +445,7 @@ function AlertStream({
         description="Raised by the engine at high risk and above."
         action={
           <span className="flex items-center gap-1.5 text-small text-[var(--color-muted)]">
-            <BellRing aria-hidden strokeWidth={2} className="size-3.5" />
+            <BellRinging aria-hidden className="size-3.5" />
             {alerts?.length ?? 0}
           </span>
         }

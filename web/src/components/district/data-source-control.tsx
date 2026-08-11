@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CloudRain, LoaderCircle, Satellite, Sun } from "lucide-react";
+import { Broadcast, CircleNotch, CloudRain, Sun } from "@phosphor-icons/react";
 
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { api } from "@/lib/api/client";
@@ -73,9 +73,8 @@ export function DataSourceControl({
               : "border-[var(--color-confidence-demo)]/30 bg-[var(--color-confidence-demo-surface)]",
           )}
         >
-          <Satellite
+          <Broadcast
             aria-hidden
-            strokeWidth={2}
             className={cn(
               "mt-0.5 size-4 shrink-0",
               isLive
@@ -117,9 +116,12 @@ export function DataSourceControl({
             )}
           >
             {useLive.isPending ? (
-              <LoaderCircle aria-hidden className="size-4 shrink-0 animate-spin" />
+              <CircleNotch
+                aria-hidden
+                className="size-4 shrink-0 animate-spin"
+              />
             ) : (
-              <Satellite aria-hidden strokeWidth={2} className="size-4 shrink-0" />
+              <Broadcast aria-hidden className="size-4 shrink-0" />
             )}
             <span className="min-w-0">
               <span className="block text-small font-medium">
@@ -145,9 +147,12 @@ export function DataSourceControl({
               )}
             >
               {useScenario.isPending && useScenario.variables === id ? (
-                <LoaderCircle aria-hidden className="size-4 shrink-0 animate-spin" />
+                <CircleNotch
+                  aria-hidden
+                  className="size-4 shrink-0 animate-spin"
+                />
               ) : (
-                <Icon aria-hidden strokeWidth={2} className="size-4 shrink-0" />
+                <Icon aria-hidden className="size-4 shrink-0" />
               )}
               <span className="min-w-0">
                 <span className="block text-small font-medium">{label}</span>

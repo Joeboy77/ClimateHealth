@@ -2,13 +2,13 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-  BadgeCheck,
-  MessageSquare,
-  Send,
-  ShieldAlert,
-  Smartphone,
-  TriangleAlert,
-} from "lucide-react";
+  ChatTeardrop,
+  DeviceMobile,
+  PaperPlaneTilt,
+  SealCheck,
+  ShieldWarning,
+  Warning,
+} from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 
 import { RequireSession } from "@/components/shell/require-session";
@@ -60,8 +60,8 @@ function OutreachConsole() {
 
   return (
     <div className="mx-auto max-w-[1600px] px-6 py-6">
-      <header>
-        <p className="text-micro text-[var(--color-muted)]">Outreach</p>
+      <header className="border-b border-[var(--color-border)] pb-6">
+        <p className="text-eyebrow text-[var(--color-muted)]">Outreach</p>
         <h1 className="mt-2 max-w-3xl text-display">
           The warning, on a phone that cannot open an app
         </h1>
@@ -131,9 +131,8 @@ function OutreachConsole() {
                 <MessagePreview preview={preview.data} />
               ) : (
                 <p className="flex items-start gap-2.5 text-small text-[var(--color-muted)]">
-                  <ShieldAlert
+                  <ShieldWarning
                     aria-hidden
-                    strokeWidth={2}
                     className="mt-0.5 size-4 shrink-0"
                   />
                   Nothing in {preview.data.district_name} is above the warning
@@ -172,7 +171,7 @@ function MessagePreview({ preview }: { preview: SmsPreview }) {
     <div className="space-y-3.5">
       <div className="rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-raised)] p-4">
         <p className="flex items-center gap-2 text-[0.6875rem] text-[var(--color-muted)]">
-          <MessageSquare aria-hidden strokeWidth={2} className="size-3" />
+          <ChatTeardrop aria-hidden className="size-3" />
           From {preview.sender_id}
         </p>
         <p className="mt-2 font-mono text-small leading-relaxed text-[var(--color-ink)]">
@@ -242,17 +241,9 @@ function SenderStatus({ preview }: { preview: SmsPreview }) {
       }}
     >
       {approved ? (
-        <BadgeCheck
-          aria-hidden
-          strokeWidth={2}
-          className="mt-0.5 size-3.5 shrink-0"
-        />
+        <SealCheck aria-hidden className="mt-0.5 size-3.5 shrink-0" />
       ) : (
-        <TriangleAlert
-          aria-hidden
-          strokeWidth={2}
-          className="mt-0.5 size-3.5 shrink-0"
-        />
+        <Warning aria-hidden className="mt-0.5 size-3.5 shrink-0" />
       )}
       Sender ID {status.sender_id}: {status.approval}
       {approved
@@ -335,7 +326,7 @@ function BroadcastCard({
             onClick={() => send.mutate()}
             disabled={send.isPending || numbers.length === 0}
           >
-            <Send aria-hidden strokeWidth={2} className="size-3.5" />
+            <PaperPlaneTilt aria-hidden className="size-3.5" />
             {live ? "Send now" : "Run through the sender"}
           </Button>
         ) : (
@@ -398,9 +389,8 @@ function UssdSimulator({ token }: { token: string }) {
         title="USSD, live"
         description="The same engine answer, on a feature phone. Dial, choose, read."
         action={
-          <Smartphone
+          <DeviceMobile
             aria-hidden
-            strokeWidth={2}
             className="size-4 text-[var(--color-muted)]"
           />
         }

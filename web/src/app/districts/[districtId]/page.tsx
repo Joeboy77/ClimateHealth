@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ChevronDown, Users } from "lucide-react";
+import { ArrowLeft, CaretDown, Users } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -213,7 +213,7 @@ function BackLink() {
       href="/"
       className="inline-flex items-center gap-1.5 text-small text-[var(--color-muted)] transition-colors duration-[var(--duration-instant)] hover:text-[var(--color-ink)]"
     >
-      <ArrowLeft aria-hidden strokeWidth={2} className="size-3.5" />
+      <ArrowLeft aria-hidden className="size-3.5" />
       National risk picture
     </Link>
   );
@@ -265,18 +265,14 @@ function RiskRow({ risk }: { risk: Risk }) {
         aria-expanded={expanded}
         className="flex w-full items-center gap-4 px-5 py-3.5 text-left transition-colors duration-[var(--duration-instant)] hover:bg-[var(--color-raised)]"
       >
-        <Icon
-          aria-hidden
-          strokeWidth={2}
-          className={cn("size-4 shrink-0", foreground)}
-        />
+        <Icon aria-hidden className={cn("size-4 shrink-0", foreground)} />
 
         <span className="min-w-0 flex-1">
           <span className="block text-h3">
             {conditionLabel(risk.condition)}
           </span>
           <span className="mt-0.5 flex items-center gap-1.5 text-[0.75rem] text-[var(--color-muted)]">
-            <Users aria-hidden strokeWidth={2} className="size-3" />
+            <Users aria-hidden className="size-3" />
             {risk.vulnerable_group}
           </span>
         </span>
@@ -295,9 +291,8 @@ function RiskRow({ risk }: { risk: Risk }) {
         <TierChip mode={risk.confidence} />
         <RiskBadge level={risk.level} size="sm" showIcon={false} />
 
-        <ChevronDown
+        <CaretDown
           aria-hidden
-          strokeWidth={2}
           className={cn(
             "size-4 shrink-0 text-[var(--color-muted)] transition-transform duration-[var(--duration-short)]",
             expanded && "rotate-180",

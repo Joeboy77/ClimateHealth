@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { MoonStars, Sun } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -22,9 +22,9 @@ export function ThemeToggle() {
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       {mounted && !isDark ? (
-        <Sun aria-hidden strokeWidth={2} className="size-4" />
+        <Sun aria-hidden className="size-4" />
       ) : (
-        <Moon aria-hidden strokeWidth={2} className="size-4" />
+        <MoonStars aria-hidden className="size-4" />
       )}
     </Button>
   );

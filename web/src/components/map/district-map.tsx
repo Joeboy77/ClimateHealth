@@ -16,7 +16,9 @@ type DistrictMapEntry = {
 
 const geometryCache = new Map<string, DistrictMapEntry>();
 
-async function loadGeometry(districtId: string): Promise<DistrictMapEntry | null> {
+async function loadGeometry(
+  districtId: string,
+): Promise<DistrictMapEntry | null> {
   const cached = geometryCache.get(districtId);
   if (cached) return cached;
   const response = await fetch(`/district-maps/${districtId}.json`);
@@ -56,7 +58,10 @@ function withinBounds(
 ): boolean {
   const { west, south, east, north } = entry.bounds;
   return (
-    longitude >= west && longitude <= east && latitude >= south && latitude <= north
+    longitude >= west &&
+    longitude <= east &&
+    latitude >= south &&
+    latitude <= north
   );
 }
 
@@ -160,7 +165,11 @@ export function DistrictMap({
       )
       .map((report) => ({
         report,
-        ...project(entry, report.longitude as number, report.latitude as number),
+        ...project(
+          entry,
+          report.longitude as number,
+          report.latitude as number,
+        ),
       })),
   );
 

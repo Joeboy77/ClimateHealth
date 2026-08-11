@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown } from "lucide-react";
+import { CaretDown } from "@phosphor-icons/react";
 
 import { api } from "@/lib/api/client";
 import { cn } from "@/lib/cn";
@@ -45,9 +45,8 @@ export function DistrictSwitcher({
           </option>
         ))}
       </select>
-      <ChevronDown
+      <CaretDown
         aria-hidden
-        strokeWidth={2}
         className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[var(--color-muted)]"
       />
     </div>

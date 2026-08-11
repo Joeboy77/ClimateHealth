@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, ArrowRight, Globe, LoaderCircle } from "lucide-react";
+import { ArrowRight, CircleNotch, Globe, Pulse } from "@phosphor-icons/react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -91,9 +91,9 @@ export default function SignInPage() {
             aria-hidden
             className="grid size-8 place-items-center rounded-[var(--radius-md)] bg-[var(--color-accent)]"
           >
-            <Activity
+            <Pulse
               className="size-4 text-[var(--color-accent-ink)]"
-              strokeWidth={2.4}
+              weight="bold"
             />
           </span>
           <span className="leading-tight">
@@ -105,7 +105,8 @@ export default function SignInPage() {
         </div>
 
         <div className="max-w-sm py-12">
-          <h1 className="text-h1">Sign in</h1>
+          <p className="text-eyebrow text-[var(--color-muted)]">Restricted</p>
+          <h1 className="mt-2 text-display">Sign in</h1>
           <p className="mt-1.5 text-small text-[var(--color-muted)]">
             Access is scoped to your district or to the whole country.
           </p>
@@ -143,16 +144,18 @@ export default function SignInPage() {
               disabled={submitting || username === "" || password === ""}
             >
               {submitting ? (
-                <LoaderCircle aria-hidden className="size-4 animate-spin" />
+                <CircleNotch aria-hidden className="size-4 animate-spin" />
               ) : (
-                <ArrowRight aria-hidden strokeWidth={2} className="size-4" />
+                <ArrowRight aria-hidden className="size-4" />
               )}
               {submitting ? "Signing in" : "Sign in"}
             </Button>
           </form>
 
           <div className="mt-8 border-t border-[var(--color-border)] pt-5">
-            <p className="text-micro text-[var(--color-muted)]">Demo access</p>
+            <p className="text-eyebrow text-[var(--color-muted)]">
+              Demo access
+            </p>
             <div className="mt-2.5 space-y-1.5">
               {DEMO_ACCOUNTS.map((account) => (
                 <button
@@ -187,7 +190,7 @@ export default function SignInPage() {
             href={"/overview" as Route}
             className="inline-flex items-center gap-1.5 text-small text-[var(--color-accent)] transition-opacity duration-[var(--duration-instant)] hover:opacity-80"
           >
-            <Globe aria-hidden strokeWidth={2} className="size-3.5" />
+            <Globe aria-hidden className="size-3.5" />
             View the public warning picture without signing in
           </Link>
           <p className="text-[0.6875rem] text-[var(--color-muted)]">
@@ -211,24 +214,25 @@ export default function SignInPage() {
         </svg>
 
         <div className="relative flex h-full flex-col justify-center px-16 py-16">
-          <p className="text-micro text-[var(--color-muted)]">
+          <p className="text-eyebrow text-[var(--color-muted)]">
             What this platform answers
           </p>
-          <ol className="mt-5 max-w-md space-y-4">
+          <ol className="mt-7 max-w-lg">
             {PLATFORM_QUESTIONS.map((question, index) => (
-              <li key={question} className="flex gap-3.5">
-                <span className="mt-0.5 font-mono text-small text-[var(--color-accent)]">
+              <li
+                key={question}
+                className="flex gap-5 border-t border-[var(--color-border)] py-5 first:border-t-0 first:pt-0"
+              >
+                <span className="mt-2 shrink-0 text-eyebrow tabular text-[var(--color-accent)]">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <span className="text-h2 font-normal leading-snug">
-                  {question}
-                </span>
+                <span className="text-display font-normal">{question}</span>
               </li>
             ))}
           </ol>
 
           <div className="mt-10 max-w-md border-t border-[var(--color-border)] pt-5">
-            <p className="text-micro text-[var(--color-muted)]">Risk scale</p>
+            <p className="text-eyebrow text-[var(--color-muted)]">Risk scale</p>
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {RISK_LEVELS.map((level) => (
                 <RiskBadge key={level} level={level} size="sm" />

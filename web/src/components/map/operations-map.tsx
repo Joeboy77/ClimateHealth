@@ -7,7 +7,10 @@ import type {
   IncidentAction,
   RiskLevel,
 } from "@/lib/api/types";
-import { AGENCY_PRESENTATION, ACTION_STATUS_PRESENTATION } from "@/lib/agencies";
+import {
+  AGENCY_PRESENTATION,
+  ACTION_STATUS_PRESENTATION,
+} from "@/lib/agencies";
 import { cn } from "@/lib/cn";
 import { RISK_CSS_VARIABLE } from "@/lib/risk";
 
@@ -120,7 +123,11 @@ export function OperationsMap({
       .filter((action) => action.latitude !== null && action.longitude !== null)
       .map((action) => ({
         action,
-        ...project(shape, action.longitude as number, action.latitude as number),
+        ...project(
+          shape,
+          action.longitude as number,
+          action.latitude as number,
+        ),
       })),
   );
 

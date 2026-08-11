@@ -1,7 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Clock3, Network, ShieldAlert, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Clock,
+  ShieldWarning,
+  TreeStructure,
+  Users,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -20,8 +26,8 @@ export default function PublicOverviewPage() {
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-10">
-      <header>
-        <p className="text-micro text-[var(--color-muted)]">
+      <header className="border-b border-[var(--color-border)] pb-6">
+        <p className="text-eyebrow text-[var(--color-muted)]">
           Public warning picture · Ghana
         </p>
         {overview.isPending ? (
@@ -119,7 +125,7 @@ export default function PublicOverviewPage() {
           href="/matrix"
           className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3.5 py-2 text-small transition-colors duration-[var(--duration-instant)] hover:bg-[var(--color-raised)]"
         >
-          <Network aria-hidden strokeWidth={2} className="size-3.5" />
+          <TreeStructure aria-hidden className="size-3.5" />
           See how every warning is decided
         </Link>
         <Link
@@ -127,7 +133,7 @@ export default function PublicOverviewPage() {
           className="inline-flex items-center gap-1.5 text-small text-[var(--color-accent)] transition-opacity duration-[var(--duration-instant)] hover:opacity-80"
         >
           Agency sign in
-          <ArrowRight aria-hidden strokeWidth={2} className="size-3.5" />
+          <ArrowRight aria-hidden className="size-3.5" />
         </Link>
       </div>
     </div>
@@ -151,18 +157,18 @@ function PublicRow({ district }: { district: PublicDistrictRisk }) {
         </p>
         <p className="mt-1 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[0.75rem] text-[var(--color-muted)]">
           <span className="flex items-center gap-1">
-            <ShieldAlert aria-hidden strokeWidth={2} className="size-3" />
+            <ShieldWarning aria-hidden className="size-3" />
             {conditionLabel(district.leading_condition)}
           </span>
           <span className="flex items-center gap-1">
-            <Clock3 aria-hidden strokeWidth={2} className="size-3" />
+            <Clock aria-hidden className="size-3" />
             cases possible in{" "}
             {district.onset_days_minimum === district.onset_days_maximum
               ? `${district.onset_days_minimum} days`
               : `${district.onset_days_minimum}\u2013${district.onset_days_maximum} days`}
           </span>
           <span className="flex items-center gap-1">
-            <Users aria-hidden strokeWidth={2} className="size-3" />
+            <Users aria-hidden className="size-3" />
             {district.vulnerable_group}
           </span>
         </p>

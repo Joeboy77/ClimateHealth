@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "@phosphor-icons/react";
 
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -87,11 +87,7 @@ export function DistrictPreventionCard({
                   className="flex items-center gap-1.5 text-micro text-[var(--color-risk-low)]"
                   title={AVERTED_EXPLANATION}
                 >
-                  <ShieldCheck
-                    aria-hidden
-                    strokeWidth={2}
-                    className="size-3.5"
-                  />
+                  <ShieldCheck aria-hidden className="size-3.5" />
                   {record.data.averted_hazards.length} hazard
                   {record.data.averted_hazards.length === 1 ? "" : "s"} met in
                   full

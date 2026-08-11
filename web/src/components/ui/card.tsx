@@ -36,7 +36,9 @@ export function CardHeader({
       <div className="min-w-0">
         <h2 className="text-h3 text-[var(--color-ink)]">{title}</h2>
         {description ? (
-          <p className="mt-0.5 text-small text-[var(--color-muted)]">{description}</p>
+          <p className="mt-0.5 text-small text-[var(--color-muted)]">
+            {description}
+          </p>
         ) : null}
       </div>
       {action}

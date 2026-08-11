@@ -1,11 +1,11 @@
 import {
-  Building2,
+  Buildings,
   CloudSun,
-  HeartPulse,
+  Heartbeat,
   Leaf,
-  LifeBuoy,
-  type LucideIcon,
-} from "lucide-react";
+  Lifebuoy,
+  type Icon as LucideIcon,
+} from "@phosphor-icons/react";
 
 import type { ActionStatus, ActionUrgency, Agency } from "./api/types";
 
@@ -16,7 +16,7 @@ type AgencyPresentation = {
 };
 
 export const AGENCY_PRESENTATION: Record<Agency, AgencyPresentation> = {
-  ghs: { label: "Ghana Health Service", icon: HeartPulse, colour: "#2f9c8e" },
+  ghs: { label: "Ghana Health Service", icon: Heartbeat, colour: "#2f9c8e" },
   epa: {
     label: "Environmental Protection Agency",
     icon: Leaf,
@@ -29,10 +29,10 @@ export const AGENCY_PRESENTATION: Record<Agency, AgencyPresentation> = {
   },
   nadmo: {
     label: "National Disaster Management Organisation",
-    icon: LifeBuoy,
+    icon: Lifebuoy,
     colour: "#d4762c",
   },
-  assembly: { label: "District Assembly", icon: Building2, colour: "#8f7bc4" },
+  assembly: { label: "District Assembly", icon: Buildings, colour: "#8f7bc4" },
 };
 
 type StatusPresentation = { label: string; colour: string };

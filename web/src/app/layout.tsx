@@ -1,6 +1,24 @@
 import type { Metadata, Viewport } from "next";
+import { Fraunces } from "next/font/google";
+
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+
+/**
+ * The display face.
+ *
+ * A serif in an operations dashboard is unusual on purpose. Every other console reaches
+ * for a neutral grotesk, which is why they all look alike; a public-health bulletin has
+ * more in common with a printed situation report than with a SaaS admin panel, and the
+ * serif is what says so. Reserved for verdicts and figures, never for interface text.
+ */
+const display = Fraunces({
+  subsets: ["latin"],
+  weight: "variable",
+  axes: ["SOFT", "WONK", "opsz"],
+  variable: "--font-display",
+  display: "swap",
+});
 import type { ReactNode } from "react";
 
 import { Providers } from "./providers";
@@ -24,7 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en-GB"
       suppressHydrationWarning
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${display.variable}`}
     >
       <body>
         <Providers>{children}</Providers>
