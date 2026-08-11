@@ -380,8 +380,8 @@ function Today({
         </PressableCard>
 
         <PressableCard
-          onPress={() => router.push("/learn")}
-          accessibilityLabel="Todays lesson and question"
+          onPress={() => router.push("/play")}
+          accessibilityLabel="Todays questions"
           accessibilityHint="Opens Learn"
           style={{
             marginTop: space.snug,
@@ -404,7 +404,7 @@ function Today({
                 color: colour.ink,
               }}
             >
-              Today&rsquo;s lesson
+              Today&rsquo;s questions
             </Text>
             <Text
               style={{
@@ -414,7 +414,7 @@ function Today({
                 marginTop: 2,
               }}
             >
-              Written for your age, plus one question
+              A short run, written for your age. Earn points.
             </Text>
           </View>
           <Text
@@ -424,7 +424,7 @@ function Today({
               color: colour.accent,
             }}
           >
-            Learn
+            Play
           </Text>
         </PressableCard>
 

@@ -743,6 +743,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/play/session/{district_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Session
+         * @description Today's run of questions, sized and worded for the reader's age band.
+         */
+        get: operations["get_session_play_session__district_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/play/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Session
+         * @description Score a completed run.
+         *
+         *     Every answer earns something. There are no hearts and no lock-out: getting a question
+         *     wrong never withholds health information from anybody.
+         */
+        post: operations["submit_session_play_session_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rewards/quote/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Quote
+         * @description What this Guardian's points are worth in cedis today.
+         */
+        get: operations["get_quote_rewards_quote__user_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rewards/redeem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redeem
+         * @description Turn points into mobile money.
+         *
+         *     Points are only spent if the money actually moved, so a failed transfer costs the
+         *     Guardian nothing.
+         */
+        post: operations["redeem_rewards_redeem_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/prevention": {
         parameters: {
             query?: never;
@@ -1034,6 +1120,17 @@ export interface components {
             raised_on: string;
             /** Recommended Action */
             recommended_action: string;
+        };
+        /** AnsweredQuestion */
+        AnsweredQuestion: {
+            /** Question Id */
+            question_id: string;
+            /** Correct */
+            correct: boolean;
+            /** Correct Option Index */
+            correct_option_index: number;
+            /** Explanation */
+            explanation: string;
         };
         /**
          * AvertedHazard
@@ -1632,6 +1729,12 @@ export interface components {
             total_points: number;
         };
         /**
+         * MobileMoneyNetwork
+         * @description Moolre transfer channels.
+         * @enum {string}
+         */
+        MobileMoneyNetwork: "1" | "6" | "7";
+        /**
          * NarrationAudience
          * @enum {string}
          */
@@ -1674,6 +1777,12 @@ export interface components {
             /** Supporting Agencies */
             supporting_agencies: string[];
         };
+        /**
+         * PayoutMode
+         * @description Whether a redemption actually moves money.
+         * @enum {string}
+         */
+        PayoutMode: "preview" | "live";
         /**
          * PhotoUploaded
          * @description What the phone keeps and sends with the report itself.
@@ -1780,6 +1889,27 @@ export interface components {
             /** Total Points */
             total_points: number;
         };
+        /**
+         * QuizSessionResponse
+         * @description A short run of questions about the hazard the engine raised here today.
+         */
+        QuizSessionResponse: {
+            /** District Id */
+            district_id: string;
+            /** District Name */
+            district_name: string;
+            condition: components["schemas"]["HealthCondition"];
+            level: components["schemas"]["RiskLevel"];
+            tier: components["schemas"]["GuardianTier"];
+            /**
+             * Quiz Date
+             * Format: date
+             */
+            quiz_date: string;
+            /** Questions */
+            questions: components["schemas"]["SessionQuestion"][];
+            streak: components["schemas"]["Streak"];
+        };
         /** ReadinessReport */
         ReadinessReport: {
             /** District Id */
@@ -1810,6 +1940,57 @@ export interface components {
          * @enum {string}
          */
         ReadinessStatus: "ready" | "stretched" | "critical" | "emergency";
+        /** Redemption */
+        Redemption: {
+            /** Reference */
+            reference: string;
+            /** Points Spent */
+            points_spent: number;
+            /** Cedis */
+            cedis: string;
+            /** Recipient */
+            recipient: string;
+            network: components["schemas"]["MobileMoneyNetwork"];
+            /** Network Name */
+            network_name: string;
+            /** Accepted */
+            accepted: boolean;
+            mode: components["schemas"]["PayoutMode"];
+            /** Provider Code */
+            provider_code: string;
+            /** Provider Message */
+            provider_message: string;
+            /** Transaction Id */
+            transaction_id?: string | null;
+        };
+        /**
+         * RedemptionQuote
+         * @description What a Guardian's points are worth, and whether they can take it yet.
+         */
+        RedemptionQuote: {
+            /** Points */
+            points: number;
+            /** Redeemable Points */
+            redeemable_points: number;
+            /** Cedis */
+            cedis: string;
+            /** Minimum Points */
+            minimum_points: number;
+            /** Points Per Cedi */
+            points_per_cedi: number;
+            /** Can Redeem */
+            can_redeem: boolean;
+            /** Reason */
+            reason?: string | null;
+        };
+        /** RedemptionRequest */
+        RedemptionRequest: {
+            /** User Id */
+            user_id: string;
+            /** Mobile Money Number */
+            mobile_money_number: string;
+            network?: components["schemas"]["MobileMoneyNetwork"] | null;
+        };
         /**
          * ReportPriority
          * @enum {string}
@@ -1936,6 +2117,45 @@ export interface components {
             /** Known */
             known: boolean;
         };
+        /** SessionAnswer */
+        SessionAnswer: {
+            /** Question Id */
+            question_id: string;
+            /** Selected Option Index */
+            selected_option_index: number;
+        };
+        /** SessionQuestion */
+        SessionQuestion: {
+            /** Question Id */
+            question_id: string;
+            /** Prompt */
+            prompt: string;
+            /** Options */
+            options: string[];
+        };
+        /** SessionResult */
+        SessionResult: {
+            /** Correct Count */
+            correct_count: number;
+            /** Total */
+            total: number;
+            /** Points Awarded */
+            points_awarded: number;
+            /** Total Points */
+            total_points: number;
+            streak: components["schemas"]["Streak"];
+            /** Perfect */
+            perfect: boolean;
+            /** Answers */
+            answers: components["schemas"]["AnsweredQuestion"][];
+        };
+        /** SessionSubmission */
+        SessionSubmission: {
+            /** User Id */
+            user_id: string;
+            /** Answers */
+            answers: components["schemas"]["SessionAnswer"][];
+        };
         /**
          * ShieldStatus
          * @enum {string}
@@ -2021,6 +2241,26 @@ export interface components {
             recipients: string[];
             /** @default en */
             language: components["schemas"]["NarrationLanguage"];
+        };
+        /**
+         * Streak
+         * @description How many days running somebody has come back.
+         *
+         *     Counted and celebrated, never used to shame. There are no hearts and no lock-out:
+         *     getting a question wrong never withholds health information from anybody.
+         */
+        Streak: {
+            /** Current Days */
+            current_days: number;
+            /** Longest Days */
+            longest_days: number;
+            /** Last Active On */
+            last_active_on?: string | null;
+            /**
+             * Rest Days Used
+             * @default 0
+             */
+            rest_days_used: number;
         };
         /**
          * TodaysLesson
@@ -3287,6 +3527,134 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UssdReply"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_session_play_session__district_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                district_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizSessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_session_play_session_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quote_rewards_quote__user_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedemptionQuote"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    redeem_rewards_redeem_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedemptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Redemption"];
                 };
             };
             /** @description Validation Error */

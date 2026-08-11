@@ -70,3 +70,8 @@ export function conditionLabel(condition: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 export type RiskList = Schemas["RiskListResponse"];
+export type QuizSession = Schemas["QuizSessionResponse"];
+export type SessionResult = Schemas["SessionResult"];
+export type Streak = Schemas["Streak"];
+export type RedemptionQuote = Schemas["RedemptionQuote"];
+export type Redemption = Schemas["Redemption"];

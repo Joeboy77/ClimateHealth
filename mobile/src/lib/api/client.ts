@@ -17,7 +17,11 @@ import type {
   LoginResponse,
   QuizResult,
   PreventionRecord,
+  QuizSession,
+  Redemption,
+  RedemptionQuote,
   ReportSubmission,
+  SessionResult,
   RiskList,
   RewardLadder,
   TodaysLesson,
@@ -48,7 +52,9 @@ export const REQUEST_TIMEOUT_MS = 20_000;
 type SessionExpiredListener = () => void;
 const sessionExpiredListeners = new Set<SessionExpiredListener>();
 
-export function addSessionExpiredListener(listener: SessionExpiredListener): () => void {
+export function addSessionExpiredListener(
+  listener: SessionExpiredListener,
+): () => void {
   sessionExpiredListeners.add(listener);
   return () => {
     sessionExpiredListeners.delete(listener);
@@ -166,6 +172,30 @@ export const api = {
 
   preventionRecord: (token: string, districtId: string) =>
     request<PreventionRecord>(`/prevention/${districtId}`, { token }),
+
+  quizSession: (token: string, districtId: string) =>
+    request<QuizSession>(`/play/session/${districtId}`, { token }),
+
+  submitSession: (
+    token: string,
+    userId: string,
+    answers: { question_id: string; selected_option_index: number }[],
+  ) =>
+    request<SessionResult>("/play/session", {
+      method: "POST",
+      token,
+      body: { user_id: userId, answers },
+    }),
+
+  rewardQuote: (token: string, userId: string) =>
+    request<RedemptionQuote>(`/rewards/quote/${userId}`, { token }),
+
+  redeem: (token: string, userId: string, mobileMoneyNumber: string) =>
+    request<Redemption>("/rewards/redeem", {
+      method: "POST",
+      token,
+      body: { user_id: userId, mobile_money_number: mobileMoneyNumber },
+    }),
 
   lessonToday: (token: string, districtId: string) =>
     request<TodaysLesson>(`/lessons/today/${districtId}`, { token }),
