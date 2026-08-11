@@ -8,6 +8,7 @@ from climahealth.services.gamification_service import (
     Mission,
     QuizQuestion,
 )
+from climahealth.services.quiz_session import Streak
 
 GUARDIAN_LADDER: tuple[GuardianLevel, ...] = (
     GuardianLevel(name="Watcher", minimum_points=0, unlocks="The daily hazard quiz"),
@@ -265,6 +266,26 @@ class InMemoryGuardianStore:
         self._guardians[user_id] = updated
         return updated
 
+    def record_session(
+        self, user_id: str, question_ids: tuple[str, ...], points: int, streak: Streak
+    ) -> Guardian:
+        guardian = self._guardians[user_id]
+        updated = guardian.model_copy(
+            update={
+                "points": guardian.points + points,
+                "answered_question_ids": tuple({*guardian.answered_question_ids, *question_ids}),
+                "streak": streak,
+            }
+        )
+        self._guardians[user_id] = updated
+        return updated
+
+    def spend_points(self, user_id: str, points: int) -> Guardian:
+        guardian = self._guardians[user_id]
+        updated = guardian.model_copy(update={"points": max(guardian.points - points, 0)})
+        self._guardians[user_id] = updated
+        return updated
+
     def outbreaks_averted(self, district_id: str) -> int:
         return self._averted.get(district_id, 0)
 
@@ -294,6 +315,31 @@ class InMemoryQuizRepository:
         untiered = [question for question in matching if question.tier is None]
         candidates = for_tier or untiered or matching
         return candidates[day.toordinal() % len(candidates)]
+
+    def session_for(
+        self,
+        condition: HealthCondition,
+        day: date,
+        tier: GuardianTier | None,
+        length: int,
+    ) -> tuple[QuizQuestion, ...]:
+        """A run of distinct questions about today's hazard, pitched at the reader.
+
+        Rotated by the date so the same person does not meet the same run tomorrow, and
+        topped up from the wider bank when one condition has too few written for a tier.
+        """
+        matching = [q for q in self._questions if q.condition is condition]
+        for_tier = [q for q in matching if q.tier is tier]
+        untiered = [q for q in matching if q.tier is None]
+        pool = [*for_tier, *untiered] or matching or list(self._questions)
+
+        if len(pool) < length:
+            extra = [q for q in self._questions if q not in pool and q.tier in (tier, None)]
+            pool = [*pool, *extra]
+
+        offset = day.toordinal() % max(len(pool), 1)
+        rotated = pool[offset:] + pool[:offset]
+        return tuple(rotated[:length])
 
     def find(self, question_id: str) -> QuizQuestion | None:
         return self._by_id.get(question_id)
@@ -536,7 +582,262 @@ EXTENDED_QUIZ_BANK: tuple[QuizQuestion, ...] = (
     ),
 )
 
-QUIZ_BANK = (*QUIZ_BANK, *EXTENDED_QUIZ_BANK, *TIERED_QUIZ_BANK)
+
+# A session asks three to five questions, so the bank has to carry that every day without
+# repeating. These are written per condition and, where the wording would otherwise be
+# wrong for the reader, per tier.
+SESSION_QUIZ_BANK: tuple[QuizQuestion, ...] = (
+    QuizQuestion(
+        question_id="malaria-5",
+        condition=HealthCondition.MALARIA,
+        prompt="Which container is most likely to breed mosquitoes?",
+        options=(
+            "An open bucket of rainwater",
+            "A sealed water tank",
+            "A running gutter",
+            "A dry basin",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "Mosquitoes need water that is still and open. Sealed or moving water does not breed "
+            "them."
+        ),
+    ),
+    QuizQuestion(
+        question_id="malaria-3",
+        condition=HealthCondition.MALARIA,
+        prompt="When do malaria mosquitoes bite most?",
+        options=("At night", "At midday", "Only in the rain", "Only indoors"),
+        correct_option_index=0,
+        explanation=(
+            "They bite mostly at night, which is why a treated net over the bed matters so much."
+        ),
+    ),
+    QuizQuestion(
+        question_id="malaria-4",
+        condition=HealthCondition.MALARIA,
+        prompt="Who is at greatest risk from malaria?",
+        options=(
+            "Children under five and pregnant women",
+            "Only older men",
+            "Only visitors",
+            "Everyone equally",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "Children under five and pregnant women carry the heaviest burden and should be "
+            "protected first."
+        ),
+    ),
+    QuizQuestion(
+        question_id="cholera-2",
+        condition=HealthCondition.CHOLERA,
+        prompt="How quickly can cholera make someone dangerously ill?",
+        options=("Within a day", "After a month", "Only after a year", "It never does"),
+        correct_option_index=0,
+        explanation=(
+            "Cholera dehydrates fast, sometimes within hours. That speed is what makes it "
+            "dangerous."
+        ),
+    ),
+    QuizQuestion(
+        question_id="cholera-3",
+        condition=HealthCondition.CHOLERA,
+        prompt="What makes flood water dangerous to drink?",
+        options=(
+            "It mixes with waste from drains",
+            "It is too cold",
+            "It has too much salt",
+            "It is always safe once boiled for a second",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "Flooding carries waste into wells and standpipes. Boiling properly is what makes it "
+            "safe."
+        ),
+    ),
+    QuizQuestion(
+        question_id="meningitis-5",
+        condition=HealthCondition.MENINGITIS,
+        prompt="Why does the Harmattan raise meningitis risk?",
+        options=(
+            "Dry dusty air damages the nose and throat",
+            "It brings more mosquitoes",
+            "It makes water unsafe",
+            "It has no effect",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "Dry air damages the lining of the nose and throat, letting bacteria reach the "
+            "bloodstream."
+        ),
+    ),
+    QuizQuestion(
+        question_id="meningitis-3",
+        condition=HealthCondition.MENINGITIS,
+        prompt="How soon should a stiff neck with fever be seen?",
+        options=("The same day", "Within a month", "Only if it lasts a week", "It clears itself"),
+        correct_option_index=0,
+        explanation=(
+            "Meningitis moves very quickly. A stiff neck with fever is a same-day clinic visit."
+        ),
+    ),
+    QuizQuestion(
+        question_id="diarrhoeal-2",
+        condition=HealthCondition.DIARRHOEAL_DISEASE,
+        prompt="What should be given first for watery stools in a child?",
+        options=(
+            "Oral rehydration salts",
+            "Only solid food",
+            "Nothing until morning",
+            "Sugary soft drinks",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "Rehydration salts replace what the body is losing. That loss is what kills, not the "
+            "germ alone."
+        ),
+    ),
+    QuizQuestion(
+        question_id="diarrhoeal-3",
+        condition=HealthCondition.DIARRHOEAL_DISEASE,
+        prompt="Who is most at risk when diarrhoeal illness rises?",
+        options=("Children under five", "Teenagers", "Adult men", "Nobody in particular"),
+        correct_option_index=0,
+        explanation="Small children dehydrate fastest, which is why they are affected worst.",
+    ),
+    QuizQuestion(
+        question_id="schistosomiasis-2",
+        condition=HealthCondition.SCHISTOSOMIASIS,
+        prompt="How does bilharzia enter the body?",
+        options=(
+            "Through skin in still fresh water",
+            "By breathing dust",
+            "From mosquito bites",
+            "Only from food",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "The parasite passes through unbroken skin during contact with slow or still fresh "
+            "water."
+        ),
+    ),
+    QuizQuestion(
+        question_id="schistosomiasis-3",
+        condition=HealthCondition.SCHISTOSOMIASIS,
+        prompt="Why is bilharzia often missed?",
+        options=(
+            "Signs appear weeks or months later",
+            "It causes no illness",
+            "It only affects adults",
+            "It clears in a day",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "The long gap between exposure and symptoms is why people rarely connect the two."
+        ),
+    ),
+    QuizQuestion(
+        question_id="dengue-2",
+        condition=HealthCondition.DENGUE,
+        prompt="When does the dengue mosquito bite?",
+        options=("In daylight", "Only at midnight", "Only in harmattan", "It does not bite"),
+        correct_option_index=0,
+        explanation=(
+            "It bites during the day, so a net at night protects far less than it does against "
+            "malaria."
+        ),
+    ),
+    QuizQuestion(
+        question_id="heat-2",
+        condition=HealthCondition.HEAT_STROKE,
+        prompt="What is the best protection during extreme heat?",
+        options=(
+            "Rest in shade and drink water often",
+            "Work faster to finish early",
+            "Drink only when thirsty",
+            "Wear heavy clothing",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "Rest in the hottest hours and drink before you feel thirsty. Thirst arrives late."
+        ),
+    ),
+    QuizQuestion(
+        question_id="airpollution-2",
+        condition=HealthCondition.AIR_POLLUTION_CARDIORESPIRATORY,
+        prompt="Who feels bad air first?",
+        options=(
+            "People with asthma, young children and older adults",
+            "Only farmers",
+            "Only people outdoors at night",
+            "Nobody notices",
+        ),
+        correct_option_index=0,
+        explanation="Small particles reach deep into the lungs and affect those groups soonest.",
+    ),
+    QuizQuestion(
+        question_id="malaria-child-2",
+        condition=HealthCondition.MALARIA,
+        tier=GuardianTier.ANANSI,
+        prompt="What should you do with a bucket of old rain water?",
+        options=("Pour it away", "Leave it for later", "Add more water", "Cover the yard"),
+        correct_option_index=0,
+        explanation="Pouring it away takes the mosquito eggs with it.",
+    ),
+    QuizQuestion(
+        question_id="malaria-elder-2",
+        condition=HealthCondition.MALARIA,
+        tier=GuardianTier.VOICE_FIRST,
+        prompt="Who in the house should sleep under a net first?",
+        options=(
+            "Small children and pregnant women",
+            "Only visitors",
+            "Only the eldest",
+            "Nobody needs one",
+        ),
+        correct_option_index=0,
+        explanation="They carry the greatest risk from malaria and should be covered first.",
+    ),
+    QuizQuestion(
+        question_id="cholera-child-2",
+        condition=HealthCondition.CHOLERA,
+        tier=GuardianTier.ANANSI,
+        prompt="When should you wash your hands with soap?",
+        options=("Before eating", "Only on Sunday", "Only after playing", "Never"),
+        correct_option_index=0,
+        explanation=(
+            "Washing with soap before eating stops germs going from your hands into your food."
+        ),
+    ),
+    QuizQuestion(
+        question_id="schisto-child-1",
+        condition=HealthCondition.SCHISTOSOMIASIS,
+        tier=GuardianTier.ANANSI,
+        prompt="Is it safe to swim in a still pond?",
+        options=(
+            "No, tiny worms can get in through your skin",
+            "Yes, always",
+            "Only at night",
+            "Only if it is deep",
+        ),
+        correct_option_index=0,
+        explanation=(
+            "Still ponds can hold the snails that carry bilharzia. The worms go through your skin."
+        ),
+    ),
+    QuizQuestion(
+        question_id="schisto-elder-1",
+        condition=HealthCondition.SCHISTOSOMIASIS,
+        tier=GuardianTier.VOICE_FIRST,
+        prompt="What is the safest place to fetch water this season?",
+        options=("A pump or tap", "A slow stream", "A still pond", "A flooded field"),
+        correct_option_index=0,
+        explanation="A pump or tap avoids the still water where this illness begins.",
+    ),
+)
+
+QUIZ_BANK = (*QUIZ_BANK, *EXTENDED_QUIZ_BANK, *TIERED_QUIZ_BANK, *SESSION_QUIZ_BANK)
 
 
 AIR_QUALITY_QUIZ: tuple[QuizQuestion, ...] = (
