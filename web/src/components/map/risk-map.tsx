@@ -62,7 +62,8 @@ export function RiskMap({
   }, []);
 
   const summaryById = useMemo(
-    () => new Map(districts.map((district) => [district.district_id, district])),
+    () =>
+      new Map(districts.map((district) => [district.district_id, district])),
     [districts],
   );
 

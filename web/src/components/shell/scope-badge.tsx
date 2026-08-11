@@ -1,4 +1,4 @@
-import { Globe2, MapPin } from "lucide-react";
+import { GlobeHemisphereWest, MapPinLine } from "@phosphor-icons/react";
 
 import type { UserResponse } from "@/lib/api/types";
 
@@ -12,7 +12,7 @@ function districtLabel(districtId: string | null): string {
 
 export function ScopeBadge({ user }: { user: UserResponse }) {
   const national = user.scope.level === "national";
-  const Icon = national ? Globe2 : MapPin;
+  const Icon = national ? GlobeHemisphereWest : MapPinLine;
   const label = national
     ? "National access"
     : `Scoped to ${districtLabel(user.scope.district_id)}`;
@@ -26,7 +26,7 @@ export function ScopeBadge({ user }: { user: UserResponse }) {
           : "You can only view your own district"
       }
     >
-      <Icon aria-hidden strokeWidth={2} className="size-3.5" />
+      <Icon aria-hidden className="size-3.5" />
       <span>{label}</span>
     </span>
   );

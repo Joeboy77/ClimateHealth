@@ -1,20 +1,15 @@
 import {
-  Activity,
   CloudRain,
-  Droplets,
+  Drop,
+  Pulse,
   Thermometer,
   Wind,
-  type LucideIcon,
-} from "lucide-react";
+  type Icon as LucideIcon,
+} from "@phosphor-icons/react";
 
 import type { DistrictSummary } from "./api/types";
 
-export type ClimateLayerId =
-  | "risk"
-  | "rainfall"
-  | "humidity"
-  | "heat"
-  | "dust";
+export type ClimateLayerId = "risk" | "rainfall" | "humidity" | "heat" | "dust";
 
 export type ParticleKind = "rain" | "vapour" | "heat" | "dust" | null;
 
@@ -46,7 +41,7 @@ export const CLIMATE_LAYERS: ClimateLayer[] = [
   {
     id: "risk",
     label: "Health risk",
-    icon: Activity,
+    icon: Pulse,
     unit: "",
     particle: null,
     read: () => null,
@@ -82,7 +77,7 @@ export const CLIMATE_LAYERS: ClimateLayer[] = [
   {
     id: "humidity",
     label: "Humidity",
-    icon: Droplets,
+    icon: Drop,
     unit: "% average",
     particle: "vapour",
     read: (district) => district.climate.humidity_mean_percent,
@@ -172,7 +167,10 @@ export function colourFor(layer: ClimateLayer, value: number | null): string {
  * Particle density for a district, 0 to 1, scaled against the layer's top stop
  * so a quiet week produces nothing and a storm produces a full field.
  */
-export function intensityFor(layer: ClimateLayer, value: number | null): number {
+export function intensityFor(
+  layer: ClimateLayer,
+  value: number | null,
+): number {
   if (value === null || layer.stops.length === 0) return 0;
   const lowest = layer.stops[0]!.at;
   const highest = layer.stops[layer.stops.length - 1]!.at;

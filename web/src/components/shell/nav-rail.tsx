@@ -1,19 +1,19 @@
 "use client";
 
 import {
-  Activity,
-  BellRing,
-  ClipboardList,
-  LayoutGrid,
-  MapPin,
-  MessageSquareWarning,
-  Network,
-  PackageCheck,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Smartphone,
-  type LucideIcon,
-} from "lucide-react";
+  Broadcast,
+  CaretLineLeft,
+  CaretLineRight,
+  ClipboardText,
+  Compass,
+  type Icon,
+  MapPinLine,
+  Package,
+  Siren,
+  SquaresFour,
+  TreeStructure,
+  WaveTriangle,
+} from "@phosphor-icons/react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,7 +24,7 @@ import { cn } from "@/lib/cn";
 type NavItem = {
   href: Route;
   label: string;
-  icon: LucideIcon;
+  icon: Icon;
   matchPrefix?: string;
 };
 
@@ -33,23 +33,23 @@ function itemsForScope(districtId: string | null): readonly NavItem[] {
     ? {
         href: `/districts/${districtId}` as Route,
         label: "My district",
-        icon: MapPin,
+        icon: MapPinLine,
         matchPrefix: "/districts",
       }
-    : { href: "/" as Route, label: "National picture", icon: LayoutGrid };
+    : { href: "/" as Route, label: "National picture", icon: SquaresFour };
 
   return [
     home,
-    { href: "/alerts" as Route, label: "Alerts", icon: BellRing },
-    { href: "/incident" as Route, label: "Incident room", icon: ClipboardList },
-    { href: "/readiness" as Route, label: "Readiness", icon: PackageCheck },
+    { href: "/alerts" as Route, label: "Alerts", icon: Siren },
+    { href: "/incident" as Route, label: "Incident room", icon: ClipboardText },
+    { href: "/readiness" as Route, label: "Readiness", icon: Package },
     {
       href: "/reports" as Route,
       label: "Field reports",
-      icon: MessageSquareWarning,
+      icon: Broadcast,
     },
-    { href: "/outreach" as Route, label: "Outreach", icon: Smartphone },
-    { href: "/matrix" as Route, label: "Pathway matrix", icon: Network },
+    { href: "/outreach" as Route, label: "Outreach", icon: WaveTriangle },
+    { href: "/matrix" as Route, label: "Pathway matrix", icon: TreeStructure },
   ];
 }
 
@@ -90,9 +90,9 @@ export function NavRail({
           aria-hidden
           className="grid size-8 shrink-0 place-items-center rounded-[var(--radius-md)] bg-[var(--color-accent)]"
         >
-          <Activity
-            className="size-4 text-[var(--color-accent-ink)]"
-            strokeWidth={2.4}
+          <Compass
+            weight="fill"
+            className="size-[18px] text-[var(--color-accent-ink)]"
           />
         </span>
         {collapsed ? null : (
@@ -126,7 +126,11 @@ export function NavRail({
                     : "text-[var(--color-muted)] hover:bg-[var(--color-raised)] hover:text-[var(--color-ink)]",
                 )}
               >
-                <Icon aria-hidden strokeWidth={2} className="size-4 shrink-0" />
+                <Icon
+                  aria-hidden
+                  weight={active ? "fill" : "duotone"}
+                  className="size-[18px] shrink-0"
+                />
                 {collapsed ? (
                   <span className="sr-only">{item.label}</span>
                 ) : (
@@ -153,10 +157,10 @@ export function NavRail({
         )}
       >
         {collapsed ? (
-          <PanelLeftOpen aria-hidden strokeWidth={2} className="size-4" />
+          <CaretLineRight aria-hidden weight="bold" className="size-4" />
         ) : (
           <>
-            <PanelLeftClose aria-hidden strokeWidth={2} className="size-4" />
+            <CaretLineLeft aria-hidden weight="bold" className="size-4" />
             Collapse
           </>
         )}

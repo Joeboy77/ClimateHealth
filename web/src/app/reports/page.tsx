@@ -1,7 +1,15 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowUpRight, BadgeCheck, Inbox, MapPin, Plus, UserRound, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  MapPinLine,
+  Plus,
+  SealCheck,
+  Tray,
+  User,
+  X,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
 
@@ -11,7 +19,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api/client";
-import type { CommunityReport, ReportType, VerificationStatus } from "@/lib/api/types";
+import type {
+  CommunityReport,
+  ReportType,
+  VerificationStatus,
+} from "@/lib/api/types";
 import { useAuthenticatedSession } from "@/lib/auth/session";
 import { cn } from "@/lib/cn";
 import {
@@ -81,9 +93,11 @@ function FieldReports() {
 
   return (
     <div className="mx-auto max-w-[1400px] px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      <header className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--color-border)] pb-6">
         <div>
-          <p className="text-micro text-[var(--color-muted)]">Field reports</p>
+          <p className="text-eyebrow text-[var(--color-muted)]">
+            Field reports
+          </p>
           <h1 className="mt-2 text-h1">
             {reports.isPending
               ? "Loading reports"
@@ -106,8 +120,12 @@ function FieldReports() {
               className="w-56"
             />
           ) : null}
-          <Button variant="primary" size="md" onClick={() => setComposing(true)}>
-            <Plus aria-hidden strokeWidth={2} className="size-4" />
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => setComposing(true)}
+          >
+            <Plus aria-hidden className="size-4" />
             Log a report
           </Button>
         </div>
@@ -127,7 +145,7 @@ function FieldReports() {
               active={typeFilter === type}
               onClick={() => setTypeFilter(typeFilter === type ? null : type)}
               label={label}
-              icon={<Icon aria-hidden strokeWidth={2} className="size-3.5" />}
+              icon={<Icon aria-hidden className="size-3.5" />}
             />
           );
         })}
@@ -157,9 +175,8 @@ function FieldReports() {
           </CardBody>
         ) : list.length === 0 ? (
           <CardBody className="flex items-start gap-3 py-8">
-            <Inbox
+            <Tray
               aria-hidden
-              strokeWidth={2}
               className="mt-0.5 size-5 shrink-0 text-[var(--color-muted)]"
             />
             <div>
@@ -232,8 +249,7 @@ function FilterChip({
 
 const VERIFICATION_TONE: Record<VerificationStatus, string> = {
   pending: "text-[var(--color-muted)] border-[var(--color-border)]",
-  verified:
-    "text-[var(--color-risk-low)] border-[var(--color-risk-low)]/40",
+  verified: "text-[var(--color-risk-low)] border-[var(--color-risk-low)]/40",
   rejected:
     "text-[var(--color-risk-severe)] border-[var(--color-risk-severe)]/40",
 };
@@ -268,7 +284,7 @@ function ReportRow({
         aria-hidden
         className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-raised)]"
       >
-        <Icon strokeWidth={2} className="size-4 text-[var(--color-muted)]" />
+        <Icon className="size-4 text-[var(--color-muted)]" />
       </span>
 
       <div className="min-w-0 flex-1">
@@ -286,17 +302,17 @@ function ReportRow({
               VERIFICATION_TONE[report.verification],
             )}
           >
-            <BadgeCheck aria-hidden strokeWidth={2} className="size-3" />
+            <SealCheck aria-hidden className="size-3" />
             {VERIFICATION_LABEL[report.verification]}
             {report.verified_by ? ` by ${report.verified_by}` : ""}
           </span>
           <span className="flex items-center gap-1">
-            <UserRound aria-hidden strokeWidth={2} className="size-3" />
+            <User aria-hidden className="size-3" />
             {report.submitted_by}
           </span>
           {coordinates ? (
             <span className="flex items-center gap-1 font-mono">
-              <MapPin aria-hidden strokeWidth={2} className="size-3" />
+              <MapPinLine aria-hidden className="size-3" />
               {coordinates}
             </span>
           ) : null}
@@ -310,11 +326,15 @@ function ReportRow({
           className="flex items-center gap-1 text-[0.75rem] text-[var(--color-muted)] transition-colors duration-[var(--duration-instant)] hover:text-[var(--color-accent)]"
         >
           {districtName}
-          <ArrowUpRight aria-hidden strokeWidth={2} className="size-3" />
+          <ArrowUpRight aria-hidden className="size-3" />
         </button>
         {canVerify && report.verification === "pending" ? (
           <span className="flex gap-1">
-            <Button size="sm" disabled={busy} onClick={() => onVerify("verified")}>
+            <Button
+              size="sm"
+              disabled={busy}
+              onClick={() => onVerify("verified")}
+            >
               Verify
             </Button>
             <Button
@@ -373,8 +393,13 @@ function ComposeReport({
             : "Choose a district above before logging a report."
         }
         action={
-          <Button variant="ghost" size="icon" aria-label="Close" onClick={onClose}>
-            <X aria-hidden strokeWidth={2} className="size-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            <X aria-hidden className="size-4" />
           </Button>
         }
       />
@@ -400,7 +425,7 @@ function ComposeReport({
                         : "border-[var(--color-border)] text-[var(--color-muted)] hover:border-[var(--color-border-strong)]",
                     )}
                   >
-                    <Icon aria-hidden strokeWidth={2} className="size-3.5" />
+                    <Icon aria-hidden className="size-3.5" />
                     {label}
                   </button>
                 );
@@ -409,7 +434,10 @@ function ComposeReport({
           </div>
 
           <div>
-            <label htmlFor="report-note" className="block text-small font-medium">
+            <label
+              htmlFor="report-note"
+              className="block text-small font-medium"
+            >
               What exactly did you see?
             </label>
             <textarea

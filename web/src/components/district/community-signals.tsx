@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquareWarning } from "lucide-react";
+import { ChatTeardropDots } from "@phosphor-icons/react";
 
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import type { CommunitySignal } from "@/lib/api/types";
@@ -25,21 +25,22 @@ export function CommunitySignalsPanel({
         <CardBody>
           <p className="text-small text-[var(--color-muted)]">
             No verified reports are contributing here. A report only becomes a
-            signal once a coordinator confirms it, so unverified submissions never
-            move a risk score.
+            signal once a coordinator confirms it, so unverified submissions
+            never move a risk score.
           </p>
         </CardBody>
       ) : (
         <CardBody className="space-y-3">
           {signals.map((signal) => (
             <div key={signal.signal} className="flex items-center gap-3">
-              <MessageSquareWarning
+              <ChatTeardropDots
                 aria-hidden
-                strokeWidth={2}
                 className="size-4 shrink-0 text-[var(--color-accent)]"
               />
               <span className="min-w-0 flex-1">
-                <span className="block text-small font-medium">{signal.label}</span>
+                <span className="block text-small font-medium">
+                  {signal.label}
+                </span>
                 <span className="block text-[0.6875rem] text-[var(--color-muted)]">
                   {signal.report_count} verified{" "}
                   {signal.report_count === 1 ? "report" : "reports"} · newest{" "}
@@ -52,8 +53,8 @@ export function CommunitySignalsPanel({
             </div>
           ))}
           <p className="border-t border-[var(--color-border)] pt-2.5 text-[0.6875rem] text-[var(--color-muted)]">
-            Community evidence is capped below certainty and only fills signals no
-            instrument reports. A measured value is never overwritten.
+            Community evidence is capped below certainty and only fills signals
+            no instrument reports. A measured value is never overwritten.
           </p>
         </CardBody>
       )}

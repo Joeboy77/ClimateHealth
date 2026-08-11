@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Crosshair } from "lucide-react";
+import { ArrowUpRight, Crosshair } from "@phosphor-icons/react";
 
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { RiskBadge } from "@/components/ui/risk-badge";
@@ -40,9 +40,12 @@ export function AgencyLens({
           <span
             aria-hidden
             className="grid size-8 shrink-0 place-items-center rounded-[var(--radius-md)] border"
-            style={{ borderColor: presentation.colour, color: presentation.colour }}
+            style={{
+              borderColor: presentation.colour,
+              color: presentation.colour,
+            }}
           >
-            <AgencyIcon strokeWidth={2} className="size-4" />
+            <AgencyIcon className="size-4" />
           </span>
         }
       />
@@ -50,7 +53,6 @@ export function AgencyLens({
         <p className="flex items-start gap-2 text-small">
           <Crosshair
             aria-hidden
-            strokeWidth={2}
             className="mt-0.5 size-4 shrink-0 text-[var(--color-muted)]"
           />
           {overview.leading_question}
@@ -74,8 +76,8 @@ export function AgencyLens({
 
         {overview.exposures.length === 0 ? (
           <p className="text-small text-[var(--color-muted)]">
-            Nothing in your remit is raised right now. Conditions you hold a mandate
-            for appear here the moment they cross high risk.
+            Nothing in your remit is raised right now. Conditions you hold a
+            mandate for appear here the moment they cross high risk.
           </p>
         ) : (
           <ul className="space-y-1">
@@ -114,10 +116,13 @@ export function AgencyLens({
                       {exposure.worst_district_name}
                     </span>
                   </span>
-                  <RiskBadge level={exposure.worst_level} size="sm" showIcon={false} />
+                  <RiskBadge
+                    level={exposure.worst_level}
+                    size="sm"
+                    showIcon={false}
+                  />
                   <ArrowUpRight
                     aria-hidden
-                    strokeWidth={2}
                     className="size-3.5 shrink-0 text-[var(--color-muted)] opacity-0 transition-opacity duration-[var(--duration-instant)] group-hover:opacity-100"
                   />
                 </button>

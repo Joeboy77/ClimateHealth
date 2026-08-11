@@ -36,5 +36,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof button>;
 
 export function Button({ className, variant, size, ...props }: ButtonProps) {
-  return <button className={cn(button({ variant, size }), className)} {...props} />;
+  return (
+    <button className={cn(button({ variant, size }), className)} {...props} />
+  );
 }

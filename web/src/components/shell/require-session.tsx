@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
+import { CircleNotch } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
@@ -18,7 +18,7 @@ export function RequireSession({ children }: { children: ReactNode }) {
   if (status !== "authenticated") {
     return (
       <div className="grid min-h-dvh place-items-center">
-        <LoaderCircle
+        <CircleNotch
           aria-label="Checking your session"
           className="size-5 animate-spin text-[var(--color-muted)]"
         />

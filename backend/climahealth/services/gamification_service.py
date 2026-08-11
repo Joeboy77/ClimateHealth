@@ -13,6 +13,14 @@ from climahealth.services.ports import (
     QuizRepository,
     ReportStore,
 )
+from climahealth.services.quiz_session import (
+    AnsweredQuestion,
+    SessionResult,
+    SessionSubmission,
+    Streak,
+    advance_streak,
+    points_for,
+)
 from climahealth.services.risk_service import RiskService
 
 QUIZ_CORRECT_POINTS = 20
@@ -45,6 +53,7 @@ class Guardian(ServiceModel):
     display_name: str
     district_id: str
     points: int = Field(ge=0)
+    streak: Streak = Streak(current_days=0, longest_days=0)
     completed_mission_ids: tuple[str, ...] = ()
     answered_question_ids: tuple[str, ...] = ()
 
@@ -277,6 +286,63 @@ class GamificationService:
             description=mission.description,
             points_awarded=mission.points,
             total_points=updated.points,
+        )
+
+    def resolve(self, user: AuthenticatedUser, user_id: str) -> Guardian:
+        return self._resolve_guardian(user, user_id)
+
+    def spend(self, user_id: str, points: int) -> Guardian:
+        return self._guardians.spend_points(user_id, points)
+
+    def score_session(
+        self, user: AuthenticatedUser, submission: SessionSubmission
+    ) -> SessionResult:
+        """Score a completed run of questions.
+
+        Every answer earns something, because the aim is that people keep learning rather
+        than that they perform. A question already answered on a previous day still shows
+        its explanation but earns nothing, so the bank cannot be farmed.
+        """
+        guardian = self._resolve_guardian(user, submission.user_id)
+        today = self._clock.today()
+
+        answered: list[AnsweredQuestion] = []
+        correct_count = 0
+        fresh_ids: list[str] = []
+
+        for entry in submission.answers:
+            question = self._quizzes.find(entry.question_id)
+            if question is None:
+                raise QuizQuestionNotFound(f"Unknown question '{entry.question_id}'")
+
+            correct = entry.selected_option_index == question.correct_option_index
+            correct_count += int(correct)
+            if question.question_id not in guardian.answered_question_ids:
+                fresh_ids.append(question.question_id)
+
+            answered.append(
+                AnsweredQuestion(
+                    question_id=question.question_id,
+                    correct=correct,
+                    correct_option_index=question.correct_option_index,
+                    explanation=question.explanation,
+                )
+            )
+
+        total = len(answered)
+        scored_correct = min(correct_count, len(fresh_ids))
+        points = points_for(scored_correct, len(fresh_ids)) if fresh_ids else 0
+        streak = advance_streak(guardian.streak, today)
+        updated = self._guardians.record_session(guardian.user_id, tuple(fresh_ids), points, streak)
+
+        return SessionResult(
+            correct_count=correct_count,
+            total=total,
+            points_awarded=points,
+            total_points=updated.points,
+            streak=updated.streak,
+            perfect=correct_count == total and total > 0,
+            answers=tuple(answered),
         )
 
     def shield_for(self, district: District) -> DistrictShield:

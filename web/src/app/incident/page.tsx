@@ -2,15 +2,15 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  AlarmClock,
-  CalendarClock,
-  History,
+  Alarm,
+  CalendarDots,
+  ClockCounterClockwise,
+  Lightning,
   Lock,
-  MapPin,
+  MapPinLine,
   ShieldCheck,
-  UserRound,
-  Zap,
-} from "lucide-react";
+  User,
+} from "@phosphor-icons/react";
 import { useState } from "react";
 
 import { NationalOperationsMap } from "@/components/map/national-operations-map";
@@ -60,9 +60,11 @@ function IncidentRoomEntry() {
 
   return (
     <div className="mx-auto max-w-[1600px] px-6 py-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      <header className="flex flex-wrap items-start justify-between gap-4 border-b border-[var(--color-border)] pb-6">
         <div>
-          <p className="text-micro text-[var(--color-muted)]">Incident room</p>
+          <p className="text-eyebrow text-[var(--color-muted)]">
+            Incident room
+          </p>
           <h1 className="mt-2 text-h1">
             {districtId ? "District response" : "National response board"}
           </h1>
@@ -99,7 +101,7 @@ function RoleNotice({ user }: { user: UserResponse }) {
   return (
     <div className="max-w-sm rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-raised)] px-3 py-2.5">
       <p className="flex items-center gap-1.5 text-micro text-[var(--color-muted)]">
-        <ShieldCheck aria-hidden strokeWidth={2} className="size-3.5" />
+        <ShieldCheck aria-hidden className="size-3.5" />
         {user.role_name}
       </p>
       <p className="mt-1 text-[0.75rem] text-[var(--color-muted)]">
@@ -420,7 +422,7 @@ function IncidentRoom({
                           color: presentation.colour,
                         }}
                       >
-                        <AgencyIcon strokeWidth={2} className="size-4" />
+                        <AgencyIcon className="size-4" />
                       </span>
                     }
                   />
@@ -492,7 +494,7 @@ function ActionRow({
           className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[var(--radius-md)] border"
           style={{ borderColor: agency.colour, color: agency.colour }}
         >
-          <AgencyIcon strokeWidth={2} className="size-4" />
+          <AgencyIcon className="size-4" />
         </span>
 
         <div className="min-w-0 flex-1">
@@ -511,31 +513,31 @@ function ActionRow({
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.75rem] text-[var(--color-muted)]">
             {action.source_condition ? (
               <span className="flex items-center gap-1">
-                <Zap aria-hidden strokeWidth={2} className="size-3" />
+                <Lightning aria-hidden className="size-3" />
                 Triggered by{" "}
                 {conditionLabel(action.source_condition).toLowerCase()}
               </span>
             ) : null}
             {action.location_name ? (
               <span className="flex items-center gap-1">
-                <MapPin aria-hidden strokeWidth={2} className="size-3" />
+                <MapPinLine aria-hidden className="size-3" />
                 {action.location_name}
               </span>
             ) : null}
             <span className="flex items-center gap-1">
-              <CalendarClock aria-hidden strokeWidth={2} className="size-3" />
+              <CalendarDots aria-hidden className="size-3" />
               due {action.due_on}
             </span>
           </p>
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[0.6875rem] text-[var(--color-muted)]">
             <span className="flex items-center gap-1">
-              <UserRound aria-hidden strokeWidth={2} className="size-3" />
+              <User aria-hidden className="size-3" />
               {action.origin === "playbook"
                 ? "Standing mandate, no assignment needed"
                 : `Assigned by ${action.assigned_by} on ${action.assigned_on}`}
             </span>
             <span className="flex items-center gap-1">
-              <History aria-hidden strokeWidth={2} className="size-3" />
+              <ClockCounterClockwise aria-hidden className="size-3" />
               last moved {elapsedText(action.hours_since_movement)}
             </span>
           </p>
@@ -605,7 +607,7 @@ function ActionRow({
         })}
         {canMove ? null : (
           <span className="ml-1 flex items-center gap-1 text-[0.6875rem] text-[var(--color-muted)]">
-            <Lock aria-hidden strokeWidth={2} className="size-3" />
+            <Lock aria-hidden className="size-3" />
             {action.agency_short_name} owns this
           </span>
         )}
@@ -624,7 +626,7 @@ function UrgencyChip({ action }: { action: IncidentAction }) {
       className="flex items-center gap-1 rounded-[var(--radius-sm)] border px-1.5 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide"
       style={{ borderColor: tone.colour, color: tone.colour }}
     >
-      <AlarmClock aria-hidden strokeWidth={2.2} className="size-3" />
+      <Alarm aria-hidden className="size-3" />
       {tone.label}
     </span>
   );
@@ -649,7 +651,7 @@ function EscalationCount({ actions }: { actions: IncidentAction[] }) {
       }}
       title="Overdue means the onset window ran out. Stalled means nobody has touched it in 36 hours."
     >
-      <AlarmClock aria-hidden strokeWidth={2.2} className="size-3.5" />
+      <Alarm aria-hidden className="size-3.5" />
       <span className="text-small">
         {overdue > 0 ? `${overdue} overdue` : null}
         {overdue > 0 && escalated.length - overdue > 0 ? " · " : null}
@@ -672,7 +674,7 @@ function DistrictEscalation({ actions }: { actions: IncidentAction[] }) {
       className="mt-0.5 flex items-center gap-1 text-[0.6875rem]"
       style={{ color: "var(--color-risk-high)" }}
     >
-      <AlarmClock aria-hidden strokeWidth={2.2} className="size-3" />
+      <Alarm aria-hidden className="size-3" />
       {escalated.length === 1
         ? "1 needs attention"
         : `${escalated.length} need attention`}

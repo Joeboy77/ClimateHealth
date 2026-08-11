@@ -79,7 +79,8 @@ export function NationalOperationsMap({
   }, []);
 
   const districtById = useMemo(
-    () => new Map(districts.map((district) => [district.district_id, district])),
+    () =>
+      new Map(districts.map((district) => [district.district_id, district])),
     [districts],
   );
 
@@ -119,7 +120,9 @@ export function NationalOperationsMap({
     );
   }
 
-  const activeDistrictIds = new Set(clusters.map((cluster) => cluster.districtId));
+  const activeDistrictIds = new Set(
+    clusters.map((cluster) => cluster.districtId),
+  );
   const { width, height } = shapes.viewBox;
 
   return (
@@ -144,9 +147,7 @@ export function NationalOperationsMap({
                   : "var(--color-raised)"
               }
               fillOpacity={hasWork ? 1 : 0.22}
-              stroke={
-                hasWork ? "var(--color-ink)" : "var(--color-canvas)"
-              }
+              stroke={hasWork ? "var(--color-ink)" : "var(--color-canvas)"}
               strokeWidth={hasWork ? (highlighted ? 2.4 : 1.4) : 0.35}
             />
           );

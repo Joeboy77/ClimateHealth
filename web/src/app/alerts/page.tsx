@@ -3,12 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowUpRight,
-  ClipboardCheck,
-  Clock3,
+  ClipboardText,
+  Clock,
   ShieldCheck,
   Users,
-  type LucideIcon,
-} from "lucide-react";
+  type Icon as LucideIcon,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -52,13 +52,14 @@ function AlertsConsole() {
     list.find((alert) => alert.alert_id === selectedId) ?? list[0] ?? null;
 
   const soonest = [...list].sort(
-    (first, second) => onsetUrgency(first.lag_window) - onsetUrgency(second.lag_window),
+    (first, second) =>
+      onsetUrgency(first.lag_window) - onsetUrgency(second.lag_window),
   )[0];
 
   return (
     <div className="mx-auto max-w-[1600px] px-6 py-6">
-      <header>
-        <p className="text-micro text-[var(--color-muted)]">Alerts</p>
+      <header className="border-b border-[var(--color-border)] pb-6">
+        <p className="text-eyebrow text-[var(--color-muted)]">Alerts</p>
         {alerts.isPending ? (
           <Skeleton className="mt-2 h-10 w-96" />
         ) : (
@@ -69,9 +70,12 @@ function AlertsConsole() {
               ) : (
                 <>
                   <span
-                    style={{ color: RISK_CSS_VARIABLE[list[0]?.level ?? "high"] }}
+                    style={{
+                      color: RISK_CSS_VARIABLE[list[0]?.level ?? "high"],
+                    }}
                   >
-                    {list.length} active {list.length === 1 ? "alert" : "alerts"}
+                    {list.length} active{" "}
+                    {list.length === 1 ? "alert" : "alerts"}
                   </span>{" "}
                   need a decision
                 </>
@@ -100,7 +104,6 @@ function AlertsConsole() {
           <CardBody className="flex items-start gap-3 py-8">
             <ShieldCheck
               aria-hidden
-              strokeWidth={2}
               className="mt-0.5 size-5 shrink-0 text-[var(--color-risk-low)]"
             />
             <div>
@@ -159,7 +162,9 @@ function AlertRow({
         className={cn(
           "flex w-full items-center gap-3.5 border-b border-[var(--color-border)] px-5 py-3 text-left",
           "transition-colors duration-[var(--duration-instant)] last:border-b-0",
-          selected ? "bg-[var(--color-raised)]" : "hover:bg-[var(--color-raised)]",
+          selected
+            ? "bg-[var(--color-raised)]"
+            : "hover:bg-[var(--color-raised)]",
         )}
       >
         <span
@@ -167,11 +172,7 @@ function AlertRow({
           className="h-9 w-1 shrink-0 rounded-full"
           style={{ backgroundColor: RISK_CSS_VARIABLE[alert.level] }}
         />
-        <Icon
-          aria-hidden
-          strokeWidth={2}
-          className={cn("size-4 shrink-0", foreground)}
-        />
+        <Icon aria-hidden className={cn("size-4 shrink-0", foreground)} />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-h3">
             {conditionLabel(alert.condition)}
@@ -181,7 +182,9 @@ function AlertRow({
             {lagWindowText(alert.lag_window)}
           </span>
         </span>
-        <span className={cn("shrink-0 font-mono text-small tabular", foreground)}>
+        <span
+          className={cn("shrink-0 font-mono text-small tabular", foreground)}
+        >
           {formatScore(alert.score)}
         </span>
       </button>
@@ -210,7 +213,7 @@ function AlertDetail({ alert }: { alert: Alert }) {
             hint={SCORE_EXPLANATION}
           />
           <Metric
-            icon={Clock3}
+            icon={Clock}
             label="Onset window"
             value={lagWindowText(alert.lag_window)}
           />
@@ -242,7 +245,7 @@ function AlertDetail({ alert }: { alert: Alert }) {
 
         <div className="rounded-[var(--radius-md)] border border-[var(--color-accent)]/25 bg-[var(--color-accent-subtle)] px-3.5 py-3">
           <p className="flex items-center gap-1.5 text-micro text-[var(--color-accent)]">
-            <ClipboardCheck aria-hidden strokeWidth={2} className="size-3.5" />
+            <ClipboardText aria-hidden className="size-3.5" />
             Recommended action
           </p>
           <p className="mt-1.5 text-small">{alert.recommended_action}</p>
@@ -254,7 +257,7 @@ function AlertDetail({ alert }: { alert: Alert }) {
           className="flex items-center gap-1.5 text-small text-[var(--color-accent)] transition-opacity duration-[var(--duration-instant)] hover:opacity-80"
         >
           Open {alert.district_name}
-          <ArrowUpRight aria-hidden strokeWidth={2} className="size-3.5" />
+          <ArrowUpRight aria-hidden className="size-3.5" />
         </button>
       </CardBody>
     </Card>
@@ -279,7 +282,7 @@ function Metric({
   return (
     <div title={hint}>
       <p className="flex items-center gap-1.5 text-[0.6875rem] text-[var(--color-muted)]">
-        <Icon aria-hidden strokeWidth={2} className="size-3" />
+        <Icon aria-hidden className="size-3" />
         {label}
       </p>
       <p

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/cn";
 
@@ -35,14 +35,14 @@ export function Pagination({
           disabled={page === 1}
           onClick={() => onChange(page - 1)}
         >
-          <ChevronLeft aria-hidden strokeWidth={2} className="size-4" />
+          <CaretLeft aria-hidden className="size-4" />
         </PageButton>
         <PageButton
           label="Next page"
           disabled={page === pageCount}
           onClick={() => onChange(page + 1)}
         >
-          <ChevronRight aria-hidden strokeWidth={2} className="size-4" />
+          <CaretRight aria-hidden className="size-4" />
         </PageButton>
       </div>
     </nav>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "@phosphor-icons/react";
 
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -51,7 +51,6 @@ export function PreventionPanel({
         <CardBody className="flex items-start gap-3">
           <ShieldCheck
             aria-hidden
-            strokeWidth={2}
             className="mt-0.5 size-4 shrink-0 text-[var(--color-muted)]"
           />
           <p className="text-small text-[var(--color-muted)]">

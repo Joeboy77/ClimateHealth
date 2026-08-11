@@ -3,16 +3,16 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
-  ChevronDown,
-  Clock3,
+  CaretDown,
+  Clock,
   CloudRain,
   Factory,
+  Plant,
   Sun,
   Users,
   Wind,
-  Sprout,
-  type LucideIcon,
-} from "lucide-react";
+  type Icon as LucideIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -35,12 +35,12 @@ export default function MatrixPage() {
         href="/"
         className="inline-flex items-center gap-1.5 text-small text-[var(--color-muted)] transition-colors duration-[var(--duration-instant)] hover:text-[var(--color-ink)]"
       >
-        <ArrowLeft aria-hidden strokeWidth={2} className="size-3.5" />
+        <ArrowLeft aria-hidden className="size-3.5" />
         Back to the platform
       </Link>
 
-      <header className="mt-4">
-        <p className="text-micro text-[var(--color-muted)]">
+      <header className="mt-4 border-b border-[var(--color-border)] pb-6">
+        <p className="text-eyebrow text-[var(--color-muted)]">
           Climate-Health Intelligence Matrix
         </p>
         <h1 className="mt-2 max-w-3xl text-display">
@@ -132,11 +132,11 @@ function PathwayRow({ pathway }: { pathway: MatrixPathway }) {
           <span className="block text-h3">{pathway.condition_label}</span>
           <span className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.75rem] text-[var(--color-muted)]">
             <span className="flex items-center gap-1">
-              <Clock3 aria-hidden strokeWidth={2} className="size-3" />
+              <Clock aria-hidden className="size-3" />
               {lagWindowText(pathway.lag_window)}
             </span>
             <span className="flex items-center gap-1">
-              <Users aria-hidden strokeWidth={2} className="size-3" />
+              <Users aria-hidden className="size-3" />
               {pathway.vulnerable_group}
             </span>
           </span>
@@ -144,9 +144,8 @@ function PathwayRow({ pathway }: { pathway: MatrixPathway }) {
         <span className="hidden shrink-0 text-[0.6875rem] text-[var(--color-muted)] sm:block">
           {pathway.triggers.length} triggers
         </span>
-        <ChevronDown
+        <CaretDown
           aria-hidden
-          strokeWidth={2}
           className={cn(
             "size-4 shrink-0 text-[var(--color-muted)] transition-transform duration-[var(--duration-short)]",
             open && "rotate-180",
@@ -243,16 +242,10 @@ const DRIVER_ICONS: Record<string, LucideIcon> = {
   extreme_heat: Sun,
   harmattan_dust: Wind,
   air_pollution: Factory,
-  drought: Sprout,
+  drought: Plant,
 };
 
 function DriverIcon({ driver }: { driver: string }) {
   const Icon = DRIVER_ICONS[driver] ?? CloudRain;
-  return (
-    <Icon
-      aria-hidden
-      strokeWidth={2}
-      className="size-4 text-[var(--color-muted)]"
-    />
-  );
+  return <Icon aria-hidden className="size-4 text-[var(--color-muted)]" />;
 }

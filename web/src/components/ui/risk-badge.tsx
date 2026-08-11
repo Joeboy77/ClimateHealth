@@ -15,7 +15,13 @@ export function RiskBadge({
   showIcon = true,
   className,
 }: RiskBadgeProps) {
-  const { label, icon: Icon, foreground, surface, border } = riskPresentation(level);
+  const {
+    label,
+    icon: Icon,
+    foreground,
+    surface,
+    border,
+  } = riskPresentation(level);
 
   return (
     <span

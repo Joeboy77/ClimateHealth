@@ -1,12 +1,11 @@
 import {
-  Droplets,
-  GlassWater,
-  HeartPulse,
-  Trash2,
+  Drop,
+  Heartbeat,
+  Trash,
   Waves,
   Wind,
-  type LucideIcon,
-} from "lucide-react";
+  type Icon as LucideIcon,
+} from "@phosphor-icons/react";
 
 import type { ReportType } from "./api/types";
 
@@ -19,7 +18,7 @@ type ReportPresentation = {
 export const REPORT_PRESENTATION: Record<ReportType, ReportPresentation> = {
   stagnant_water: {
     label: "Stagnant water",
-    icon: Droplets,
+    icon: Drop,
     hint: "Standing water that could breed mosquitoes",
   },
   flooding: {
@@ -29,17 +28,17 @@ export const REPORT_PRESENTATION: Record<ReportType, ReportPresentation> = {
   },
   unsafe_water: {
     label: "Unsafe water",
-    icon: GlassWater,
+    icon: Drop,
     hint: "A drinking water source that looks or tastes wrong",
   },
   illness_cluster: {
     label: "Illness cluster",
-    icon: HeartPulse,
+    icon: Heartbeat,
     hint: "Several people unwell with similar symptoms",
   },
   waste_dumping: {
     label: "Waste dumping",
-    icon: Trash2,
+    icon: Trash,
     hint: "Refuse blocking drains or piling up",
   },
   dust_haze: {

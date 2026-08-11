@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING, Protocol
 
 from climahealth.domain.models import (
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
         ReportSubmission,
         VerificationStatus,
     )
+    from climahealth.services.rewards import MobileMoneyNetwork, Redemption
     from climahealth.services.sms_alerts import SenderIdStatus, SmsDelivery
     from climahealth.services.stock import ResourceStock
     from climahealth.services.ussd import UssdSession
@@ -222,6 +224,20 @@ class CitizenStore(Protocol):
     def phone_numbers_in(self, district_id: str) -> tuple[str, ...]: ...
 
 
+class PayoutSender(Protocol):
+    @property
+    def pays_for_real(self) -> bool: ...
+
+    def pay(
+        self,
+        user_id: str,
+        recipient: str,
+        network: "MobileMoneyNetwork",
+        cedis: "Decimal",
+        points_spent: int,
+    ) -> "Redemption": ...
+
+
 class SmsSender(Protocol):
     @property
     def sends_for_real(self) -> bool: ...
@@ -248,5 +264,13 @@ class QuizRepository(Protocol):
         day: date,
         tier: "GuardianTier | None" = None,
     ) -> "QuizQuestion": ...
+
+    def session_for(
+        self,
+        condition: "HealthCondition",
+        day: date,
+        tier: "GuardianTier | None",
+        length: int,
+    ) -> tuple["QuizQuestion", ...]: ...
 
     def find(self, question_id: str) -> "QuizQuestion | None": ...

@@ -63,6 +63,21 @@ class Settings(BaseSettings):
     # production: it admits any private-network origin on the development ports.
     allow_local_network_origins: bool = False
     photo_directory: str = "var/report-photos"
+    # Mobile money payouts. Off unless switched on deliberately: a transfer cannot be
+    # recalled, and an unbounded payout path is the one bug you cannot take back.
+    payout_mode: SmsDelivery = SmsDelivery.PREVIEW
+    moolre_api_user: str | None = None
+    moolre_api_key: str | None = None
+    moolre_account_number: str | None = None
+
+    @property
+    def can_pay_out(self) -> bool:
+        return (
+            self.payout_mode is SmsDelivery.LIVE
+            and bool(self.moolre_api_user)
+            and bool(self.moolre_api_key)
+            and bool(self.moolre_account_number)
+        )
 
     @property
     def development_origin_pattern(self) -> str | None:
@@ -90,7 +105,14 @@ class Settings(BaseSettings):
             return tuple(origin.strip() for origin in value.split(",") if origin.strip())
         return value
 
-    @field_validator("ghana_nlp_api_key", "moolre_vaskey", mode="before")
+    @field_validator(
+        "ghana_nlp_api_key",
+        "moolre_vaskey",
+        "moolre_api_user",
+        "moolre_api_key",
+        "moolre_account_number",
+        mode="before",
+    )
     @classmethod
     def treat_blank_key_as_absent(cls, value: object) -> object:
         if isinstance(value, str) and not value.strip():

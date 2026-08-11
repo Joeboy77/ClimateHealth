@@ -1,10 +1,10 @@
 import {
-  AlertCircle,
-  AlertTriangle,
-  OctagonAlert,
   ShieldCheck,
-  type LucideIcon,
-} from "lucide-react";
+  Warning,
+  WarningCircle,
+  WarningOctagon,
+  type Icon as LucideIcon,
+} from "@phosphor-icons/react";
 
 import type { ConfidenceMode, LagWindow, RiskLevel } from "./api/types";
 
@@ -28,7 +28,7 @@ export const RISK_PRESENTATION: Record<RiskLevel, RiskPresentation> = {
   },
   moderate: {
     label: "Moderate",
-    icon: AlertCircle,
+    icon: WarningCircle,
     foreground: "text-[var(--color-risk-moderate)]",
     surface: "bg-[var(--color-risk-moderate-surface)]",
     border: "border-[var(--color-risk-moderate)]/25",
@@ -36,7 +36,7 @@ export const RISK_PRESENTATION: Record<RiskLevel, RiskPresentation> = {
   },
   high: {
     label: "High",
-    icon: AlertTriangle,
+    icon: Warning,
     foreground: "text-[var(--color-risk-high)]",
     surface: "bg-[var(--color-risk-high-surface)]",
     border: "border-[var(--color-risk-high)]/25",
@@ -44,7 +44,7 @@ export const RISK_PRESENTATION: Record<RiskLevel, RiskPresentation> = {
   },
   severe: {
     label: "Severe",
-    icon: OctagonAlert,
+    icon: WarningOctagon,
     foreground: "text-[var(--color-risk-severe)]",
     surface: "bg-[var(--color-risk-severe-surface)]",
     border: "border-[var(--color-risk-severe)]/25",

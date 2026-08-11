@@ -19,6 +19,7 @@ from climahealth.infrastructure.climate.context_provider import (
 from climahealth.infrastructure.climate.providers import DemoOverrideFeatureProvider
 from climahealth.infrastructure.clock import FixedClock
 from climahealth.infrastructure.events.broadcaster import InMemoryEventBroadcaster
+from climahealth.infrastructure.payments.moolre_payouts import PreviewPayoutSender
 from climahealth.infrastructure.security.passwords import Pbkdf2PasswordHasher
 from climahealth.infrastructure.security.tokens import JwtTokenIssuer
 from climahealth.infrastructure.seed.citizens import InMemoryCitizenStore
@@ -59,6 +60,7 @@ from climahealth.services.models import District
 from climahealth.services.outreach_service import OutreachService
 from climahealth.services.readiness_service import ReadinessService
 from climahealth.services.reports_service import ReportsService
+from climahealth.services.rewards_service import RewardsService
 from climahealth.services.risk_service import RiskService
 from climahealth.services.tickets import InMemoryTicketStore
 
@@ -109,9 +111,18 @@ def container(override_provider, context_provider) -> Container:
     clock = FixedClock(TEST_DAY)
     report_store = InMemoryReportStore()
     guardians = InMemoryGuardianStore()
+    quizzes = InMemoryQuizRepository()
+    citizen_store = InMemoryCitizenStore()
     risk_service = RiskService(
         provider=override_provider,
         context_provider=CommunityReportContextProvider(context_provider, report_store),
+        clock=clock,
+    )
+    gamification_service = GamificationService(
+        guardians=guardians,
+        quizzes=quizzes,
+        reports=report_store,
+        risk_service=risk_service,
         clock=clock,
     )
     scope_guard = ScopeGuard(InMemoryDistrictRepository())
@@ -153,13 +164,14 @@ def container(override_provider, context_provider) -> Container:
             clock=clock,
             events=broadcaster,
         ),
-        gamification_service=GamificationService(
-            guardians=guardians,
-            quizzes=InMemoryQuizRepository(),
-            reports=report_store,
-            risk_service=risk_service,
-            clock=clock,
+        gamification_service=gamification_service,
+        rewards_service=RewardsService(
+            gamification=gamification_service,
+            citizens=citizen_store,
+            payouts=PreviewPayoutSender(),
         ),
+        guardians=guardians,
+        quizzes=quizzes,
         broadcaster=broadcaster,
         clock=clock,
         district_repository=InMemoryDistrictRepository(),
@@ -168,7 +180,7 @@ def container(override_provider, context_provider) -> Container:
         public_limiter=SlidingWindowLimiter(),
         photo_store=LocalPhotoStore(Path(mkdtemp())),
         citizen_service=CitizenService(
-            citizens=InMemoryCitizenStore(),
+            citizens=citizen_store,
             districts=InMemoryDistrictRepository(),
             tokens=JwtTokenIssuer(TEST_SECRET),
             guardians=guardians,

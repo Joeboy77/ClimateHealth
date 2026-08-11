@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { MessageSquareWarning } from "lucide-react";
+import { ChatTeardropDots } from "@phosphor-icons/react";
 
 import { ScopedDistrictPage } from "@/components/district/scoped-district-page";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -81,11 +81,7 @@ function Readiness({
         action={
           <span className="flex items-center gap-3">
             <span className="flex items-center gap-1.5 text-small text-[var(--color-muted)]">
-              <MessageSquareWarning
-                aria-hidden
-                strokeWidth={2}
-                className="size-3.5"
-              />
+              <ChatTeardropDots aria-hidden className="size-3.5" />
               {report.open_reports} reports
             </span>
             <RiskBadge level={report.overall_risk_level} size="sm" />
