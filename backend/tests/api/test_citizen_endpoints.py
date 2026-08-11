@@ -180,3 +180,21 @@ def test_one_citizen_cannot_mint_a_guardian_for_another_account(client: TestClie
     response = finish_a_run(client, registered["access_token"], "somebody-else")
 
     assert response.status_code == 404
+
+
+def test_the_guardian_card_carries_the_streak_so_the_home_screen_needs_one_call(
+    client: TestClient,
+):
+    registered = client.post("/citizens", json=REGISTRATION).json()
+    token, user_id = registered["access_token"], registered["citizen"]["user_id"]
+    headers = {"authorization": f"Bearer {token}"}
+
+    before = client.get(f"/guardian/{user_id}", headers=headers).json()
+    assert before["points"] == 0
+    assert before["streak"]["current_days"] == 0
+
+    finish_a_run(client, token, user_id)
+
+    after = client.get(f"/guardian/{user_id}", headers=headers).json()
+    assert after["points"] > 0
+    assert after["streak"]["current_days"] == 1

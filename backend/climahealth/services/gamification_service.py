@@ -20,6 +20,7 @@ from climahealth.services.quiz_session import (
     Streak,
     advance_streak,
     points_for,
+    streak_state_on,
 )
 from climahealth.services.risk_service import RiskService
 
@@ -65,6 +66,7 @@ class GuardianProfile(ServiceModel):
     points: int
     level: GuardianLevel
     missions_completed: int
+    streak: Streak
 
 
 class RewardLadder(ServiceModel):
@@ -214,6 +216,7 @@ class GamificationService:
             points=guardian.points,
             level=level_for_points(guardian.points, self._guardians.ladder()),
             missions_completed=len(guardian.completed_mission_ids),
+            streak=streak_state_on(guardian.streak, self._clock.today()),
         )
 
     def rewards_for(self, user: AuthenticatedUser, user_id: str) -> RewardLadder:
