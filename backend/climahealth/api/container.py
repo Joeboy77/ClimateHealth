@@ -45,6 +45,10 @@ from climahealth.infrastructure.events.broadcaster import InMemoryEventBroadcast
 from climahealth.infrastructure.security.passwords import Pbkdf2PasswordHasher
 from climahealth.infrastructure.security.tokens import JwtTokenIssuer
 from climahealth.infrastructure.seed.citizens import InMemoryCitizenStore
+from climahealth.infrastructure.seed.demo_guardians import (
+    DEMO_PASSWORD_SALT,
+    seed_demo_guardians,
+)
 from climahealth.infrastructure.seed.districts import InMemoryDistrictRepository
 from climahealth.infrastructure.seed.gamification import (
     InMemoryGuardianStore,
@@ -191,6 +195,12 @@ def build_container(settings: Settings | None = None) -> Container:
         else PreviewSmsSender(moolre)
     )
     hasher = Pbkdf2PasswordHasher()
+    seed_demo_guardians(
+        citizen_store,
+        guardians,
+        hasher.hash("seeded-demo-account", DEMO_PASSWORD_SALT),
+    )
+
 
     districts = InMemoryDistrictRepository()
     scope_guard = ScopeGuard(districts)

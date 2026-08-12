@@ -283,6 +283,19 @@ class InMemoryGuardianStore:
         self._guardians[user_id] = updated
         return updated
 
+    def award(self, user_id: str, points: int, streak_days: int) -> Guardian:
+        """Set a seeded Guardian's standing. Used only when planting demonstration
+        accounts at startup; real points are earned one run at a time."""
+        guardian = self._guardians[user_id]
+        updated = guardian.model_copy(
+            update={
+                "points": points,
+                "streak": Streak(current_days=streak_days, longest_days=streak_days),
+            }
+        )
+        self._guardians[user_id] = updated
+        return updated
+
     def spend_points(self, user_id: str, points: int) -> Guardian:
         guardian = self._guardians[user_id]
         updated = guardian.model_copy(update={"points": max(guardian.points - points, 0)})
