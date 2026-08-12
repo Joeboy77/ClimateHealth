@@ -21,7 +21,7 @@ def test_defaults_let_the_api_run_with_no_configuration():
     assert settings.token_secret == DEVELOPMENT_TOKEN_SECRET
     assert settings.cors_origins == DEFAULT_CORS_ORIGINS
     assert settings.ghana_nlp_api_key is None
-    assert settings.token_lifetime_hours == 12
+    assert settings.token_lifetime_hours == 24
     assert settings.climate_cache_minutes == 30
 
 

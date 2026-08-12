@@ -92,5 +92,33 @@ class OutreachService:
             self._sessions.discard(session_id)
         return reply
 
+    def ussd_chain(
+        self,
+        session_id: str,
+        msisdn: str,
+        network: int,
+        keypresses: tuple[str, ...],
+        districts: tuple[District, ...],
+    ) -> UssdReply:
+        """Replay a whole input chain from the start.
+
+        Africa's Talking does not send the latest keypress; it sends everything the
+        caller has typed so far, joined by asterisks. Replaying the chain rather than
+        trusting a stored session means a restarted process, a retried request, or a
+        session we never saw still answers correctly, because the caller's own input is
+        the only state that matters.
+        """
+        reply = start(session_id, msisdn, network)
+        for keypress in keypresses:
+            if not reply.reply:
+                break
+            reply = advance(reply.session, keypress, districts, self.alert_for)
+
+        if reply.reply:
+            self._sessions.save(reply.session)
+        else:
+            self._sessions.discard(session_id)
+        return reply
+
     def session(self, session_id: str) -> UssdSession | None:
         return self._sessions.find(session_id)

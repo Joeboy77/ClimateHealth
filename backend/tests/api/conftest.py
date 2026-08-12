@@ -184,6 +184,7 @@ def container(override_provider, context_provider) -> Container:
             districts=InMemoryDistrictRepository(),
             tokens=JwtTokenIssuer(TEST_SECRET),
             guardians=guardians,
+            passwords=FAST_HASHER,
         ),
         outreach_service=OutreachService(
             risk_service=risk_service,

@@ -111,3 +111,56 @@ def test_the_open_endpoint_is_rated_so_it_cannot_be_used_as_an_amplifier(
     statuses = {client.get("/public/overview").status_code for _ in range(40)}
 
     assert 429 in statuses
+
+
+AT_SESSION = {"sessionId": "ATUid_9f2c", "phoneNumber": "+233241235993", "serviceCode": "*920*55#"}
+
+
+def test_africas_talking_opens_a_session_with_a_con_prefix(client: TestClient):
+    """Africa's Talking reads the first word: CON keeps the session open, END closes it."""
+    response = client.post("/ussd/africastalking", data={**AT_SESSION, "text": ""})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/plain")
+    assert response.text.startswith("CON ")
+
+
+def test_africas_talking_sends_the_whole_chain_not_the_latest_keypress(
+    client: TestClient,
+):
+    """The caller has pressed 1 then 1. Africa's Talking posts "1*1", not "1"."""
+    first = client.post("/ussd/africastalking", data={**AT_SESSION, "text": "1"})
+    second = client.post("/ussd/africastalking", data={**AT_SESSION, "text": "1*1"})
+
+    assert "Choose region" in first.text
+    assert "Choose region" not in second.text
+
+
+def test_a_replayed_chain_answers_the_same_way_without_a_stored_session(
+    client: TestClient,
+):
+    """A restarted process or a retried request must still answer correctly, so the
+    chain is replayed from the start rather than trusted to a stored session."""
+    walked = client.post("/ussd/africastalking", data={**AT_SESSION, "text": "1"})
+    client.post("/ussd/africastalking", data={**AT_SESSION, "text": "1*1"})
+
+    replayed = client.post(
+        "/ussd/africastalking", data={**AT_SESSION, "sessionId": "ATUid_other", "text": "1"}
+    )
+
+    assert replayed.text == walked.text
+
+
+def test_the_network_is_read_from_the_number_because_africas_talking_omits_it(
+    client: TestClient,
+):
+    response = client.post(
+        "/ussd/africastalking", data={**AT_SESSION, "phoneNumber": "0201234567", "text": ""}
+    )
+
+    assert response.status_code == 200
+    assert response.text.startswith("CON ")
+
+
+def test_africas_talking_needs_no_token_because_the_network_calls_it(client: TestClient):
+    assert client.post("/ussd/africastalking", data={**AT_SESSION, "text": ""}).status_code == 200

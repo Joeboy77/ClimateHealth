@@ -263,6 +263,7 @@ def build_container(settings: Settings | None = None) -> Container:
             districts=districts,
             tokens=tokens,
             guardians=guardians,
+            passwords=hasher,
         ),
         outreach_service=OutreachService(
             risk_service=risk_service,

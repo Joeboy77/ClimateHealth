@@ -11,6 +11,7 @@ export type LoginResponse = Schemas["LoginResponse"];
 export type CitizenSession = Schemas["CitizenSession"];
 export type CitizenIdentity = Schemas["CitizenIdentity"];
 export type CitizenRegistration = Schemas["CitizenRegistration"];
+export type CitizenLogin = Schemas["CitizenLogin"];
 export type AgeBand = Schemas["AgeBand"];
 export type AgeBandOption = Schemas["AgeBandOption"];
 export type GuardianTier = Schemas["GuardianTier"];

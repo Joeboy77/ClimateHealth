@@ -16,6 +16,7 @@ import {
   reminderEnabled,
 } from "@/lib/reminders/daily";
 import { setSoundMuted, soundMuted } from "@/lib/sound/quiz-sounds";
+import { optionsReadAloud, setOptionsReadAloud } from "@/lib/speech/speak";
 import { SettingSwitch } from "@/components/setting-switch";
 
 /**
@@ -154,10 +155,12 @@ export default function GuardianScreen() {
 function Settings() {
   const [reminder, setReminder] = useState(false);
   const [sound, setSound] = useState(true);
+  const [spoken, setSpoken] = useState(true);
 
   useEffect(() => {
     setReminder(reminderEnabled());
     setSound(!soundMuted());
+    setSpoken(optionsReadAloud());
   }, []);
 
   return (
@@ -170,6 +173,15 @@ function Settings() {
         onChange={(next) => {
           setSound(next);
           setSoundMuted(!next);
+        }}
+      />
+      <SettingSwitch
+        label="Read answers aloud"
+        description="Hear the answer you tapped before you commit to it."
+        value={spoken}
+        onChange={(next) => {
+          setSpoken(next);
+          setOptionsReadAloud(next);
         }}
       />
       <SettingSwitch
