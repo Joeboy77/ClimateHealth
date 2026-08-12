@@ -69,6 +69,18 @@ class Settings(BaseSettings):
     moolre_api_user: str | None = None
     moolre_api_key: str | None = None
     moolre_account_number: str | None = None
+    # Cloudinary for report photographs. Without all three, photos fall back to local
+    # disk and every other part of a report behaves identically.
+    cloudinary_cloud_name: str | None = None
+    cloudinary_api_key: str | None = None
+    cloudinary_api_secret: str | None = None
+    cloudinary_folder: str = "climahealth/reports"
+
+    @property
+    def stores_photos_in_cloudinary(self) -> bool:
+        return bool(
+            self.cloudinary_cloud_name and self.cloudinary_api_key and self.cloudinary_api_secret
+        )
 
     @property
     def can_pay_out(self) -> bool:

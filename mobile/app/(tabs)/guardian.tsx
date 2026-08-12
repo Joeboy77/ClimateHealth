@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { duration } from "@/design/motion";
-import { colour, family, radius, space, type } from "@/design/tokens";
+import { MINIMUM_TARGET, colour, family, radius, space, type } from "@/design/tokens";
 import { api } from "@/lib/api/client";
 import type { GuardianLevel } from "@/lib/api/types";
 import { useSession } from "@/lib/identity/session";
@@ -135,6 +135,8 @@ export default function GuardianScreen() {
 
       <Settings />
 
+      <SignOut />
+
       {shield.data ? (
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>YOUR DISTRICT&rsquo;S SHIELD</Text>
@@ -148,6 +150,52 @@ export default function GuardianScreen() {
         </View>
       ) : null}
     </ScrollView>
+  );
+}
+
+/**
+ * Signing out.
+ *
+ * Confirmed first, because a Guardian card holds a streak somebody has kept for weeks
+ * and a mis-tap that appears to throw it away is alarming even though the points are
+ * safe on the server. The wording says so plainly.
+ */
+function SignOut() {
+  const router = useRouter();
+  const { leave, citizen } = useSession();
+
+  const confirmAndLeave = () => {
+    Alert.alert(
+      "Sign out of Dawuro?",
+      "Your points and streak stay on your account. Sign back in with your phone number and password to pick them up.",
+      [
+        { text: "Stay signed in", style: "cancel" },
+        {
+          text: "Sign out",
+          style: "destructive",
+          onPress: () => {
+            void leave().then(() => router.replace("/login"));
+          },
+        },
+      ],
+    );
+  };
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>ACCOUNT</Text>
+      {citizen ? (
+        <Text style={styles.muted}>Signed in as {citizen.display_name}.</Text>
+      ) : null}
+      <Pressable
+        onPress={confirmAndLeave}
+        accessibilityRole="button"
+        accessibilityLabel="Sign out of Dawuro"
+        style={styles.signOut}
+      >
+        <Text style={styles.signOutText}>Sign out</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -235,6 +283,20 @@ function Level({ level, reached }: { level: GuardianLevel; reached: boolean }) {
 }
 
 const styles = StyleSheet.create({
+  signOut: {
+    minHeight: MINIMUM_TARGET,
+    marginTop: space.base,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: colour.riskSevere,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  signOutText: {
+    ...type.body,
+    fontFamily: family.bodySemibold,
+    color: colour.riskSevere,
+  },
   host: { flex: 1, backgroundColor: colour.canvas },
   content: { paddingHorizontal: space.comfortable },
   eyebrow: {

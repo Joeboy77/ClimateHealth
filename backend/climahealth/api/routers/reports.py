@@ -6,11 +6,16 @@ from climahealth.api.schemas.common import ApiModel
 from climahealth.infrastructure.storage.photos import PhotoRejected
 from climahealth.services.reports_service import (
     CommunityReport,
+    InvalidStageChange,
+    NotAResponder,
+    NotAValidator,
     ReportNotFound,
     ReportPriority,
+    ReportProgress,
     ReportSubmission,
     ReportType,
     ReportVerification,
+    StageAdvance,
     VerificationStatus,
 )
 
@@ -80,6 +85,36 @@ def get_report_photo(
     if path is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No such photo")
     return FileResponse(path)
+
+
+@router.get("/reports/{report_id}/progress", response_model=ReportProgress)
+def get_report_progress(
+    report_id: str, user: CurrentUser, container: ContainerDependency
+) -> ReportProgress:
+    """How far along this report is, and every step it has taken to get there."""
+    try:
+        return container.reports_service.progress_for(user, report_id)
+    except ReportNotFound as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+
+
+@router.post("/reports/{report_id}/stage", response_model=ReportProgress)
+def advance_report_stage(
+    report_id: str,
+    advance: StageAdvance,
+    user: CurrentUser,
+    container: ContainerDependency,
+) -> ReportProgress:
+    """Move a report one step along, as the Ɔhwɛfoɔ who validated it or the agency
+    doing the work."""
+    try:
+        return container.reports_service.advance_stage(user, report_id, advance)
+    except ReportNotFound as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
+    except (NotAValidator, NotAResponder) as error:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(error)) from error
+    except InvalidStageChange as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
 
 
 @router.get("/reports", response_model=list[CommunityReport])

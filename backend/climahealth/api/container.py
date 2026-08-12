@@ -64,6 +64,7 @@ from climahealth.infrastructure.seed.reports import SEEDED_REPORTS, InMemoryRepo
 from climahealth.infrastructure.seed.users import InMemoryUserRepository, seeded_users
 from climahealth.infrastructure.sms.moolre import MoolreSmsSender, PreviewSmsSender
 from climahealth.infrastructure.sms.sessions import InMemoryUssdSessionStore
+from climahealth.infrastructure.storage.cloudinary_photos import CloudinaryPhotoStore
 from climahealth.infrastructure.storage.photos import LocalPhotoStore
 from climahealth.services.access_service import AccessService, ScopeGuard
 from climahealth.services.alerts_service import AlertsService
@@ -76,6 +77,7 @@ from climahealth.services.outreach_service import OutreachService
 from climahealth.services.ports import (
     ActionTransitionStore,
     IncidentActionStore,
+    PhotoStore,
     ReportStore,
     Translator,
 )
@@ -109,7 +111,24 @@ class Container:
     settings: Settings
     tickets: InMemoryTicketStore
     public_limiter: SlidingWindowLimiter
-    photo_store: LocalPhotoStore
+    photo_store: PhotoStore
+
+
+def build_photo_store(settings: Settings) -> PhotoStore:
+    """Cloudinary when it is configured, local disk otherwise.
+
+    A report photograph is evidence an officer needs to see from another host, so it
+    belongs in object storage. Falling back to disk keeps the whole reporting flow
+    working for anybody running this without a Cloudinary account.
+    """
+    if not settings.stores_photos_in_cloudinary:
+        return LocalPhotoStore(Path(settings.photo_directory))
+    return CloudinaryPhotoStore(
+        cloud_name=settings.cloudinary_cloud_name or "",
+        api_key=settings.cloudinary_api_key or "",
+        api_secret=settings.cloudinary_api_secret or "",
+        folder=settings.cloudinary_folder,
+    )
 
 
 def build_stores(
@@ -276,5 +295,5 @@ def build_container(settings: Settings | None = None) -> Container:
         settings=settings,
         tickets=InMemoryTicketStore(),
         public_limiter=SlidingWindowLimiter(),
-        photo_store=LocalPhotoStore(Path(resolved_settings.photo_directory)),
+        photo_store=build_photo_store(resolved_settings),
     )

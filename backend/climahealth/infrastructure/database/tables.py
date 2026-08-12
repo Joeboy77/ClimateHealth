@@ -72,6 +72,22 @@ class CommunityReportRow(Base):
     verified_by: Mapped[str | None] = mapped_column(String(120), nullable=True)
     verified_on: Mapped[date | None] = mapped_column(Date, nullable=True)
     priority: Mapped[str] = mapped_column(String(20), default="routine")
+    stage: Mapped[str] = mapped_column(String(20), default="submitted")
+
+
+class ReportProgressRow(Base):
+    """Append-only. A row is written for every stage a report reaches and never edited,
+    because a timeline that can be rewritten is not evidence of anything."""
+
+    __tablename__ = "report_progress"
+
+    entry_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    report_id: Mapped[str] = mapped_column(String(80), index=True)
+    stage: Mapped[str] = mapped_column(String(20))
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    actor_name: Mapped[str] = mapped_column(String(120))
+    actor_role: Mapped[str] = mapped_column(String(40))
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class GuardianRow(Base):

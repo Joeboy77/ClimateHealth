@@ -40,11 +40,16 @@ class UserRole(StrEnum):
 
     COORDINATOR = "coordinator"
     RESPONDER = "responder"
+    # Ɔhwɛfoɔ: the one who goes and looks. A report is a claim until somebody stands
+    # where it was filed and confirms it, and no agency should spend a truck on a
+    # claim nobody has checked.
+    FIELD_OFFICER = "field_officer"
 
 
 ROLE_NAMES: dict[UserRole, str] = {
     UserRole.COORDINATOR: "Response coordinator",
     UserRole.RESPONDER: "Agency responder",
+    UserRole.FIELD_OFFICER: "Ɔhwɛfoɔ, on-ground officer",
 }
 
 
@@ -91,6 +96,12 @@ class AuthenticatedUser(ServiceModel):
     @property
     def coordinates_response(self) -> bool:
         return self.role is UserRole.COORDINATOR
+
+    @property
+    def validates_in_the_field(self) -> bool:
+        """Ɔhwɛfoɔ go and look. A coordinator may also validate, because somebody has
+        to be able to unblock a district whose officer is unreachable."""
+        return self.role in (UserRole.FIELD_OFFICER, UserRole.COORDINATOR)
 
     def may_update_action_of(self, assigned_agency: Agency) -> bool:
         """Coordinators may move anything in scope; responders only their own work."""

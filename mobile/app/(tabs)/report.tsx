@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
@@ -29,10 +29,11 @@ import {
   space,
   type,
 } from "@/design/tokens";
+import { ReportProgressBar } from "@/components/report-progress-bar";
 import { HAZARDS } from "@/features/report/hazards";
 import { api, uploadReportPhoto } from "@/lib/api/client";
 import { enqueue } from "@/lib/offline/report-queue";
-import type { ReportType } from "@/lib/api/types";
+import type { CommunityReport, ReportType } from "@/lib/api/types";
 import { useSession } from "@/lib/identity/session";
 
 const NOTE_LIMIT = 300;
@@ -264,6 +265,8 @@ export default function ReportScreen() {
         {send.isError ? (
           <Text style={styles.error}>Something went wrong. Try sending again.</Text>
         ) : null}
+
+        <YourReports />
       </ScrollView>
 
       <View
@@ -375,7 +378,108 @@ function Pin() {
   );
 }
 
+/**
+ * What became of the things you reported.
+ *
+ * Reporting a hazard into a form that never answers is how people learn not to bother.
+ * The person who filed it sees the same stages the officers do, in the same words,
+ * including who validated it and what they wrote when they went to look.
+ */
+function YourReports() {
+  const { token, citizen } = useSession();
+
+  const mine = useQuery({
+    queryKey: ["my-reports", citizen?.user_id],
+    queryFn: async () => {
+      const all = await api.reports(token ?? "", citizen?.district_id ?? "");
+      return all.filter((report) => report.submitted_by === citizen?.user_id);
+    },
+    enabled: token !== null && (citizen?.district_id ?? "") !== "",
+  });
+
+  if (!mine.data || mine.data.length === 0) return null;
+
+  return (
+    <View style={styles.mine}>
+      <Text style={styles.mineHeading}>WHAT YOU HAVE REPORTED</Text>
+      {mine.data.map((report) => (
+        <MyReport key={report.report_id} report={report} />
+      ))}
+    </View>
+  );
+}
+
+function MyReport({ report }: { report: CommunityReport }) {
+  const { token } = useSession();
+  const hazard = HAZARDS.find((entry) => entry.type === report.report_type);
+
+  const progress = useQuery({
+    queryKey: ["report-progress", report.report_id],
+    queryFn: () => api.reportProgress(token ?? "", report.report_id),
+    enabled: token !== null,
+  });
+
+  const latest = progress.data?.timeline.at(-1);
+
+  return (
+    <View style={styles.mineCard}>
+      <View style={styles.mineTop}>
+        <Text style={styles.mineType}>{hazard?.label ?? report.report_type}</Text>
+        <Text style={styles.mineDate}>{report.submitted_on}</Text>
+      </View>
+      <Text style={styles.mineNote} numberOfLines={2}>
+        {report.note}
+      </Text>
+
+      {progress.data ? (
+        <View style={styles.mineBar}>
+          <ReportProgressBar
+            stage={progress.data.stage}
+            stageLabel={progress.data.stage_label}
+            percent={progress.data.percent}
+          />
+        </View>
+      ) : null}
+
+      {latest?.note ? (
+        <Text style={styles.mineWord}>
+          &ldquo;{latest.note}&rdquo; &mdash; {latest.actor_name}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  mine: { marginTop: space.section },
+  mineHeading: {
+    ...type.overline,
+    color: colour.inkFaint,
+    textTransform: "uppercase",
+    marginBottom: space.base,
+  },
+  mineCard: {
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colour.border,
+    padding: space.comfortable,
+    marginBottom: space.base,
+  },
+  mineTop: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+  },
+  mineType: { ...type.body, fontFamily: family.bodySemibold, color: colour.ink },
+  mineDate: { ...type.caption, color: colour.inkFaint },
+  mineNote: { ...type.caption, color: colour.inkMuted, marginTop: 2 },
+  mineBar: { marginTop: space.base },
+  mineWord: {
+    ...type.caption,
+    color: colour.inkMuted,
+    fontStyle: "italic",
+    marginTop: space.snug,
+  },
   host: { flex: 1, backgroundColor: colour.canvas },
   content: { paddingHorizontal: space.comfortable },
   sent: { paddingHorizontal: space.comfortable, justifyContent: "space-between" },

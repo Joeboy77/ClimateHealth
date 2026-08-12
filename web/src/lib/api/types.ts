@@ -103,3 +103,5 @@ export const RISK_LEVEL_LABELS: Record<RiskLevel, string> = {
 export function conditionLabel(condition: string): string {
   return HEALTH_CONDITION_LABELS[condition] ?? condition;
 }
+export type ReportProgress = Schemas["ReportProgress"];
+export type ReportProgressEntry = Schemas["ReportProgressEntry"];

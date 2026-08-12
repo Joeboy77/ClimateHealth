@@ -117,3 +117,127 @@ def test_a_district_user_cannot_read_another_districts_report(client, madina_hea
 
 def test_submitting_a_report_requires_authentication(client):
     assert client.post("/reports", json=MADINA_REPORT).status_code == 401
+
+
+def submitted(client, headers) -> str:
+    return client.post("/reports", json=MADINA_REPORT, headers=headers).json()["report_id"]
+
+
+def test_a_new_report_starts_at_submitted_and_a_quarter_done(client, madina_headers):
+    report_id = submitted(client, madina_headers)
+
+    progress = client.get(f"/reports/{report_id}/progress", headers=madina_headers).json()
+
+    assert progress["stage"] == "submitted"
+    assert progress["percent"] == 25
+    assert progress["next_stages"] == ["validated", "rejected"]
+
+
+def test_the_ohwefo_validates_and_the_agency_carries_it_to_resolved(
+    client, madina_headers, ohwefo_headers, nadmo_headers
+):
+    report_id = submitted(client, madina_headers)
+
+    walked = [
+        client.post(
+            f"/reports/{report_id}/stage",
+            json={"stage": stage, "note": note},
+            headers=headers,
+        ).json()
+        for stage, note, headers in (
+            ("validated", "Went at 7am, standing water confirmed", ohwefo_headers),
+            ("in_progress", "Drainage team dispatched", nadmo_headers),
+            ("resolved", "Channel cleared", nadmo_headers),
+        )
+    ]
+
+    assert [step["percent"] for step in walked] == [50, 75, 100]
+    assert len(walked[-1]["timeline"]) == 3
+    assert walked[-1]["timeline"][0]["note"] == "Went at 7am, standing water confirmed"
+
+
+def test_an_agency_cannot_validate_because_it_did_not_go_and_look(
+    client, madina_headers, nadmo_headers
+):
+    """Validation and repair are different jobs held by different people."""
+    report_id = submitted(client, madina_headers)
+
+    refused = client.post(
+        f"/reports/{report_id}/stage", json={"stage": "validated"}, headers=nadmo_headers
+    )
+
+    assert refused.status_code == 403
+
+
+def test_work_cannot_begin_on_a_report_nobody_has_validated(client, madina_headers, nadmo_headers):
+    report_id = submitted(client, madina_headers)
+
+    refused = client.post(
+        f"/reports/{report_id}/stage", json={"stage": "in_progress"}, headers=nadmo_headers
+    )
+
+    assert refused.status_code == 409
+
+
+def test_a_resolved_report_cannot_be_reopened_by_moving_it_backwards(
+    client, madina_headers, ohwefo_headers, nadmo_headers
+):
+    report_id = submitted(client, madina_headers)
+    for stage, headers in (
+        ("validated", ohwefo_headers),
+        ("in_progress", nadmo_headers),
+        ("resolved", nadmo_headers),
+    ):
+        client.post(f"/reports/{report_id}/stage", json={"stage": stage}, headers=headers)
+
+    refused = client.post(
+        f"/reports/{report_id}/stage", json={"stage": "in_progress"}, headers=nadmo_headers
+    )
+
+    assert refused.status_code == 409
+
+
+def test_validating_is_what_makes_a_report_count_as_a_signal(
+    client, madina_headers, ohwefo_headers
+):
+    """Points and community signals key off verification, so the field check has to
+    be the thing that sets it."""
+    report_id = submitted(client, madina_headers)
+    assert client.get(f"/reports/{report_id}", headers=madina_headers).json()["verification"] == (
+        "pending"
+    )
+
+    client.post(f"/reports/{report_id}/stage", json={"stage": "validated"}, headers=ohwefo_headers)
+
+    assert client.get(f"/reports/{report_id}", headers=madina_headers).json()["verification"] == (
+        "verified"
+    )
+
+
+def test_a_rejected_report_reads_as_finished_not_a_quarter_done(
+    client, madina_headers, ohwefo_headers
+):
+    report_id = submitted(client, madina_headers)
+
+    rejected = client.post(
+        f"/reports/{report_id}/stage",
+        json={"stage": "rejected", "note": "Nothing there when I visited"},
+        headers=ohwefo_headers,
+    ).json()
+
+    assert rejected["percent"] == 100
+    assert rejected["next_stages"] == []
+
+
+def test_a_district_user_cannot_see_progress_of_another_districts_report(
+    client, national_headers, madina_headers
+):
+    elsewhere = client.post(
+        "/reports",
+        json={**MADINA_REPORT, "district_id": "wa"},
+        headers=national_headers,
+    ).json()["report_id"]
+
+    refused = client.get(f"/reports/{elsewhere}/progress", headers=madina_headers)
+
+    assert refused.status_code == 403
