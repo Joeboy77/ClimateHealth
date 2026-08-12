@@ -76,3 +76,5 @@ export type SessionResult = Schemas["SessionResult"];
 export type Streak = Schemas["Streak"];
 export type RedemptionQuote = Schemas["RedemptionQuote"];
 export type Redemption = Schemas["Redemption"];
+export type ReportProgress = Schemas["ReportProgress"];
+export type ReportProgressEntry = Schemas["ReportProgressEntry"];

@@ -2,6 +2,7 @@ import type {
   AgencyOverview,
   Alert,
   CommunityReport,
+  ReportProgress,
   DailyQuiz,
   DemoConditions,
   DistrictDetail,
@@ -260,6 +261,21 @@ export const api = {
       token,
       method: "POST",
       body: submission,
+    }),
+
+  reportProgress: (token: string, reportId: string) =>
+    request<ReportProgress>(`/reports/${reportId}/progress`, { token }),
+
+  advanceReportStage: (
+    token: string,
+    reportId: string,
+    stage: string,
+    note: string | null,
+  ) =>
+    request<ReportProgress>(`/reports/${reportId}/stage`, {
+      method: "POST",
+      token,
+      body: { stage, note },
     }),
 
   verifyReport: (

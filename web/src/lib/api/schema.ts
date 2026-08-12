@@ -351,6 +351,96 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/photo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload Report Photo
+         * @description Upload a photograph, then send its reference with the report.
+         *
+         *     The image is the whole request body, with its type in the Content-Type header. One
+         *     photograph per request needs no field names, and it keeps a multipart parser out of
+         *     the server.
+         *
+         *     Two steps rather than one, because the photograph is the part of a report most likely
+         *     to fail on a weak connection. Uploading first means a retry re-sends the bytes and not
+         *     the whole report, and a report can still be filed without one.
+         */
+        post: operations["upload_report_photo_reports_photo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/photo/{reference}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Report Photo
+         * @description Serve a report photograph. Signed-in callers only: a photograph of somebody's
+         *     yard is not public the way a district risk level is.
+         */
+        get: operations["get_report_photo_reports_photo__reference__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/{report_id}/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Report Progress
+         * @description How far along this report is, and every step it has taken to get there.
+         */
+        get: operations["get_report_progress_reports__report_id__progress_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/{report_id}/stage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Advance Report Stage
+         * @description Move a report one step along, as the Ɔhwɛfoɔ who validated it or the agency
+         *     doing the work.
+         */
+        post: operations["advance_report_stage_reports__report_id__stage_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/{report_id}/verify": {
         parameters: {
             query?: never;
@@ -440,7 +530,10 @@ export interface paths {
         };
         /**
          * Get Daily Quiz
-         * @description Return today's quiz, tied to the district's leading hazard.
+         * @description Today's quiz, tied to the district's leading hazard and written for the reader.
+         *
+         *     The same hazard is asked differently of a child and of an elder, for the same reason
+         *     the lesson is written differently: a question nobody understands teaches nothing.
          */
         get: operations["get_daily_quiz_quiz_daily__district_id__get"];
         put?: never;
@@ -511,6 +604,115 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/citizens/age-bands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Age Bands
+         * @description The age bands, open so the sign-up screen can render before anybody has an account.
+         */
+        get: operations["list_age_bands_citizens_age_bands_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/citizens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register Citizen
+         * @description Register a Guardian with a phone number and a password.
+         *
+         *     Still no one-time code. A verification SMS costs money to send and turns the first
+         *     thirty seconds of a public-health app into a chore, which is the friction that stops
+         *     the people most at risk from ever arriving. The number is required because the
+         *     warning has to reach a phone that cannot open the app.
+         */
+        post: operations["register_citizen_citizens_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/citizens/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sign In Citizen
+         * @description Sign back in with the phone number and password used at registration.
+         */
+        post: operations["sign_in_citizen_citizens_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/citizens/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Citizen
+         * @description The signed-in Guardian's own record.
+         */
+        get: operations["get_citizen_citizens_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/lessons/today/{district_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Todays Lesson
+         * @description Today's lesson for this district, pitched at the caller's age band.
+         *
+         *     Triggered by the weather rather than a syllabus, per proposal section 11.1: the
+         *     lesson about standing water arrives the week the rain does, which is the only week
+         *     anybody will act on it.
+         */
+        get: operations["get_todays_lesson_lessons_today__district_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/matrix": {
         parameters: {
             query?: never;
@@ -558,6 +760,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ussd/africastalking": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Africas Talking Callback
+         * @description Africa's Talking USSD callback: the whole platform on a feature phone.
+         *
+         *     Africa's Talking posts a form rather than JSON, and expects a plain-text reply
+         *     beginning with CON to keep the session open or END to close it. It also sends
+         *     everything the caller has typed so far rather than the latest keypress, so the
+         *     chain is replayed from the start.
+         *
+         *     Unauthenticated because the network operator calls it, not a user. It exposes only
+         *     what the public overview already does, so there is nothing here a caller could not
+         *     read without dialling.
+         */
+        post: operations["africas_talking_callback_ussd_africastalking_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ussd/moolre": {
         parameters: {
             query?: never;
@@ -596,6 +827,92 @@ export interface paths {
          * @description The same state machine, with the session exposed so the dashboard can show it.
          */
         post: operations["ussd_simulator_ussd_simulate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/play/session/{district_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Session
+         * @description Today's run of questions, sized and worded for the reader's age band.
+         */
+        get: operations["get_session_play_session__district_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/play/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit Session
+         * @description Score a completed run.
+         *
+         *     Every answer earns something. There are no hearts and no lock-out: getting a question
+         *     wrong never withholds health information from anybody.
+         */
+        post: operations["submit_session_play_session_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rewards/quote/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Quote
+         * @description What this Guardian's points are worth in cedis today.
+         */
+        get: operations["get_quote_rewards_quote__user_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/rewards/redeem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Redeem
+         * @description Turn points into mobile money.
+         *
+         *     Points are only spent if the money actually moved, so a failed transfer costs the
+         *     Guardian nothing.
+         */
+        post: operations["redeem_rewards_redeem_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -661,6 +978,53 @@ export interface paths {
          *     community reports and the action log stay behind the login.
          */
         get: operations["get_public_overview_public_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/districts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Public Districts
+         * @description Every district, by name and region, open to anyone.
+         *
+         *     Somebody signing up has no account yet and must still be able to say where they live.
+         *     District names are public information; nothing here is derived from the engine.
+         */
+        get: operations["list_public_districts_public_districts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/districts/nearest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Find Nearest District
+         * @description Match a coordinate to a district, so nobody has to know their district's name.
+         *
+         *     Ghana has 260 of them and the boundaries change with reorganisations. Hunting for
+         *     yours in a list is the slowest part of joining, and choosing wrong means a year of
+         *     warnings for the wrong place.
+         */
+        get: operations["find_nearest_district_public_districts_nearest_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -748,6 +1112,33 @@ export interface components {
          */
         ActionUrgency: "closed" | "overdue" | "stalled" | "due_soon" | "on_track";
         /**
+         * AgeBand
+         * @description The age a Guardian tells us, in bands rather than a date of birth.
+         *
+         *     We ask for a band because a band is all the platform actually needs, and asking a
+         *     child for their birthday to run a public-health app is more than we can justify
+         *     holding. It is not a demographic field: it decides which content a person sees, which
+         *     missions they may be given, and which rewards they may be offered.
+         * @enum {string}
+         */
+        AgeBand: "6_12" | "13_17" | "18_34" | "35_59" | "60_plus";
+        /**
+         * AgeBandOption
+         * @description Offered to the citizen at sign-up, with what it actually changes.
+         */
+        AgeBandOption: {
+            age_band: components["schemas"]["AgeBand"];
+            /** Label */
+            label: string;
+            tier: components["schemas"]["GuardianTier"];
+            /** Tier Name */
+            tier_name: string;
+            /** Supervised Missions Only */
+            supervised_missions_only: boolean;
+            /** Health Rewards Available */
+            health_rewards_available: boolean;
+        };
+        /**
          * Agency
          * @enum {string}
          */
@@ -820,6 +1211,17 @@ export interface components {
             /** Recommended Action */
             recommended_action: string;
         };
+        /** AnsweredQuestion */
+        AnsweredQuestion: {
+            /** Question Id */
+            question_id: string;
+            /** Correct */
+            correct: boolean;
+            /** Correct Option Index */
+            correct_option_index: number;
+            /** Explanation */
+            explanation: string;
+        };
         /**
          * AvertedHazard
          * @description A hazard where every mandated lead action closed before onset.
@@ -838,6 +1240,88 @@ export interface components {
              * Format: date
              */
             closed_on: string;
+        };
+        /** Body_africas_talking_callback_ussd_africastalking_post */
+        Body_africas_talking_callback_ussd_africastalking_post: {
+            /** Sessionid */
+            sessionId: string;
+            /** Phonenumber */
+            phoneNumber: string;
+            /**
+             * Text
+             * @default
+             */
+            text: string;
+            /**
+             * Servicecode
+             * @default
+             */
+            serviceCode: string;
+        };
+        /** CitizenIdentity */
+        CitizenIdentity: {
+            /** User Id */
+            user_id: string;
+            /** Display Name */
+            display_name: string;
+            /** District Id */
+            district_id: string;
+            age_band: components["schemas"]["AgeBand"];
+            /** Age Band Label */
+            age_band_label: string;
+            tier: components["schemas"]["GuardianTier"];
+            /** Tier Name */
+            tier_name: string;
+            language: components["schemas"]["NarrationLanguage"];
+            /** Is Minor */
+            is_minor: boolean;
+            /** Supervised Missions Only */
+            supervised_missions_only: boolean;
+            /** Health Rewards Available */
+            health_rewards_available: boolean;
+        };
+        /**
+         * CitizenLogin
+         * @description Signing back in on a new phone, or after signing out.
+         */
+        CitizenLogin: {
+            /** Phone Number */
+            phone_number: string;
+            /** Password */
+            password: string;
+        };
+        /**
+         * CitizenRegistration
+         * @description What we ask a citizen for, and nothing else.
+         *
+         *     The phone number is required because the warning has to reach a phone that cannot
+         *     open the app, which is most of the people this is built for. There is still no
+         *     one-time code: a verification SMS costs money to send and turns the first thirty
+         *     seconds of a public-health app into a chore, and that friction is what stops the
+         *     people most at risk from ever arriving.
+         *
+         *     The password is the shortest one that is honestly a password. The account holds no
+         *     money and reaches no data beyond the citizen's own district, so a long policy would
+         *     cost more in abandoned sign-ups than it could ever protect.
+         */
+        CitizenRegistration: {
+            /** Display Name */
+            display_name: string;
+            /** District Id */
+            district_id: string;
+            age_band: components["schemas"]["AgeBand"];
+            /** @default en */
+            language: components["schemas"]["NarrationLanguage"];
+            /** Phone Number */
+            phone_number: string;
+            /** Password */
+            password: string;
+        };
+        /** CitizenSession */
+        CitizenSession: {
+            /** Access Token */
+            access_token: string;
+            citizen: components["schemas"]["CitizenIdentity"];
         };
         /**
          * ClimateDriver
@@ -900,6 +1384,14 @@ export interface components {
             verified_on?: string | null;
             /** @default routine */
             priority: components["schemas"]["ReportPriority"];
+            /** @default submitted */
+            stage: components["schemas"]["ReportStage"];
+            /**
+             * Photo Url
+             * @description Cloudinary hands back a URL; the local store hands back a filename that this
+             *     API serves. Clients should not have to know which one they are looking at.
+             */
+            readonly photo_url: string | null;
         };
         /** CommunitySignalResponse */
         CommunitySignalResponse: {
@@ -1122,6 +1614,7 @@ export interface components {
             /** Action Today */
             action_today: string;
             language: components["schemas"]["NarrationLanguage"];
+            wording: components["schemas"]["WordingProvenance"];
             confidence: components["schemas"]["ConfidenceMode"];
             /** Top Risks */
             top_risks: components["schemas"]["ForecastRiskResponse"][];
@@ -1172,7 +1665,14 @@ export interface components {
             level: components["schemas"]["GuardianLevel"];
             /** Missions Completed */
             missions_completed: number;
+            streak: components["schemas"]["Streak"];
         };
+        /**
+         * GuardianTier
+         * @description The experience a Guardian gets, per proposal section 11.4.
+         * @enum {string}
+         */
+        GuardianTier: "anansi" | "risk_scout" | "community_champion" | "voice_first";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1292,6 +1792,27 @@ export interface components {
             /** Maximum Days */
             maximum_days: number;
         };
+        /**
+         * Lesson
+         * @description One short teaching, pitched at one age band.
+         *
+         *     Proposal section 11.1: the lesson is triggered by the weather, so it arrives on the
+         *     day it matters rather than sitting in a library nobody opens. Section 11.4 is why the
+         *     same hazard is written four ways: a nine-year-old and a grandmother both need to know
+         *     about standing water, and neither is served by the other's version.
+         */
+        Lesson: {
+            condition: components["schemas"]["HealthCondition"];
+            tier: components["schemas"]["GuardianTier"];
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Action */
+            action: string;
+            /** Read Seconds */
+            read_seconds: number;
+        };
         /** LoginRequest */
         LoginRequest: {
             /** Username */
@@ -1340,6 +1861,12 @@ export interface components {
             total_points: number;
         };
         /**
+         * MobileMoneyNetwork
+         * @description Moolre transfer channels.
+         * @enum {string}
+         */
+        MobileMoneyNetwork: "1" | "6" | "7";
+        /**
          * NarrationAudience
          * @enum {string}
          */
@@ -1349,6 +1876,19 @@ export interface components {
          * @enum {string}
          */
         NarrationLanguage: "en" | "tw" | "gaa" | "ee" | "dag";
+        /**
+         * NearestDistrict
+         * @description The district a coordinate falls closest to, with how far that was.
+         *
+         *     Matched against district centres rather than boundaries, which the backend does not
+         *     hold, so a phone near a district line can be matched to its neighbour. The distance
+         *     comes back so the app can say how firm the match is and offer to change it.
+         */
+        NearestDistrict: {
+            district: components["schemas"]["PublicDistrict"];
+            /** Distance Km */
+            distance_km: number;
+        };
         /** PathwayResponse */
         PathwayResponse: {
             condition: components["schemas"]["HealthCondition"];
@@ -1368,6 +1908,20 @@ export interface components {
             lead_agencies: string[];
             /** Supporting Agencies */
             supporting_agencies: string[];
+        };
+        /**
+         * PayoutMode
+         * @description Whether a redemption actually moves money.
+         * @enum {string}
+         */
+        PayoutMode: "preview" | "live";
+        /**
+         * PhotoUploaded
+         * @description What the phone keeps and sends with the report itself.
+         */
+        PhotoUploaded: {
+            /** Photo Reference */
+            photo_reference: string;
         };
         /** PreventionLeaderboard */
         PreventionLeaderboard: {
@@ -1389,6 +1943,18 @@ export interface components {
             /** Districts Raised */
             districts_raised: number;
             worst_level: components["schemas"]["RiskLevel"];
+        };
+        /**
+         * PublicDistrict
+         * @description Just enough to choose where you live. No risk, no climate, no identifiers.
+         */
+        PublicDistrict: {
+            /** District Id */
+            district_id: string;
+            /** Name */
+            name: string;
+            /** Region */
+            region: string;
         };
         /** PublicDistrictRisk */
         PublicDistrictRisk: {
@@ -1455,6 +2021,27 @@ export interface components {
             /** Total Points */
             total_points: number;
         };
+        /**
+         * QuizSessionResponse
+         * @description A short run of questions about the hazard the engine raised here today.
+         */
+        QuizSessionResponse: {
+            /** District Id */
+            district_id: string;
+            /** District Name */
+            district_name: string;
+            condition: components["schemas"]["HealthCondition"];
+            level: components["schemas"]["RiskLevel"];
+            tier: components["schemas"]["GuardianTier"];
+            /**
+             * Quiz Date
+             * Format: date
+             */
+            quiz_date: string;
+            /** Questions */
+            questions: components["schemas"]["SessionQuestion"][];
+            streak: components["schemas"]["Streak"];
+        };
         /** ReadinessReport */
         ReadinessReport: {
             /** District Id */
@@ -1485,11 +2072,105 @@ export interface components {
          * @enum {string}
          */
         ReadinessStatus: "ready" | "stretched" | "critical" | "emergency";
+        /** Redemption */
+        Redemption: {
+            /** Reference */
+            reference: string;
+            /** Points Spent */
+            points_spent: number;
+            /** Cedis */
+            cedis: string;
+            /** Recipient */
+            recipient: string;
+            network: components["schemas"]["MobileMoneyNetwork"];
+            /** Network Name */
+            network_name: string;
+            /** Accepted */
+            accepted: boolean;
+            mode: components["schemas"]["PayoutMode"];
+            /** Provider Code */
+            provider_code: string;
+            /** Provider Message */
+            provider_message: string;
+            /** Transaction Id */
+            transaction_id?: string | null;
+        };
+        /**
+         * RedemptionQuote
+         * @description What a Guardian's points are worth, and whether they can take it yet.
+         */
+        RedemptionQuote: {
+            /** Points */
+            points: number;
+            /** Redeemable Points */
+            redeemable_points: number;
+            /** Cedis */
+            cedis: string;
+            /** Minimum Points */
+            minimum_points: number;
+            /** Points Per Cedi */
+            points_per_cedi: number;
+            /** Can Redeem */
+            can_redeem: boolean;
+            /** Reason */
+            reason?: string | null;
+        };
+        /** RedemptionRequest */
+        RedemptionRequest: {
+            /** User Id */
+            user_id: string;
+            /** Mobile Money Number */
+            mobile_money_number: string;
+            network?: components["schemas"]["MobileMoneyNetwork"] | null;
+        };
         /**
          * ReportPriority
          * @enum {string}
          */
         ReportPriority: "routine" | "elevated" | "urgent";
+        /** ReportProgress */
+        ReportProgress: {
+            /** Report Id */
+            report_id: string;
+            stage: components["schemas"]["ReportStage"];
+            /** Stage Label */
+            stage_label: string;
+            /** Percent */
+            percent: number;
+            /** Next Stages */
+            next_stages: components["schemas"]["ReportStage"][];
+            /** Timeline */
+            timeline: components["schemas"]["ReportProgressEntry"][];
+        };
+        /**
+         * ReportProgressEntry
+         * @description One step in a report's life. Append-only: entries are never edited or removed,
+         *     because the point of a timeline is that it cannot be quietly rewritten.
+         */
+        ReportProgressEntry: {
+            stage: components["schemas"]["ReportStage"];
+            /** Stage Label */
+            stage_label: string;
+            /** Note */
+            note: string | null;
+            /** Actor Name */
+            actor_name: string;
+            /** Actor Role */
+            actor_role: string;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+        };
+        /**
+         * ReportStage
+         * @description How far along fixing the thing is, which is a different question from whether
+         *     the report was true. Authenticity is decided once, by somebody who went and looked;
+         *     progress keeps moving after that.
+         * @enum {string}
+         */
+        ReportStage: "submitted" | "validated" | "in_progress" | "resolved" | "rejected";
         /** ReportSubmission */
         ReportSubmission: {
             /** District Id */
@@ -1611,6 +2292,57 @@ export interface components {
             /** Known */
             known: boolean;
         };
+        /** SessionAnswer */
+        SessionAnswer: {
+            /** Question Id */
+            question_id: string;
+            /** Selected Option Index */
+            selected_option_index: number;
+        };
+        /**
+         * SessionQuestion
+         * @description A question, with its answer.
+         *
+         *     The answer travels with the question so the phone can react the instant somebody
+         *     chooses, and so a run still works with no signal. Scoring stays on the server, so a
+         *     tampered client cannot award itself points: it sends the indices it chose and the
+         *     server decides what they were worth.
+         */
+        SessionQuestion: {
+            /** Question Id */
+            question_id: string;
+            /** Prompt */
+            prompt: string;
+            /** Options */
+            options: string[];
+            /** Correct Option Index */
+            correct_option_index: number;
+            /** Explanation */
+            explanation: string;
+        };
+        /** SessionResult */
+        SessionResult: {
+            /** Correct Count */
+            correct_count: number;
+            /** Total */
+            total: number;
+            /** Points Awarded */
+            points_awarded: number;
+            /** Total Points */
+            total_points: number;
+            streak: components["schemas"]["Streak"];
+            /** Perfect */
+            perfect: boolean;
+            /** Answers */
+            answers: components["schemas"]["AnsweredQuestion"][];
+        };
+        /** SessionSubmission */
+        SessionSubmission: {
+            /** User Id */
+            user_id: string;
+            /** Answers */
+            answers: components["schemas"]["SessionAnswer"][];
+        };
         /**
          * ShieldStatus
          * @enum {string}
@@ -1697,6 +2429,48 @@ export interface components {
             /** @default en */
             language: components["schemas"]["NarrationLanguage"];
         };
+        /** StageAdvance */
+        StageAdvance: {
+            stage: components["schemas"]["ReportStage"];
+            /** Note */
+            note?: string | null;
+        };
+        /**
+         * Streak
+         * @description How many days running somebody has come back.
+         *
+         *     Counted and celebrated, never used to shame. There are no hearts and no lock-out:
+         *     getting a question wrong never withholds health information from anybody.
+         */
+        Streak: {
+            /** Current Days */
+            current_days: number;
+            /** Longest Days */
+            longest_days: number;
+            /** Last Active On */
+            last_active_on?: string | null;
+            /**
+             * Rest Days Used
+             * @default 0
+             */
+            rest_days_used: number;
+        };
+        /**
+         * TodaysLesson
+         * @description The lesson the weather asked for, written for the reader's age.
+         */
+        TodaysLesson: {
+            /** District Id */
+            district_id: string;
+            /** District Name */
+            district_name: string;
+            tier: components["schemas"]["GuardianTier"];
+            /** Tier Name */
+            tier_name: string;
+            lesson: components["schemas"]["Lesson"];
+            /** Triggered By */
+            triggered_by: string;
+        };
         /** TriggerResponse */
         TriggerResponse: {
             /** Signal Label */
@@ -1727,6 +2501,8 @@ export interface components {
             role_name: string;
             /** Can Assign Actions */
             can_assign_actions: boolean;
+            /** Can Validate Reports */
+            can_validate_reports: boolean;
             scope: components["schemas"]["ScopeResponse"];
         };
         /**
@@ -1738,7 +2514,7 @@ export interface components {
          *     work and may only move the actions assigned to their own agency.
          * @enum {string}
          */
-        UserRole: "coordinator" | "responder";
+        UserRole: "coordinator" | "responder" | "field_officer";
         /**
          * UssdCallbackRequest
          * @description The body Moolre posts when somebody dials the shortcode.
@@ -1858,6 +2634,16 @@ export interface components {
              */
             expires_at: string;
         };
+        /**
+         * WordingProvenance
+         * @description Where the words came from, which matters when they are health advice.
+         *
+         *     Curated wording is written for the language rather than translated clause by clause.
+         *     Until a native speaker has been through it, it is `curated_unreviewed`, and that
+         *     travels out through the API so nobody has to remember it.
+         * @enum {string}
+         */
+        WordingProvenance: "english" | "curated_reviewed" | "curated_unreviewed" | "machine_translated" | "english_fallback";
     };
     responses: never;
     parameters: never;
@@ -2386,6 +3172,121 @@ export interface operations {
             };
         };
     };
+    upload_report_photo_reports_photo_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoUploaded"];
+                };
+            };
+        };
+    };
+    get_report_photo_reports_photo__reference__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reference: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_report_progress_reports__report_id__progress_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportProgress"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    advance_report_stage_reports__report_id__stage_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StageAdvance"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportProgress"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     verify_report_reports__report_id__verify_post: {
         parameters: {
             query?: never;
@@ -2642,6 +3543,143 @@ export interface operations {
             };
         };
     };
+    list_age_bands_citizens_age_bands_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgeBandOption"][];
+                };
+            };
+        };
+    };
+    register_citizen_citizens_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CitizenRegistration"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CitizenSession"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sign_in_citizen_citizens_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CitizenLogin"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CitizenSession"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_citizen_citizens_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CitizenIdentity"];
+                };
+            };
+        };
+    };
+    get_todays_lesson_lessons_today__district_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                district_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TodaysLesson"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_matrix_matrix_get: {
         parameters: {
             query?: never;
@@ -2730,6 +3768,39 @@ export interface operations {
             };
         };
     };
+    africas_talking_callback_ussd_africastalking_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["Body_africas_talking_callback_ussd_africastalking_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     ussd_callback_ussd_moolre_post: {
         parameters: {
             query?: never;
@@ -2783,6 +3854,134 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UssdReply"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_session_play_session__district_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                district_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizSessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_session_play_session_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionSubmission"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_quote_rewards_quote__user_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RedemptionQuote"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    redeem_rewards_redeem_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RedemptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Redemption"];
                 };
             };
             /** @description Validation Error */
@@ -2863,6 +4062,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicOverview"];
+                };
+            };
+        };
+    };
+    list_public_districts_public_districts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicDistrict"][];
+                };
+            };
+        };
+    };
+    find_nearest_district_public_districts_nearest_get: {
+        parameters: {
+            query: {
+                latitude: number;
+                longitude: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NearestDistrict"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

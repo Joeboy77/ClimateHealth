@@ -4,6 +4,7 @@ import type {
   AgeBandOption,
   CitizenIdentity,
   CitizenLogin,
+  ReportProgress,
   CitizenRegistration,
   CitizenSession,
   CommunityReport,
@@ -168,6 +169,15 @@ export const api = {
 
   signInCitizen: (login: CitizenLogin) =>
     request<CitizenSession>("/citizens/login", { method: "POST", body: login }),
+
+  reports: (token: string, districtId: string) =>
+    request<CommunityReport[]>("/reports", {
+      token,
+      query: { district_id: districtId },
+    }),
+
+  reportProgress: (token: string, reportId: string) =>
+    request<ReportProgress>(`/reports/${reportId}/progress`, { token }),
 
   citizen: (token: string) => request<CitizenIdentity>("/citizens/me", { token }),
 

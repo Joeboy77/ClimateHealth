@@ -1,7 +1,7 @@
 from datetime import UTC, date, datetime
 from enum import StrEnum
 
-from pydantic import Field
+from pydantic import Field, computed_field
 
 from climahealth.services.access import AuthenticatedUser, DistrictAccessDenied, UserRole
 from climahealth.services.access_service import ScopeGuard
@@ -104,6 +104,7 @@ class CommunityReport(ServiceModel):
     priority: ReportPriority = ReportPriority.ROUTINE
     stage: ReportStage = ReportStage.SUBMITTED
 
+    @computed_field
     @property
     def photo_url(self) -> str | None:
         """Cloudinary hands back a URL; the local store hands back a filename that this

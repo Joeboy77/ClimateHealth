@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowUpRight,
+  CaretDown,
   MapPinLine,
   Plus,
   SealCheck,
@@ -15,11 +16,13 @@ import { useState, type FormEvent, type ReactNode } from "react";
 
 import { DistrictSwitcher } from "@/components/district/district-switcher";
 import { RequireSession } from "@/components/shell/require-session";
+import { ReportProgressPanel } from "@/components/reports/report-progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api/client";
 import type {
+  UserResponse,
   CommunityReport,
   ReportType,
   VerificationStatus,
@@ -43,7 +46,6 @@ export default function ReportsPage() {
 
 function FieldReports() {
   const { token, user } = useAuthenticatedSession();
-  const queryClient = useQueryClient();
   const router = useRouter();
   const scopedDistrictId =
     user?.scope.level === "district" ? user.scope.district_id : null;
@@ -51,6 +53,7 @@ function FieldReports() {
   const [districtFilter, setDistrictFilter] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<ReportType | null>(null);
   const [composing, setComposing] = useState(false);
+  const [opened, setOpened] = useState<string | null>(null);
 
   const districtId = scopedDistrictId ?? districtFilter;
 
@@ -73,23 +76,7 @@ function FieldReports() {
   );
 
   const list = reports.data ?? [];
-  const canVerify = user?.can_assign_actions ?? false;
   const pending = list.filter((r) => r.verification === "pending").length;
-
-  const verify = useMutation({
-    mutationFn: ({
-      reportId,
-      status,
-    }: {
-      reportId: string;
-      status: VerificationStatus;
-    }) => api.verifyReport(token, reportId, status),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["reports"] });
-      await queryClient.invalidateQueries({ queryKey: ["districts"] });
-      await queryClient.invalidateQueries({ queryKey: ["alerts"] });
-    },
-  });
 
   return (
     <div className="mx-auto max-w-[1400px] px-6 py-6">
@@ -200,10 +187,13 @@ function FieldReports() {
                   districtName={
                     districtNames.get(report.district_id) ?? report.district_id
                   }
-                  canVerify={canVerify}
-                  busy={verify.isPending}
-                  onVerify={(status) =>
-                    verify.mutate({ reportId: report.report_id, status })
+                  token={token ?? ""}
+                  user={user ?? null}
+                  expanded={opened === report.report_id}
+                  onToggle={() =>
+                    setOpened(
+                      opened === report.report_id ? null : report.report_id,
+                    )
                   }
                   onOpenDistrict={() =>
                     router.push(`/districts/${report.district_id}`)
@@ -263,23 +253,25 @@ const VERIFICATION_LABEL: Record<VerificationStatus, string> = {
 function ReportRow({
   report,
   districtName,
-  canVerify,
-  busy,
-  onVerify,
+  token,
+  user,
+  expanded,
+  onToggle,
   onOpenDistrict,
 }: {
   report: CommunityReport;
   districtName: string;
-  canVerify: boolean;
-  busy: boolean;
-  onVerify: (status: VerificationStatus) => void;
+  token: string;
+  user: UserResponse | null;
+  expanded: boolean;
+  onToggle: () => void;
   onOpenDistrict: () => void;
 }) {
   const { label, icon: Icon } = reportPresentation(report.report_type);
   const coordinates = formatCoordinates(report.latitude, report.longitude);
 
-  return (
-    <li className="flex items-start gap-3.5 border-b border-[var(--color-border)] px-5 py-3.5 last:border-b-0">
+  const row = (
+    <div className="flex items-start gap-3.5 px-5 py-3.5">
       <span
         aria-hidden
         className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-raised)]"
@@ -328,26 +320,45 @@ function ReportRow({
           {districtName}
           <ArrowUpRight aria-hidden className="size-3" />
         </button>
-        {canVerify && report.verification === "pending" ? (
-          <span className="flex gap-1">
-            <Button
-              size="sm"
-              disabled={busy}
-              onClick={() => onVerify("verified")}
-            >
-              Verify
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={busy}
-              onClick={() => onVerify("rejected")}
-            >
-              Reject
-            </Button>
-          </span>
-        ) : null}
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={onToggle}
+          aria-expanded={expanded}
+        >
+          {expanded ? "Hide progress" : "Progress"}
+          <CaretDown
+            aria-hidden
+            className={cn(
+              "size-3.5 transition-transform duration-[var(--duration-short)]",
+              expanded && "rotate-180",
+            )}
+          />
+        </Button>
       </div>
+    </div>
+  );
+
+  return (
+    <li className="border-b border-[var(--color-border)] last:border-b-0">
+      {row}
+      {expanded ? (
+        <div className="px-5 pb-4">
+          {report.photo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={report.photo_url}
+              alt={`Photograph submitted with the ${label.toLowerCase()} report`}
+              className="mb-3 max-h-64 w-full rounded-[var(--radius-md)] border border-[var(--color-border)] object-cover"
+            />
+          ) : null}
+          <ReportProgressPanel
+            reportId={report.report_id}
+            token={token}
+            user={user}
+          />
+        </div>
+      ) : null}
     </li>
   );
 }

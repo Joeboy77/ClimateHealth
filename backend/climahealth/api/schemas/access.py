@@ -29,6 +29,7 @@ class UserResponse(ApiModel):
     role: UserRole
     role_name: str
     can_assign_actions: bool
+    can_validate_reports: bool
     scope: ScopeResponse
 
     @classmethod
@@ -46,6 +47,7 @@ class UserResponse(ApiModel):
             role=user.role,
             role_name=user.role_name,
             can_assign_actions=user.coordinates_response,
+            can_validate_reports=user.validates_in_the_field,
             scope=ScopeResponse(level=user.scope.level, district_id=user.scope.district_id),
         )
 
