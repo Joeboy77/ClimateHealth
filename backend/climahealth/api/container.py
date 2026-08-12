@@ -42,10 +42,6 @@ from climahealth.infrastructure.database.incident_repository import (
 )
 from climahealth.infrastructure.database.reports_repository import PostgresReportStore
 from climahealth.infrastructure.events.broadcaster import InMemoryEventBroadcaster
-from climahealth.infrastructure.payments.moolre_payouts import (
-    MoolrePayoutSender,
-    PreviewPayoutSender,
-)
 from climahealth.infrastructure.security.passwords import Pbkdf2PasswordHasher
 from climahealth.infrastructure.security.tokens import JwtTokenIssuer
 from climahealth.infrastructure.seed.citizens import InMemoryCitizenStore
@@ -60,6 +56,7 @@ from climahealth.infrastructure.seed.incidents import (
     InMemoryIncidentActionStore,
     InMemoryResourceStockStore,
 )
+from climahealth.infrastructure.seed.nhis import InMemoryNhisRenewalStore
 from climahealth.infrastructure.seed.reports import SEEDED_REPORTS, InMemoryReportStore
 from climahealth.infrastructure.seed.users import InMemoryUserRepository, seeded_users
 from climahealth.infrastructure.sms.moolre import MoolreSmsSender, PreviewSmsSender
@@ -76,6 +73,7 @@ from climahealth.services.incident_service import IncidentService
 from climahealth.services.outreach_service import OutreachService
 from climahealth.services.ports import (
     ActionTransitionStore,
+    CitizenStore,
     IncidentActionStore,
     PhotoStore,
     ReportStore,
@@ -112,6 +110,7 @@ class Container:
     tickets: InMemoryTicketStore
     public_limiter: SlidingWindowLimiter
     photo_store: PhotoStore
+    citizen_store: CitizenStore
 
 
 def build_photo_store(settings: Settings) -> PhotoStore:
@@ -176,16 +175,7 @@ def build_container(settings: Settings | None = None) -> Container:
     guardians = InMemoryGuardianStore()
     quizzes = InMemoryQuizRepository()
     citizen_store = InMemoryCitizenStore()
-    payout_sender = (
-        MoolrePayoutSender(
-            base_url=settings.moolre_base_url,
-            api_user=settings.moolre_api_user or "",
-            api_key=settings.moolre_api_key or "",
-            account_number=settings.moolre_account_number or "",
-        )
-        if settings.can_pay_out
-        else PreviewPayoutSender()
-    )
+    nhis_renewals = InMemoryNhisRenewalStore()
     moolre = (
         MoolreSmsSender(
             base_url=resolved_settings.moolre_base_url,
@@ -273,7 +263,8 @@ def build_container(settings: Settings | None = None) -> Container:
         rewards_service=RewardsService(
             gamification=gamification_service,
             citizens=citizen_store,
-            payouts=payout_sender,
+            renewals=nhis_renewals,
+            clock=clock,
         ),
         guardians=guardians,
         quizzes=quizzes,
@@ -296,4 +287,5 @@ def build_container(settings: Settings | None = None) -> Container:
         tickets=InMemoryTicketStore(),
         public_limiter=SlidingWindowLimiter(),
         photo_store=build_photo_store(resolved_settings),
+        citizen_store=citizen_store,
     )

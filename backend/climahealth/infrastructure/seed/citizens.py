@@ -32,6 +32,9 @@ class InMemoryCitizenStore:
         user_id = self._by_phone.get(phone_number)
         return None if user_id is None else self._citizens.get(user_id)
 
+    def phone_number_for(self, user_id: str) -> str | None:
+        return self._phone_numbers.get(user_id)
+
     def credentials_for(self, user_id: str) -> CitizenCredentials | None:
         return self._credentials.get(user_id)
 

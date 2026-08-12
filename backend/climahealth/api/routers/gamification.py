@@ -1,11 +1,13 @@
 from fastapi import APIRouter, HTTPException, status
 
 from climahealth.api.dependencies import ContainerDependency, CurrentUser, PermittedDistrict
+from climahealth.services.access import Agency
 from climahealth.services.gamification_service import (
     DailyQuiz,
     DistrictShield,
     GuardianNotFound,
     GuardianProfile,
+    GuardianStanding,
     MissionAlreadyCompleted,
     MissionCompletion,
     MissionResult,
@@ -82,3 +84,26 @@ def complete_mission(
 def get_shield(district: PermittedDistrict, container: ContainerDependency) -> DistrictShield:
     """Return a district's shield status and outbreak-averted count."""
     return container.gamification_service.shield_for(district)
+
+
+@router.get("/guardian/leaderboard/standings", response_model=list[GuardianStanding])
+def guardian_leaderboard(
+    user: CurrentUser,
+    container: ContainerDependency,
+    district_id: str | None = None,
+) -> list[GuardianStanding]:
+    """Who has earned the most points, and who is nearly at a year of NHIS cover.
+
+    Ghana Health Service only. It carries phone numbers so an officer can reach a
+    Guardian about their renewal, and a list of names and numbers is not something
+    every agency on the platform needs to see.
+    """
+    if user.agency is not Agency.GHANA_HEALTH_SERVICE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The renewal queue is held by Ghana Health Service.",
+        )
+    scoped = district_id or user.scope.district_id
+    if scoped is not None:
+        container.scope_guard.resolve_district(user, scoped)
+    return list(container.gamification_service.leaderboard(container.citizen_store, scoped))

@@ -19,10 +19,10 @@ from climahealth.infrastructure.climate.context_provider import (
 from climahealth.infrastructure.climate.providers import DemoOverrideFeatureProvider
 from climahealth.infrastructure.clock import FixedClock
 from climahealth.infrastructure.events.broadcaster import InMemoryEventBroadcaster
-from climahealth.infrastructure.payments.moolre_payouts import PreviewPayoutSender
 from climahealth.infrastructure.security.passwords import Pbkdf2PasswordHasher
 from climahealth.infrastructure.security.tokens import JwtTokenIssuer
 from climahealth.infrastructure.seed.citizens import InMemoryCitizenStore
+from climahealth.infrastructure.seed.nhis import InMemoryNhisRenewalStore
 from climahealth.infrastructure.seed.districts import InMemoryDistrictRepository
 from climahealth.infrastructure.seed.gamification import (
     InMemoryGuardianStore,
@@ -170,7 +170,8 @@ def container(override_provider, context_provider) -> Container:
         rewards_service=RewardsService(
             gamification=gamification_service,
             citizens=citizen_store,
-            payouts=PreviewPayoutSender(),
+            renewals=InMemoryNhisRenewalStore(),
+            clock=clock,
         ),
         guardians=guardians,
         quizzes=quizzes,
@@ -181,6 +182,7 @@ def container(override_provider, context_provider) -> Container:
         tickets=InMemoryTicketStore(),
         public_limiter=SlidingWindowLimiter(),
         photo_store=LocalPhotoStore(Path(mkdtemp())),
+        citizen_store=citizen_store,
         citizen_service=CitizenService(
             citizens=citizen_store,
             districts=InMemoryDistrictRepository(),

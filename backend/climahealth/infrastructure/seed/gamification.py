@@ -224,6 +224,9 @@ class InMemoryGuardianStore:
         self._guardians[user_id] = guardian
         return guardian
 
+    def all_guardians(self) -> tuple[Guardian, ...]:
+        return tuple(self._guardians.values())
+
     def find(self, user_id: str) -> Guardian | None:
         return self._guardians.get(user_id)
 
