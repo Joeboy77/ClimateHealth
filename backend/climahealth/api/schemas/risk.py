@@ -6,7 +6,7 @@ from climahealth.api.schemas.common import (
     LagWindowResponse,
     RiskResponse,
 )
-from climahealth.domain.models import ConfidenceMode, RiskLevel
+from climahealth.domain.models import ConfidenceMode, RiskLevel, Season
 from climahealth.services.forecast_service import CitizenForecast
 from climahealth.services.narration import NarrationLanguage, WordingProvenance
 from climahealth.services.risk_service import DistrictRiskReport
@@ -52,6 +52,8 @@ class ForecastResponse(ApiModel):
     # Where the words came from. Curated wording that nobody has reviewed says so.
     wording: WordingProvenance
     confidence: ConfidenceMode
+    season: Season
+    climate: ClimateSnapshotResponse
     top_risks: list[ForecastRiskResponse]
 
     @classmethod
@@ -66,6 +68,8 @@ class ForecastResponse(ApiModel):
             language=forecast.language,
             wording=forecast.wording,
             confidence=forecast.confidence,
+            season=forecast.season,
+            climate=ClimateSnapshotResponse.of(forecast.features),
             top_risks=[
                 ForecastRiskResponse(
                     condition=risk.condition,

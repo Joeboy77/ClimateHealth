@@ -116,6 +116,7 @@ export default function GuardianScreen() {
       {rewards.data ? (
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>WHAT POINTS UNLOCK</Text>
+          <NhisProgress />
           {citizen?.health_rewards_available === false ? (
             <Text style={styles.muted}>
               Under-18s are already exempt from health insurance premiums, so your
@@ -150,6 +151,49 @@ export default function GuardianScreen() {
         </View>
       ) : null}
     </ScrollView>
+  );
+}
+
+/**
+ * Points as NHIS cover.
+ *
+ * The reward is a year of health insurance, not cash, so the bar counts towards the
+ * thing itself rather than towards a balance. Under-18s are told they are already
+ * exempt instead of being shown a target they would gain nothing by reaching.
+ */
+function NhisProgress() {
+  const { token, citizen } = useSession();
+
+  const quote = useQuery({
+    queryKey: ["nhis-quote", citizen?.user_id],
+    queryFn: () => api.rewardQuote(token ?? "", citizen?.user_id ?? ""),
+    enabled: token !== null && (citizen?.user_id ?? "") !== "",
+  });
+
+  if (!quote.data) return null;
+  const { percent_of_a_year, points_remaining, approximate_days_of_use_remaining } =
+    quote.data;
+
+  return (
+    <View style={styles.nhis}>
+      <View style={styles.nhisTop}>
+        <Text style={styles.nhisTitle}>A year of NHIS cover</Text>
+        <Text style={styles.nhisPercent}>{percent_of_a_year}%</Text>
+      </View>
+      <View style={styles.nhisTrack}>
+        <View style={[styles.nhisFill, { width: `${percent_of_a_year}%` }]} />
+      </View>
+      <Text style={styles.muted}>
+        {quote.data.can_redeem
+          ? "You have earned a year. Claim it and Ghana Health Service will renew your cover."
+          : quote.data.reason}
+      </Text>
+      {quote.data.can_redeem || points_remaining === 0 ? null : (
+        <Text style={styles.nhisAside}>
+          About {approximate_days_of_use_remaining} more days of daily use.
+        </Text>
+      )}
+    </View>
   );
 }
 
@@ -283,6 +327,30 @@ function Level({ level, reached }: { level: GuardianLevel; reached: boolean }) {
 }
 
 const styles = StyleSheet.create({
+  nhis: {
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colour.border,
+    padding: space.comfortable,
+    marginBottom: space.base,
+  },
+  nhisTop: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+  },
+  nhisTitle: { ...type.body, fontFamily: family.bodySemibold, color: colour.ink },
+  nhisPercent: { ...type.title, fontFamily: family.display, color: colour.accent },
+  nhisTrack: {
+    height: 8,
+    borderRadius: radius.pill,
+    backgroundColor: colour.raised,
+    overflow: "hidden",
+    marginTop: space.snug,
+    marginBottom: space.snug,
+  },
+  nhisFill: { height: 8, borderRadius: radius.pill, backgroundColor: colour.accent },
+  nhisAside: { ...type.caption, color: colour.inkFaint, marginTop: space.tight },
   signOut: {
     minHeight: MINIMUM_TARGET,
     marginTop: space.base,

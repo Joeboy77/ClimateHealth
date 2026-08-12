@@ -2,6 +2,7 @@ import type {
   AgencyOverview,
   Alert,
   CommunityReport,
+  GuardianStanding,
   ReportProgress,
   DailyQuiz,
   DemoConditions,
@@ -261,6 +262,12 @@ export const api = {
       token,
       method: "POST",
       body: submission,
+    }),
+
+  guardianStandings: (token: string, districtId?: string) =>
+    request<GuardianStanding[]>("/guardian/leaderboard/standings", {
+      token,
+      query: districtId ? { district_id: districtId } : undefined,
     }),
 
   reportProgress: (token: string, reportId: string) =>

@@ -1,10 +1,12 @@
 from datetime import date
 
 from climahealth.domain.models import (
+    ClimateFeatures,
     ConfidenceMode,
     LagWindow,
     RiskAssessment,
     RiskLevel,
+    Season,
 )
 from climahealth.services.models import District, ServiceModel
 from climahealth.services.narration import (
@@ -45,6 +47,11 @@ class CitizenForecast(ServiceModel):
     wording: WordingProvenance
     confidence: ConfidenceMode
     top_risks: tuple[ForecastRisk, ...]
+    # The readings the verdict was drawn from. A person wants to know whether it will
+    # rain today as well as what the rain will do to them, and sending them to another
+    # app for half of that is how they stop opening this one.
+    features: ClimateFeatures
+    season: Season
 
 
 class ForecastService:
@@ -74,6 +81,8 @@ class ForecastService:
             district_id=district.district_id,
             district_name=district.name,
             generated_on=report.generated_on,
+            features=report.features,
+            season=report.season,
             headline=narration.headline,
             summary=narration.summary,
             action_today=narration.action_today,

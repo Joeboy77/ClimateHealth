@@ -5,6 +5,7 @@ import {
   CaretLineLeft,
   CaretLineRight,
   ClipboardText,
+  HeartHalf,
   Compass,
   type Icon,
   MapPinLine,
@@ -48,6 +49,7 @@ function itemsForScope(districtId: string | null): readonly NavItem[] {
       label: "Field reports",
       icon: Broadcast,
     },
+    { href: "/renewals" as Route, label: "NHIS renewals", icon: HeartHalf },
     { href: "/outreach" as Route, label: "Outreach", icon: WaveTriangle },
     { href: "/matrix" as Route, label: "Pathway matrix", icon: TreeStructure },
   ];

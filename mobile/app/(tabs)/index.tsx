@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ListenButton } from "@/components/listen-button";
+import { ClimateStrip } from "@/components/climate-strip";
 import { GuardianBar } from "@/components/guardian-bar";
 import { PressableCard } from "@/components/pressable-card";
 import { RiskDial, RISK_DIAL_SIZE } from "@/components/risk-dial";
@@ -414,6 +415,8 @@ function Today({
           ))}
         </View>
       ) : null}
+
+      <ClimateStrip climate={forecast.climate} />
 
       <Pressable
         onPress={() => {

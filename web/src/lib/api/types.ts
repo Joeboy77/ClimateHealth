@@ -105,3 +105,4 @@ export function conditionLabel(condition: string): string {
 }
 export type ReportProgress = Schemas["ReportProgress"];
 export type ReportProgressEntry = Schemas["ReportProgressEntry"];
+export type GuardianStanding = Schemas["GuardianStanding"];

@@ -22,7 +22,6 @@ from climahealth.infrastructure.events.broadcaster import InMemoryEventBroadcast
 from climahealth.infrastructure.security.passwords import Pbkdf2PasswordHasher
 from climahealth.infrastructure.security.tokens import JwtTokenIssuer
 from climahealth.infrastructure.seed.citizens import InMemoryCitizenStore
-from climahealth.infrastructure.seed.nhis import InMemoryNhisRenewalStore
 from climahealth.infrastructure.seed.districts import InMemoryDistrictRepository
 from climahealth.infrastructure.seed.gamification import (
     InMemoryGuardianStore,
@@ -33,6 +32,7 @@ from climahealth.infrastructure.seed.incidents import (
     InMemoryIncidentActionStore,
     InMemoryResourceStockStore,
 )
+from climahealth.infrastructure.seed.nhis import InMemoryNhisRenewalStore
 from climahealth.infrastructure.seed.reports import InMemoryReportStore
 from climahealth.infrastructure.seed.users import (
     EPA_PASSWORD,
