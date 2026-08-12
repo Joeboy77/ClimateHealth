@@ -6,6 +6,7 @@ from pydantic import Field
 
 from climahealth.services.models import District, ServiceModel
 from climahealth.services.narration import NarrationLanguage
+from climahealth.services.phone_numbers import as_local_number
 from climahealth.services.sms_alerts import SmsAlert
 
 MENU_PAGE_SIZE = 8
@@ -14,6 +15,30 @@ SERVICE_NAME = "ClimaHealth Predict"
 USSD_LINE_LIMIT = 160
 
 NETWORK_NAMES: dict[int, str] = {3: "MTN", 5: "AT", 6: "Telecel"}
+
+MTN_NETWORK = 3
+AT_NETWORK = 5
+TELECEL_NETWORK = 6
+
+NETWORK_BY_PREFIX: dict[str, int] = {
+    "024": MTN_NETWORK,
+    "054": MTN_NETWORK,
+    "055": MTN_NETWORK,
+    "059": MTN_NETWORK,
+    "025": MTN_NETWORK,
+    "053": MTN_NETWORK,
+    "027": AT_NETWORK,
+    "057": AT_NETWORK,
+    "026": AT_NETWORK,
+    "056": AT_NETWORK,
+    "020": TELECEL_NETWORK,
+    "050": TELECEL_NETWORK,
+}
+
+
+def network_for_msisdn(msisdn: str) -> int:
+    """Africa's Talking does not say which network a caller is on, but the prefix does."""
+    return NETWORK_BY_PREFIX.get(as_local_number(msisdn)[:3], 0)
 
 
 class AlertLookup(Protocol):

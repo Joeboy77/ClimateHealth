@@ -1,3 +1,5 @@
+from itertools import count
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -20,10 +22,19 @@ WRITTEN = (
 )
 
 
+_NUMBERS = count(1)
+
+
 def join(client: TestClient, age_band: str) -> dict[str, str]:
     token = client.post(
         "/citizens",
-        json={"display_name": "Reader", "district_id": "madina", "age_band": age_band},
+        json={
+            "display_name": "Reader",
+            "district_id": "madina",
+            "age_band": age_band,
+            "phone_number": f"055{next(_NUMBERS):07d}",
+            "password": "keep-well",
+        },
     ).json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 

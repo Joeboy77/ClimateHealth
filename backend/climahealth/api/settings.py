@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     token_secret: str = Field(
         default=DEVELOPMENT_TOKEN_SECRET, min_length=MINIMUM_TOKEN_SECRET_LENGTH
     )
-    token_lifetime_hours: int = Field(default=12, gt=0)
+    token_lifetime_hours: int = Field(default=24, gt=0)
     cors_origins: Annotated[tuple[str, ...], NoDecode] = DEFAULT_CORS_ORIGINS
     ghana_nlp_api_key: str | None = None
     climate_cache_minutes: int = Field(default=30, ge=0)

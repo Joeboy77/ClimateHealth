@@ -6,6 +6,7 @@ from climahealth.services.models import ServiceModel
 from climahealth.services.narration import NarrationLanguage
 
 MINIMUM_AGE_STATED = 6
+MINIMUM_PASSWORD_LENGTH = 6
 
 
 class AgeBand(StrEnum):
@@ -86,19 +87,37 @@ def missions_must_be_supervised(age_band: AgeBand) -> bool:
 class CitizenRegistration(ServiceModel):
     """What we ask a citizen for, and nothing else.
 
-    No password and no verification code. A one-time code costs money to send and turns
-    the first thirty seconds of a public-health app into a chore, which is exactly the
-    friction that stops the people most at risk from ever arriving. The account holds no
-    money and grants no access to anybody else's data, so the cost of a wrong name is
-    close to nothing.
+    The phone number is required because the warning has to reach a phone that cannot
+    open the app, which is most of the people this is built for. There is still no
+    one-time code: a verification SMS costs money to send and turns the first thirty
+    seconds of a public-health app into a chore, and that friction is what stops the
+    people most at risk from ever arriving.
+
+    The password is the shortest one that is honestly a password. The account holds no
+    money and reaches no data beyond the citizen's own district, so a long policy would
+    cost more in abandoned sign-ups than it could ever protect.
     """
 
     display_name: str = Field(min_length=1, max_length=60)
     district_id: str
     age_band: AgeBand
     language: NarrationLanguage = NarrationLanguage.ENGLISH
-    # Optional, and only so the warning can reach a phone that cannot open the app.
-    phone_number: str | None = Field(default=None, max_length=20)
+    phone_number: str = Field(min_length=9, max_length=20)
+    password: str = Field(min_length=MINIMUM_PASSWORD_LENGTH, max_length=128)
+
+
+class CitizenLogin(ServiceModel):
+    """Signing back in on a new phone, or after signing out."""
+
+    phone_number: str = Field(min_length=9, max_length=20)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class CitizenCredentials(ServiceModel):
+    """Never leaves the store. The identity a caller sees carries neither field."""
+
+    password_salt: str
+    password_hash: str
 
 
 class CitizenIdentity(ServiceModel):

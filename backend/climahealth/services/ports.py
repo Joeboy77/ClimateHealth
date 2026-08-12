@@ -14,7 +14,11 @@ from climahealth.services.narration import Narration, NarrationLanguage, Narrati
 
 if TYPE_CHECKING:
     from climahealth.services.access import Agency
-    from climahealth.services.citizens import CitizenIdentity, GuardianTier
+    from climahealth.services.citizens import (
+        CitizenCredentials,
+        CitizenIdentity,
+        GuardianTier,
+    )
     from climahealth.services.events import DomainEvent
     from climahealth.services.gamification_service import (
         Guardian,
@@ -215,9 +219,20 @@ class GuardianStore(Protocol):
 
 
 class CitizenStore(Protocol):
-    def add(self, identity: "CitizenIdentity", phone_number: str | None) -> None: ...
+    def add(
+        self,
+        identity: "CitizenIdentity",
+        phone_number: str,
+        credentials: "CitizenCredentials",
+    ) -> None: ...
 
     def find(self, user_id: str) -> "CitizenIdentity | None": ...
+
+    def find_by_phone(self, phone_number: str) -> "CitizenIdentity | None": ...
+
+    def credentials_for(self, user_id: str) -> "CitizenCredentials | None": ...
+
+    def phone_number_taken(self, phone_number: str) -> bool: ...
 
     def for_district(self, district_id: str) -> tuple["CitizenIdentity", ...]: ...
 
