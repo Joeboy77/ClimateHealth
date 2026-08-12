@@ -17,24 +17,26 @@ Editing the .pptx in PowerPoint is fine; a rebuild overwrites it.
 | # | Slide | Time |
 |---|---|---|
 | 1 | Title | 10s |
-| 2 | The problem: 6.7m cases, 11,635 deaths | 35s |
-| 3 | The gap: the lag window | 35s |
-| 4 | Our solution: three front doors | 30s |
-| 5 | The brain: rules, not a guess | 40s |
-| 6 | National picture (live screenshot) | 35s |
-| 7 | Agency views (EPA on dust) | 25s |
-| 8 | The Ɔhwɛfoɔ validation loop | 40s |
-| 9 | The app | 20s |
-| 10 | Accessibility | 35s |
-| 11 | The NHIS renewal queue | 25s |
-| 12 | Rewards that are fundable | 30s |
-| 13 | Reach: app, USSD, SMS | 25s |
-| 14 | Three criticisms, three answers | 40s |
-| 15 | Close | 15s |
+| 2 | The problem: 6.7m cases, 11,635 deaths | 30s |
+| 3 | The gap: the lag window | 30s |
+| 4 | Our solution: three front doors | 25s |
+| 5 | **Why anybody acts: weather vs health** | 45s |
+| 6 | The brain: rules, not a guess | 35s |
+| 7 | National picture (live) | 30s |
+| 8 | Agency views (EPA on dust) | 20s |
+| 9 | The Ɔhwɛfoɔ validation loop | 35s |
+| 10 | The app | 20s |
+| 11 | Accessibility | 30s |
+| 12 | The NHIS renewal queue | 20s |
+| 13 | Rewards that are fundable | 25s |
+| 14 | **Why they come back** | 30s |
+| 15 | Reach: app, USSD, SMS | 20s |
+| 16 | Three criticisms, three answers | 35s |
+| 17 | Close and the ask | 20s |
 
-**Hold back for Q&A:** 16 (sources) and 17 (architecture and known limits).
+**Hold back for Q&A:** 18 (sources) and 19 (architecture and known limits).
 
-If you are running over, cut slide 9 first, then 7.
+Slide 5 is the one to protect. If you are running over, cut 10 first, then 8, then 15.
 
 ## Screenshots
 

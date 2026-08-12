@@ -640,27 +640,183 @@ def sources_slide(presentation):
             "Open-Meteo, live in the product",
         ),
         (
+            "Behaviour change",
+            "Severity, vulnerability and a doable action are all required",
+            "Protection Motivation Theory, Rogers 1975; Health Belief Model",
+        ),
+        (
             "District boundaries",
             "260 district polygons drawn on the map",
             "geoBoundaries, CC BY 4.0",
         ),
     ]
-    top = Inches(1.95)
+    top = Inches(1.85)
     for topic, claim, source in rows:
-        hairline(slide, top - Inches(0.14))
-        row = text_box(slide, MARGIN, top, Inches(2.9), Inches(0.7))
-        write(row, topic, 14, INK, BODY, True, 0, first=True)
-        middle = text_box(slide, Inches(4.0), top, Inches(5.0), Inches(0.7))
-        write(middle, claim, 13, MUTED, BODY, False, 0, line=1.35, first=True)
-        right = text_box(slide, Inches(9.3), top, Inches(3.3), Inches(0.7))
-        write(right, source, 12, ACCENT, BODY, False, 0, line=1.35, first=True)
-        top += Inches(0.82)
+        hairline(slide, top - Inches(0.12))
+        row = text_box(slide, MARGIN, top, Inches(2.9), Inches(0.62))
+        write(row, topic, 13, INK, BODY, True, 0, first=True)
+        middle = text_box(slide, Inches(3.9), top, Inches(5.1), Inches(0.62))
+        write(middle, claim, 12, MUTED, BODY, False, 0, line=1.3, first=True)
+        right = text_box(slide, Inches(9.3), top, Inches(3.3), Inches(0.62))
+        write(right, source, 11, ACCENT, BODY, False, 0, line=1.3, first=True)
+        top += Inches(0.73)
 
     notes(
         slide,
         "Do not present this slide. It exists so that when a judge asks where a number "
         "came from, you turn to it and answer in one move. Every figure on the deck is "
         "on this page with its source.",
+    )
+    return slide
+
+
+
+def why_act_slide(presentation):
+    slide = blank(presentation)
+    eyebrow(slide, "Why anybody acts")
+
+    frame = text_box(slide, MARGIN, Inches(1.0), Inches(11.6), Inches(1.0))
+    write(frame, "Nobody changes their day for a weather forecast.", 32, INK, DISPLAY, False, 8, first=True)
+    write(
+        frame,
+        "Ghana already has weather warnings. People read them and carry on, because rain "
+        "is not news and a forecast asks nothing of you.",
+        16,
+        MUTED,
+        BODY,
+        False,
+        0,
+        line=1.4,
+    )
+
+    left_frame = text_box(slide, MARGIN, Inches(2.55), Inches(5.4), Inches(3.2))
+    write(left_frame, "WHAT A WEATHER SERVICE SAYS", 11, MUTED, BODY, True, 12, spacing=1.6, first=True)
+    write(left_frame, "\u201cHeavy rain expected Thursday.\u201d", 22, MUTED, DISPLAY, False, 14, line=1.2)
+    write(left_frame, "Severity: it rains every year.", 14, MUTED, BODY, False, 4, line=1.35)
+    write(left_frame, "Is it about me: not obviously.", 14, MUTED, BODY, False, 4, line=1.35)
+    write(left_frame, "What do I do: nothing is asked.", 14, MUTED, BODY, False, 12, line=1.35)
+    write(left_frame, "Result: nothing changes.", 15, MUTED, BODY, True, 0)
+
+    right_frame = text_box(slide, Inches(6.9), Inches(2.55), Inches(5.6), Inches(3.2))
+    write(right_frame, "WHAT CLIMAHEALTH SAYS", 11, ACCENT, BODY, True, 12, spacing=1.6, first=True)
+    write(
+        right_frame,
+        "\u201cMalaria risk is rising here. Cases in 2 to 6 weeks. "
+        "Children under five and pregnant women are most at risk. "
+        "Empty standing water tonight.\u201d",
+        18,
+        INK,
+        DISPLAY,
+        False,
+        14,
+        line=1.25,
+    )
+    write(right_frame, "Severity: a named disease.", 14, INK, BODY, False, 4, line=1.35)
+    write(right_frame, "Is it about me: my district, my children.", 14, INK, BODY, False, 4, line=1.35)
+    write(right_frame, "What do I do: one thing, tonight, free.", 14, INK, BODY, False, 12, line=1.35)
+    write(right_frame, "Result: something to actually do.", 15, ACCENT, BODY, True, 0)
+
+    hairline(slide, Inches(6.0))
+    close = text_box(slide, MARGIN, Inches(6.2), CONTENT_WIDTH, Inches(1.0))
+    write(
+        close,
+        "We do not warn people about the weather. We warn them about what it is "
+        "about to do to their children, and give them one thing to do about it.",
+        17,
+        INK,
+        BODY,
+        True,
+        6,
+        first=True,
+    )
+    write(
+        close,
+        "Protection Motivation Theory: action requires severity, personal vulnerability, "
+        "and a response the person believes they can carry out. Fear on its own produces "
+        "avoidance, not protection, which is why every warning here ends in an action.",
+        12,
+        FAINT,
+        BODY,
+        False,
+        0,
+        line=1.35,
+    )
+    notes(
+        slide,
+        "This is your strongest slide. Deliver the left column flatly and the right "
+        "column with weight. Then the line: we do not warn people about the weather, "
+        "we warn them about what it is about to do to their children. "
+        "If a judge pushes on fear tactics, the answer is on the slide: fear without "
+        "an action backfires, so every warning we send ends in one thing to do tonight.",
+    )
+    return slide
+
+
+def retention_slide(presentation):
+    slide = blank(presentation)
+    eyebrow(slide, "Why they come back")
+
+    frame = text_box(slide, MARGIN, Inches(1.0), Inches(11.6), Inches(1.0))
+    write(frame, "The reward is the thing they were going without.", 32, INK, DISPLAY, False, 8, first=True)
+    write(
+        frame,
+        "About 44% of Ghanaians hold no active NHIS cover. The people most exposed to "
+        "climate-driven illness are the same people who cannot afford the premium.",
+        16,
+        MUTED,
+        BODY,
+        False,
+        0,
+        line=1.4,
+    )
+
+    loop = [
+        ("Open it", "A warning that names your district and your risk"),
+        ("Learn one thing", "Five questions, and the reason behind each answer"),
+        ("Earn", "Points for every answer, right or wrong"),
+        ("Get covered", "3,500 points is a year of NHIS cover"),
+    ]
+    left = MARGIN
+    for index, (name, detail) in enumerate(loop):
+        column = text_box(slide, left, Inches(2.7), Inches(2.85), Inches(1.6))
+        write(column, f"0{index + 1}", 13, ACCENT, DISPLAY, True, 6, first=True)
+        write(column, name, 18, INK, BODY, True, 4)
+        write(column, detail, 13, MUTED, BODY, False, 0, line=1.35)
+        if index < len(loop) - 1:
+            arrow = text_box(slide, left + Inches(2.85), Inches(2.75), Inches(0.4), Inches(0.4))
+            write(arrow, "\u2192", 16, FAINT, BODY, False, first=True)
+        left += Inches(3.05)
+
+    hairline(slide, Inches(4.65))
+    reasons = [
+        (
+            "It pays in health, not cash",
+            "A person who skips the premium is exactly who this reaches. "
+            "The reward removes the cost that kept them out.",
+        ),
+        (
+            "The streak forgives",
+            "One missed day a week is forgiven. People miss days for illness, "
+            "travel, a dead battery, or the flood we just warned them about.",
+        ),
+        (
+            "Wrong answers still earn",
+            "Getting it wrong is the best moment to read why, so that is exactly "
+            "when the explanation appears. Nobody is locked out of health information.",
+        ),
+    ]
+    left = MARGIN
+    for name, detail in reasons:
+        column = text_box(slide, left, Inches(4.95), Inches(3.6), Inches(1.9))
+        write(column, name, 15, ACCENT, BODY, True, 6, line=1.3, first=True)
+        write(column, detail, 13, MUTED, BODY, False, 0, line=1.45)
+        left += Inches(3.9)
+
+    notes(
+        slide,
+        "Adoption is the question every judge asks and most teams wave at. "
+        "Say the number: 44% have no active cover. Then say the loop pays in exactly "
+        "the thing they are going without. That is not a gimmick, it is the wedge.",
     )
     return slide
 
@@ -855,29 +1011,58 @@ def answers_slide(presentation):
 def close_slide(presentation):
     slide = blank(presentation)
 
-    frame = text_box(slide, MARGIN, Inches(2.0), Inches(11.6), Inches(2.6))
-    write(frame, "CLIMAHEALTH PREDICT", 12, ACCENT, BODY, True, 20, spacing=2.2, first=True)
-    write(frame, "The climate signal is already there.", 36, INK, DISPLAY, False, 2, line=1.1)
-    write(frame, "We turn it into a warning", 36, INK, DISPLAY, False, 2, line=1.1)
-    write(frame, "somebody can act on.", 36, ACCENT, DISPLAY, False, 0, line=1.1)
+    frame = text_box(slide, MARGIN, Inches(1.15), Inches(11.6), Inches(2.4))
+    write(frame, "CLIMAHEALTH PREDICT", 12, ACCENT, BODY, True, 18, spacing=2.2, first=True)
+    write(frame, "The climate signal is already there.", 34, INK, DISPLAY, False, 2, line=1.1)
+    write(frame, "We turn it into a warning", 34, INK, DISPLAY, False, 2, line=1.1)
+    write(frame, "somebody can act on.", 34, ACCENT, DISPLAY, False, 0, line=1.1)
 
-    hairline(slide, Inches(5.0))
+    hairline(slide, Inches(3.75))
     facts = [
-        ("260", "districts, live"),
-        ("5", "disease pathways"),
+        ("260", "districts evaluated daily"),
+        ("5", "disease pathways, explainable"),
+        ("3", "ways in: app, USSD, SMS"),
         ("963", "tests passing"),
     ]
     left = MARGIN
     for value, label in facts:
-        column = text_box(slide, left, Inches(5.3), Inches(3.4), Inches(1.0))
-        write(column, value, 30, ACCENT, DISPLAY, False, 2, first=True)
-        write(column, label, 13, MUTED, BODY)
-        left += Inches(3.9)
+        column = text_box(slide, left, Inches(3.95), Inches(2.85), Inches(0.95))
+        write(column, value, 28, ACCENT, DISPLAY, False, 2, first=True)
+        write(column, label, 12, MUTED, BODY, False, 0, line=1.3)
+        left += Inches(3.05)
+
+    hairline(slide, Inches(5.15))
+    ask = text_box(slide, MARGIN, Inches(5.4), Inches(11.6), Inches(1.8))
+    write(ask, "WHAT WE ARE ASKING FOR", 11, MUTED, BODY, True, 10, spacing=1.6, first=True)
+    write(
+        ask,
+        "One district and one season. Give us Madina and a Ghana Health Service link, "
+        "and we will run the engine against DHIMS2 case records for a full season to "
+        "show how early the warning actually was.",
+        17,
+        INK,
+        BODY,
+        False,
+        8,
+        line=1.4,
+    )
+    write(
+        ask,
+        "That is the one thing standing between a defensible model and a validated one, "
+        "and it is the only thing we cannot build ourselves.",
+        14,
+        MUTED,
+        BODY,
+        False,
+        0,
+        line=1.4,
+    )
 
     notes(
         slide,
-        "Close on the one line, then stop talking. Let the numbers sit. "
-        "Have the backup slides ready for Q&A.",
+        "Close on the three lines, pause, then the ask. Do not add anything after the "
+        "ask. Naming the one thing you cannot do alone reads as confidence, and it "
+        "gives the judges something concrete to say yes to.",
     )
     return slide
 
@@ -944,6 +1129,7 @@ def build() -> Path:
     burden_slide(presentation)
     problem_slide(presentation)
     solution_slide(presentation)
+    why_act_slide(presentation)
     engine_slide(presentation)
     screenshot_slide(
         presentation,
@@ -982,6 +1168,7 @@ def build() -> Path:
         "NHIS renewals \u00b7 Ghana Health Service only \u00b7 seeded demonstration Guardians",
     )
     reward_slide(presentation)
+    retention_slide(presentation)
     reach_slide(presentation)
     answers_slide(presentation)
     close_slide(presentation)
