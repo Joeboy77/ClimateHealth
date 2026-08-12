@@ -44,7 +44,8 @@ function browserStore(): KeyValueStore {
 
 function nativeStore(): KeyValueStore {
   const isExpoGo =
-    Constants.appOwnership === "expo" || Constants.executionEnvironment === "storeClient";
+    Constants.appOwnership === "expo" ||
+    Constants.executionEnvironment === "storeClient";
   if (Platform.OS === "web" || isExpoGo) return memoryStore();
 
   // Required inline so the web bundle never reaches for a native module.

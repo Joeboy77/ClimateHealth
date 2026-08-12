@@ -1,6 +1,7 @@
 import * as Speech from "expo-speech";
 
 import type { NarrationLanguage } from "@/lib/api/types";
+import { persistent } from "@/lib/offline/store";
 
 /**
  * Reading the warning aloud.
@@ -92,6 +93,39 @@ export async function speak(
       onError: last ? onDone : undefined,
     });
   });
+}
+
+const READ_OPTIONS_KEY = "dawuro.speech.options";
+
+/**
+ * Whether a tapped answer is read back.
+ *
+ * On by default. Somebody who cannot read the screen needs to hear which answer their
+ * finger landed on before they commit to it, and hearing it is the only way they can
+ * tell a mis-tap from the one they meant. It is a setting rather than a rule because a
+ * reader who does not need it should be able to quiet it.
+ */
+export function optionsReadAloud(): boolean {
+  return persistent().getString(READ_OPTIONS_KEY) !== "false";
+}
+
+export function setOptionsReadAloud(enabled: boolean): void {
+  persistent().set(READ_OPTIONS_KEY, enabled ? "true" : "false");
+}
+
+/**
+ * Read one short line back, interrupting whatever was being said.
+ *
+ * A reader who taps three options in a row wants to hear the third, not a queue of all
+ * three, so each tap replaces the last rather than joining it.
+ */
+export async function speakChoice(
+  text: string,
+  language: NarrationLanguage,
+): Promise<void> {
+  if (!optionsReadAloud()) return;
+  if (!(await canSpeak(language))) return;
+  await speak([{ text, language }], () => undefined);
 }
 
 export async function stop(): Promise<void> {

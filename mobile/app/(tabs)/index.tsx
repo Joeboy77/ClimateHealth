@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
   ScrollView,
   Text,
@@ -17,7 +18,15 @@ import { PressableCard } from "@/components/pressable-card";
 import { RiskDial, RISK_DIAL_SIZE } from "@/components/risk-dial";
 import { duration, staggerDelay } from "@/design/motion";
 import { RISK, tick, vibrateForLevel } from "@/design/risk";
-import { colour, elevation, family, radius, space, type } from "@/design/tokens";
+import {
+  MINIMUM_TARGET,
+  colour,
+  elevation,
+  family,
+  radius,
+  space,
+  type,
+} from "@/design/tokens";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/lib/identity/session";
 import { savedAgo, savedForecast, saveForecast } from "@/lib/offline/forecast-cache";
@@ -342,206 +351,6 @@ function Today({
         </PressableCard>
       </Animated.View>
 
-      <Animated.View
-        entering={FadeInDown.delay(staggerDelay(2)).duration(duration.medium)}
-      >
-        <PressableCard
-          onPress={() => router.push("/report")}
-          accessibilityLabel="Report a hazard you have seen"
-          accessibilityHint="Opens Community Watch"
-          style={{
-            marginTop: space.base,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            backgroundColor: "transparent",
-            borderRadius: radius.lg,
-            borderWidth: 1.5,
-            borderColor: colour.border,
-            paddingHorizontal: space.comfortable,
-            paddingVertical: space.base,
-          }}
-        >
-          <View>
-            <Text
-              style={{
-                ...type.body,
-                fontFamily: family.bodySemibold,
-                color: colour.ink,
-              }}
-            >
-              Seen something?
-            </Text>
-            <Text
-              style={{
-                ...type.caption,
-                fontFamily: family.body,
-                color: colour.inkMuted,
-                marginTop: 2,
-              }}
-            >
-              Standing water, flooding, dust, waste
-            </Text>
-          </View>
-          <Text
-            style={{
-              ...type.body,
-              fontFamily: family.bodySemibold,
-              color: colour.accent,
-            }}
-          >
-            Report
-          </Text>
-        </PressableCard>
-
-        <PressableCard
-          onPress={() => router.push("/play")}
-          accessibilityLabel="Todays questions"
-          accessibilityHint="Opens Learn"
-          style={{
-            marginTop: space.snug,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            backgroundColor: "transparent",
-            borderRadius: radius.lg,
-            borderWidth: 1.5,
-            borderColor: colour.border,
-            paddingHorizontal: space.comfortable,
-            paddingVertical: space.base,
-          }}
-        >
-          <View>
-            <Text
-              style={{
-                ...type.body,
-                fontFamily: family.bodySemibold,
-                color: colour.ink,
-              }}
-            >
-              Today&rsquo;s questions
-            </Text>
-            <Text
-              style={{
-                ...type.caption,
-                fontFamily: family.body,
-                color: colour.inkMuted,
-                marginTop: 2,
-              }}
-            >
-              A short run, written for your age. Earn XP.
-            </Text>
-          </View>
-          <Text
-            style={{
-              ...type.body,
-              fontFamily: family.bodySemibold,
-              color: colour.accent,
-            }}
-          >
-            Play
-          </Text>
-        </PressableCard>
-
-        <PressableCard
-          onPress={() => router.push("/guardian")}
-          accessibilityLabel="Your Guardian card"
-          accessibilityHint="Points, level and rewards"
-          style={{
-            marginTop: space.snug,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            backgroundColor: "transparent",
-            borderRadius: radius.lg,
-            borderWidth: 1.5,
-            borderColor: colour.border,
-            paddingHorizontal: space.comfortable,
-            paddingVertical: space.base,
-          }}
-        >
-          <View>
-            <Text
-              style={{
-                ...type.body,
-                fontFamily: family.bodySemibold,
-                color: colour.ink,
-              }}
-            >
-              Your Guardian card
-            </Text>
-            <Text
-              style={{
-                ...type.caption,
-                fontFamily: family.body,
-                color: colour.inkMuted,
-                marginTop: 2,
-              }}
-            >
-              Points, level and what they unlock
-            </Text>
-          </View>
-          <Text
-            style={{
-              ...type.body,
-              fontFamily: family.bodySemibold,
-              color: colour.accent,
-            }}
-          >
-            Open
-          </Text>
-        </PressableCard>
-
-        <PressableCard
-          onPress={() => router.push("/district")}
-          accessibilityLabel="Your district's shield and everything being watched"
-          accessibilityHint="Opens your district"
-          style={{
-            marginTop: space.snug,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            backgroundColor: "transparent",
-            borderRadius: radius.lg,
-            borderWidth: 1.5,
-            borderColor: colour.border,
-            paddingHorizontal: space.comfortable,
-            paddingVertical: space.base,
-          }}
-        >
-          <View>
-            <Text
-              style={{
-                ...type.body,
-                fontFamily: family.bodySemibold,
-                color: colour.ink,
-              }}
-            >
-              Your district
-            </Text>
-            <Text
-              style={{
-                ...type.caption,
-                fontFamily: family.body,
-                color: colour.inkMuted,
-                marginTop: 2,
-              }}
-            >
-              Shield, agency progress, everything watched
-            </Text>
-          </View>
-          <Text
-            style={{
-              ...type.body,
-              fontFamily: family.bodySemibold,
-              color: colour.accent,
-            }}
-          >
-            Open
-          </Text>
-        </PressableCard>
-      </Animated.View>
-
       {forecast.top_risks.length > 1 ? (
         <View style={{ marginTop: space.generous }}>
           <Text
@@ -605,6 +414,52 @@ function Today({
           ))}
         </View>
       ) : null}
+
+      <Pressable
+        onPress={() => {
+          void tick();
+          router.push("/district");
+        }}
+        accessibilityRole="button"
+        accessibilityLabel="Open your district: shield, agency progress, everything watched"
+        style={{
+          marginTop: space.generous,
+          minHeight: MINIMUM_TARGET,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderTopWidth: 1,
+          borderTopColor: colour.border,
+          paddingTop: space.comfortable,
+        }}
+      >
+        <View>
+          <Text
+            style={{ ...type.body, fontFamily: family.bodySemibold, color: colour.ink }}
+          >
+            Your district
+          </Text>
+          <Text
+            style={{
+              ...type.caption,
+              fontFamily: family.body,
+              color: colour.inkMuted,
+              marginTop: 2,
+            }}
+          >
+            Shield, agency progress, everything watched
+          </Text>
+        </View>
+        <Text
+          style={{
+            ...type.body,
+            fontFamily: family.bodySemibold,
+            color: colour.accent,
+          }}
+        >
+          Open
+        </Text>
+      </Pressable>
     </View>
   );
 }

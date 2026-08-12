@@ -3,6 +3,7 @@ import Constants from "expo-constants";
 import type {
   AgeBandOption,
   CitizenIdentity,
+  CitizenLogin,
   CitizenRegistration,
   CitizenSession,
   CommunityReport,
@@ -164,6 +165,9 @@ export const api = {
 
   registerCitizen: (registration: CitizenRegistration) =>
     request<CitizenSession>("/citizens", { method: "POST", body: registration }),
+
+  signInCitizen: (login: CitizenLogin) =>
+    request<CitizenSession>("/citizens/login", { method: "POST", body: login }),
 
   citizen: (token: string) => request<CitizenIdentity>("/citizens/me", { token }),
 

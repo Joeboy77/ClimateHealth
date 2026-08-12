@@ -31,6 +31,11 @@ import {
 } from "@/design/tokens";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/lib/identity/session";
+import {
+  MINIMUM_PASSWORD_LENGTH,
+  asLocalNumber,
+  isCompleteNumber,
+} from "@/lib/identity/phone-number";
 import type { AgeBand } from "@/lib/api/types";
 
 const LANGUAGES = [
@@ -41,16 +46,17 @@ const LANGUAGES = [
   { code: "dag", label: "Dagbani" },
 ] as const;
 
-const STEPS = ["name", "district", "age", "language"] as const;
+const STEPS = ["name", "district", "age", "language", "account"] as const;
 type Step = (typeof STEPS)[number];
 
 /**
  * Joining.
  *
- * Four questions, one per screen, and nothing we do not use. No password and no code sent
- * to a phone: a one-time code costs money and turns the first thirty seconds of a
- * public-health application into a chore, which is the friction that keeps the people most
- * at risk from ever arriving.
+ * Five questions, one screen each, and nothing we do not use. The number is asked for
+ * because the warning has to reach a phone that cannot open the app, which is most of the
+ * people this is built for. There is still no code sent to it: a one-time code costs money
+ * and turns the first thirty seconds of a public-health app into a chore, which is the
+ * friction that keeps the people most at risk from ever arriving.
  *
  * The age band is the one question that changes the product. It decides which tier a
  * Guardian gets, whether their missions must be supervised, and whether they may be
@@ -67,6 +73,8 @@ export default function JoinScreen() {
   const [districtId, setDistrictId] = useState<string | null>(null);
   const [ageBand, setAgeBand] = useState<AgeBand | null>(null);
   const [language, setLanguage] = useState<string>("en");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
 
   const ageBands = useQuery({
     queryKey: ["age-bands"],
@@ -80,6 +88,8 @@ export default function JoinScreen() {
         district_id: districtId ?? "",
         age_band: ageBand ?? "18_34",
         language: language as "en",
+        phone_number: asLocalNumber(phoneNumber),
+        password,
       }),
     onSuccess: async (session) => {
       await keepSession(session);
@@ -93,10 +103,13 @@ export default function JoinScreen() {
     (step === "name" && name.trim().length > 0) ||
     (step === "district" && districtId !== null) ||
     (step === "age" && ageBand !== null) ||
-    step === "language";
+    step === "language" ||
+    (step === "account" &&
+      isCompleteNumber(phoneNumber) &&
+      password.length >= MINIMUM_PASSWORD_LENGTH);
 
   const advance = () => {
-    if (step === "language") {
+    if (step === "account") {
       join.mutate();
       return;
     }
@@ -203,9 +216,51 @@ export default function JoinScreen() {
                 onChange={setLanguage}
               />
             </View>
+          </Animated.View>
+        ) : null}
+
+        {step === "account" ? (
+          <Animated.View entering={FadeIn.duration(duration.medium)} exiting={FadeOut}>
+            <Text style={styles.question}>Your number and a password</Text>
+            <Text style={styles.aside}>
+              The warning is sent by SMS too, so it reaches you even when the app
+              cannot. The password is how you sign back in on another phone.
+            </Text>
+            <TextInput
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              placeholder="024 123 4567"
+              placeholderTextColor={colour.inkFaint}
+              autoFocus
+              keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              accessibilityLabel="Your phone number"
+              style={styles.input}
+            />
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder={`Password, at least ${MINIMUM_PASSWORD_LENGTH} characters`}
+              placeholderTextColor={colour.inkFaint}
+              secureTextEntry
+              autoCapitalize="none"
+              textContentType="newPassword"
+              accessibilityLabel="Choose a password"
+              style={[styles.input, { marginTop: space.base }]}
+              returnKeyType="go"
+              onSubmitEditing={() => canContinue && advance()}
+            />
             {join.isError ? (
               <Text style={styles.error}>{join.error.message}</Text>
             ) : null}
+            <Pressable
+              onPress={() => router.replace("/login")}
+              accessibilityRole="button"
+              accessibilityLabel="Already have an account? Sign in"
+              style={{ marginTop: space.roomy, minHeight: MINIMUM_TARGET }}
+            >
+              <Text style={styles.signInLink}>Already registered? Sign in instead</Text>
+            </Pressable>
           </Animated.View>
         ) : null}
       </ScrollView>
@@ -228,7 +283,7 @@ export default function JoinScreen() {
           onPress={advance}
           disabled={!canContinue || join.isPending}
           accessibilityRole="button"
-          accessibilityLabel={step === "language" ? "Finish and join" : "Continue"}
+          accessibilityLabel={step === "account" ? "Finish and join" : "Continue"}
           accessibilityState={{ disabled: !canContinue || join.isPending }}
           style={[
             styles.primary,
@@ -238,7 +293,7 @@ export default function JoinScreen() {
           <Text style={styles.primaryText}>
             {join.isPending
               ? "Joining…"
-              : step === "language"
+              : step === "account"
                 ? "Become a Guardian"
                 : "Continue"}
           </Text>
@@ -250,6 +305,12 @@ export default function JoinScreen() {
 
 const styles = StyleSheet.create({
   host: { flex: 1, backgroundColor: colour.canvas },
+  signInLink: {
+    ...type.body,
+    fontFamily: family.bodySemibold,
+    color: colour.accent,
+    textAlign: "center",
+  },
   header: { paddingHorizontal: space.comfortable, paddingBottom: space.base },
   headerRow: {
     flexDirection: "row",

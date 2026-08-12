@@ -27,6 +27,7 @@ import { finishLine, starsFor, verdictLine } from "@/features/play/encouragement
 import { api } from "@/lib/api/client";
 import type { SessionResult } from "@/lib/api/types";
 import { useSession } from "@/lib/identity/session";
+import { speakChoice } from "@/lib/speech/speak";
 import {
   playQuizSound,
   prepareQuizSounds,
@@ -200,6 +201,7 @@ export default function PlayScreen() {
                     if (checked) return;
                     void tick();
                     setPicked(optionIndex);
+                    void speakChoice(option, language);
                   }}
                 />
               ))}
