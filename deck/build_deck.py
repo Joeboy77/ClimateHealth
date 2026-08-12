@@ -365,13 +365,13 @@ def mobile_slide(presentation):
     slide = blank(presentation)
     eyebrow(slide, "In the hand")
 
-    frame = text_box(slide, MARGIN, Inches(1.05), Inches(11.6), Inches(1.0))
-    write(frame, "Dawuro: the warning, the weather, and the reason.", 30, INK, DISPLAY, False, 8, first=True)
+    frame = text_box(slide, MARGIN, Inches(1.0), Inches(11.6), Inches(0.9))
+    write(frame, "Dawuro: the warning, the weather, and the reason.", 28, INK, DISPLAY, False, 6, first=True)
     write(
         frame,
         "Named after the gong-gong that has carried public warnings in Ghana for "
-        "centuries. English and Twi, read aloud for anybody who cannot read the screen.",
-        15,
+        "centuries. Five languages, read aloud, and a daily lesson that pays.",
+        14,
         MUTED,
         BODY,
         False,
@@ -380,19 +380,25 @@ def mobile_slide(presentation):
     )
 
     shots = [
-        ("m1-home.png", "Today's warning, with the conditions behind it"),
-        ("m2-quiz.png", "The daily run: points, streak, and why"),
-        ("m3-report.png", "What you reported, and how far it has got"),
+        ("m1-home.png", "Today's risk, in plain words"),
+        ("m2-quiz.png", "Learn by answering, wrong or right"),
+        ("m3-finish.png", "Points and streak, earned daily"),
+        ("m4-report.png", "Report a hazard with a photo"),
+        ("m5-twi.png", "The same warning in Twi"),
     ]
-    left = Inches(1.35)
+    left = Inches(0.55)
+    slot = Inches(2.5)
+    height = Inches(4.2)
     for name, caption in shots:
         path = SHOTS / name
-        height = Inches(4.0)
         if path.exists():
-            added = slide.shapes.add_picture(str(path), left, Inches(2.35), height=height)
-            added.left = left + Emu(int((Inches(3.3) - added.width) / 2))
+            added = slide.shapes.add_picture(str(path), left, Inches(2.15), height=height)
+            added.left = left + Emu(int((slot - added.width) / 2))
         else:
-            frame_shape = slide.shapes.add_shape(1, left + Inches(0.6), Inches(2.35), Inches(2.1), height)
+            width = Inches(1.95)
+            frame_shape = slide.shapes.add_shape(
+                1, left + Emu(int((slot - width) / 2)), Inches(2.15), width, height
+            )
             frame_shape.fill.solid()
             frame_shape.fill.fore_color.rgb = RGBColor(0xF5, 0xF4, 0xF1)
             frame_shape.line.color.rgb = RULE
@@ -400,18 +406,261 @@ def mobile_slide(presentation):
             label = frame_shape.text_frame
             label.word_wrap = True
             label.vertical_anchor = MSO_ANCHOR.MIDDLE
-            write(label, f"[ {name} ]", 12, FAINT, BODY, True, first=True)
+            write(label, f"[ {name} ]", 10, FAINT, BODY, True, first=True)
             label.paragraphs[0].alignment = PP_ALIGN.CENTER
 
-        caption_frame = text_box(slide, left, Inches(6.5), Inches(3.3), Inches(0.6))
-        write(caption_frame, caption, 12, MUTED, BODY, False, first=True)
+        caption_frame = text_box(slide, left, Inches(6.55), slot, Inches(0.6))
+        write(caption_frame, caption, 11, MUTED, BODY, False, first=True)
         caption_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        left += Inches(3.6)
+        left += slot + Inches(0.06)
 
     notes(
         slide,
-        "Keep this short: fifteen seconds. The app is the reach story, not the "
-        "technical one. If time is tight, this is the slide to cut.",
+        "Fifteen seconds. Point at the Twi screen last and say: this is the same "
+        "warning, and the app tells the reader honestly that the wording is awaiting "
+        "review by a Twi speaker and that their phone cannot read it aloud yet. "
+        "Nobody else in this room will show you a screen admitting its own limits.",
+    )
+    return slide
+
+
+
+def burden_slide(presentation):
+    slide = blank(presentation)
+    eyebrow(slide, "The problem")
+
+    frame = text_box(slide, MARGIN, Inches(1.1), Inches(11.6), Inches(0.9))
+    write(frame, "Climate-driven disease is Ghana's largest health burden.", 30, INK, DISPLAY, False, 8, first=True)
+    write(
+        frame,
+        "Malaria, cholera, meningitis and heat illness all track the weather. "
+        "Every one of them is driven by conditions we can already measure.",
+        15,
+        MUTED,
+        BODY,
+        False,
+        0,
+        line=1.4,
+    )
+
+    figures = [
+        ("6.7m", "malaria cases in Ghana in 2024", "WHO World Malaria Report 2024"),
+        ("11,635", "malaria deaths in that year", "WHO World Malaria Report 2024"),
+        ("~196", "cases per 1,000 at risk", "WHO, broadly flat since 2023"),
+    ]
+    left = MARGIN
+    for value, label, source in figures:
+        column = text_box(slide, left, Inches(2.6), Inches(3.6), Inches(1.9))
+        write(column, value, 44, ALARM, DISPLAY, False, 4, first=True)
+        write(column, label, 15, INK, BODY, True, 6, line=1.3)
+        write(column, source, 11, FAINT, BODY, False, 0, line=1.3)
+        left += Inches(3.9)
+
+    hairline(slide, Inches(4.9))
+    frame = text_box(slide, MARGIN, Inches(5.15), CONTENT_WIDTH, Inches(1.6))
+    write(
+        frame,
+        "Ghana is one of the 15 highest-burden countries in the world.",
+        17,
+        INK,
+        BODY,
+        True,
+        8,
+        first=True,
+    )
+    write(
+        frame,
+        "The response is reactive: cases are counted after people are already ill. "
+        "The climate data that precedes those cases is free, public, and updated daily. "
+        "Nobody is turning it into a warning.",
+        15,
+        MUTED,
+        BODY,
+        False,
+        0,
+        line=1.45,
+    )
+    notes(
+        slide,
+        "Open the problem with the number, not the adjective. 6.7 million cases, "
+        "11,635 deaths, one year, one country. Then the turn: all of it follows weather "
+        "we can already see. Source is WHO World Malaria Report 2024, on the sources slide.",
+    )
+    return slide
+
+
+def solution_slide(presentation):
+    slide = blank(presentation)
+    eyebrow(slide, "Our solution")
+
+    frame = text_box(slide, MARGIN, Inches(1.1), Inches(11.6), Inches(1.5))
+    write(frame, "ClimaHealth Predict", 34, INK, DISPLAY, False, 6, first=True)
+    write(
+        frame,
+        "Reads a district's climate today, and says which health risks are rising, why, "
+        "how long before cases appear, and who is most affected.",
+        17,
+        MUTED,
+        BODY,
+        False,
+        0,
+        line=1.4,
+    )
+
+    parts = [
+        (
+            "For the public",
+            "Dawuro",
+            "Daily forecast and weather, a hazard you can report with a photo, "
+            "and a daily lesson that pays in NHIS cover.",
+        ),
+        (
+            "For the agencies",
+            "Command Platform",
+            "260 districts ranked and explained, alerts, an incident room, "
+            "readiness, and a view per agency mandate.",
+        ),
+        (
+            "For everyone else",
+            "USSD and SMS",
+            "The same warning on any feature phone, with no data and no app, "
+            "because a smartphone is not a requirement.",
+        ),
+    ]
+    left = MARGIN
+    for audience, name, detail in parts:
+        column = text_box(slide, left, Inches(3.1), Inches(3.6), Inches(2.6))
+        write(column, audience.upper(), 11, MUTED, BODY, True, 6, spacing=1.6, first=True)
+        write(column, name, 22, ACCENT, DISPLAY, False, 8)
+        write(column, detail, 14, MUTED, BODY, False, 0, line=1.45)
+        left += Inches(3.9)
+
+    hairline(slide, Inches(6.0))
+    frame = text_box(slide, MARGIN, Inches(6.2), CONTENT_WIDTH, Inches(0.6))
+    write(
+        frame,
+        "One engine behind all three. The prediction is computed once and reaches people "
+        "by whatever door they can open.",
+        15,
+        INK,
+        BODY,
+        False,
+        first=True,
+    )
+    notes(
+        slide,
+        "Say the one-liner from the top of the slide and then stop. The three columns "
+        "are for the judges to read, not for you to narrate. Point, do not recite.",
+    )
+    return slide
+
+
+def accessibility_slide(presentation):
+    slide = blank(presentation)
+    eyebrow(slide, "Accessibility")
+
+    frame = text_box(slide, MARGIN, Inches(1.05), Inches(5.3), Inches(3.9))
+    write(frame, "Built for the people", 32, INK, DISPLAY, False, 2, line=1.08, first=True)
+    write(frame, "most exposed, not the", 32, INK, DISPLAY, False, 2, line=1.08)
+    write(frame, "easiest to reach.", 32, ACCENT, DISPLAY, False, 16, line=1.08)
+    write(
+        frame,
+        "The hackathon asks us to reach youth and marginalised groups. Those are the "
+        "people least likely to own a smartphone, read fluently, or speak English at "
+        "home. Every one of those is designed for, not apologised for.",
+        15,
+        MUTED,
+        BODY,
+        False,
+        0,
+        line=1.5,
+    )
+
+    picture_left = Inches(9.55)
+    path = SHOTS / "m6-language.png"
+    if path.exists():
+        slide.shapes.add_picture(str(path), picture_left, Inches(1.2), height=Inches(5.4))
+
+    rows = [
+        ("Five languages", "English, Twi, Ga, Ewe, Dagbani, chosen at sign-up"),
+        ("Read aloud", "Every forecast, lesson and quiz answer can be spoken"),
+        ("Never a wrong voice", "If the phone has no voice for a language, it says so and stays silent"),
+        ("Age-banded content", "A nine-year-old and a grandmother get different wording"),
+        ("No smartphone needed", "USSD on any handset; SMS for people who open nothing"),
+        ("Works offline", "The last forecast is kept; reports queue and send themselves"),
+    ]
+    top = Inches(1.25)
+    for name, detail in rows:
+        row = text_box(slide, Inches(6.4), top, Inches(3.0), Inches(0.85))
+        write(row, name, 15, ACCENT, BODY, True, 2, first=True)
+        write(row, detail, 13, MUTED, BODY, False, 0, line=1.35)
+        top += Inches(0.88)
+
+    notes(
+        slide,
+        "This is the slide that ties you to the hackathon theme. Say: the people most "
+        "exposed to climate illness are the least likely to own a smartphone. If the "
+        "product only works on a good phone in English, it has missed them. "
+        "If asked for proof, go to the Twi screenshot on the app slide.",
+    )
+    return slide
+
+
+def sources_slide(presentation):
+    slide = blank(presentation)
+    eyebrow(slide, "Sources")
+
+    frame = text_box(slide, MARGIN, Inches(1.05), Inches(11.6), Inches(0.7))
+    write(frame, "Where the numbers come from.", 30, INK, DISPLAY, False, 0, first=True)
+
+    rows = [
+        (
+            "Malaria burden",
+            "6.7m cases and 11,635 deaths in Ghana, 2024",
+            "WHO, World Malaria Report 2024",
+        ),
+        (
+            "NHIS coverage",
+            "18.5m active members, about 56% of the population",
+            "National Health Insurance Authority, 2025",
+        ),
+        (
+            "NHIS premium",
+            "GHS 7.20 to 48 a year by income band; GHS 30 to 50 informal",
+            "NHIA scheme documentation",
+        ),
+        (
+            "Mobile reach",
+            "38.3m connections, 110% of population; 69.9% use the internet",
+            "GSMA Intelligence / DataReportal, Digital 2025 Ghana",
+        ),
+        (
+            "Climate data",
+            "Daily observations and forecast for all 260 districts",
+            "Open-Meteo, live in the product",
+        ),
+        (
+            "District boundaries",
+            "260 district polygons drawn on the map",
+            "geoBoundaries, CC BY 4.0",
+        ),
+    ]
+    top = Inches(1.95)
+    for topic, claim, source in rows:
+        hairline(slide, top - Inches(0.14))
+        row = text_box(slide, MARGIN, top, Inches(2.9), Inches(0.7))
+        write(row, topic, 14, INK, BODY, True, 0, first=True)
+        middle = text_box(slide, Inches(4.0), top, Inches(5.0), Inches(0.7))
+        write(middle, claim, 13, MUTED, BODY, False, 0, line=1.35, first=True)
+        right = text_box(slide, Inches(9.3), top, Inches(3.3), Inches(0.7))
+        write(right, source, 12, ACCENT, BODY, False, 0, line=1.35, first=True)
+        top += Inches(0.82)
+
+    notes(
+        slide,
+        "Do not present this slide. It exists so that when a judge asks where a number "
+        "came from, you turn to it and answer in one move. Every figure on the deck is "
+        "on this page with its source.",
     )
     return slide
 
@@ -426,8 +675,9 @@ def reward_slide(presentation):
     write(
         frame,
         "3,500 points is one year of NHIS cover. The number is derived, not chosen: "
-        "the adult premium is about GHS 35, and the platform values a point at one "
-        "pesewa.",
+        "the adult premium runs GHS 7.20 to 48 by income band, about GHS 30 to 50 a "
+        "year for informal workers. We price a point at one pesewa and take the "
+        "middle of that band.",
         16,
         MUTED,
         BODY,
@@ -537,18 +787,21 @@ def reach_slide(presentation):
         write(column, detail, 14, MUTED, BODY, False, 0, line=1.45)
         left += Inches(3.9)
 
-    hairline(slide, Inches(5.8))
-    frame = text_box(slide, MARGIN, Inches(6.0), CONTENT_WIDTH, Inches(0.6))
-    write(
-        frame,
-        "USSD is built and answering: dial, choose English, choose region, choose district, "
-        "get the warning.",
-        15,
-        INK,
-        BODY,
-        False,
-        first=True,
-    )
+    hairline(slide, Inches(5.7))
+    figures = [
+        ("38.3m", "mobile connections, 110% of the population"),
+        ("69.9%", "use the internet, so three in ten do not"),
+        ("0 kb", "of data needed to dial the USSD shortcode"),
+    ]
+    left = MARGIN
+    for value, label in figures:
+        column = text_box(slide, left, Inches(5.95), Inches(3.9), Inches(0.9))
+        write(column, value, 26, ACCENT, DISPLAY, False, 2, first=True)
+        write(column, label, 12, MUTED, BODY, False, 0, line=1.3)
+        left += Inches(3.9)
+
+    footnote = text_box(slide, MARGIN, Inches(6.95), CONTENT_WIDTH, Inches(0.35))
+    write(footnote, "GSMA Intelligence / DataReportal, Digital 2025 Ghana", 10, FAINT, BODY, False, first=True)
     notes(
         slide,
         "Judges flagged USSD and SMS as not implemented. USSD now runs on Africa's "
@@ -578,8 +831,8 @@ def answers_slide(presentation):
         ),
         (
             "Reward feasibility unproven",
-            "Cash removed. Points buy NHIS cover at a rate derived from the real premium, "
-            "issued by Ghana Health Service, not by us.",
+            "Cash removed. Points buy NHIS cover priced against the real GHS 7.20-48 "
+            "premium band, issued by Ghana Health Service, not by us.",
         ),
     ]
     top = Inches(2.0)
@@ -688,7 +941,9 @@ def build() -> Path:
     presentation.slide_width, presentation.slide_height = WIDTH, HEIGHT
 
     title_slide(presentation)
+    burden_slide(presentation)
     problem_slide(presentation)
+    solution_slide(presentation)
     engine_slide(presentation)
     screenshot_slide(
         presentation,
@@ -714,6 +969,7 @@ def build() -> Path:
     )
     loop_slide(presentation)
     mobile_slide(presentation)
+    accessibility_slide(presentation)
     screenshot_slide(
         presentation,
         "The renewal queue",
@@ -723,12 +979,13 @@ def build() -> Path:
         "w2-renewals.png",
         "Point at Kofi Mensah: 20 points to go. Say: that is one more day of use. "
         "This is the screen that makes the reward real to an officer.",
-        "NHIS renewals · Ghana Health Service only",
+        "NHIS renewals \u00b7 Ghana Health Service only \u00b7 seeded demonstration Guardians",
     )
     reward_slide(presentation)
     reach_slide(presentation)
     answers_slide(presentation)
     close_slide(presentation)
+    sources_slide(presentation)
     backup_slide(presentation)
 
     presentation.save(OUTPUT)

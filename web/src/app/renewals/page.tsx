@@ -99,9 +99,9 @@ function RenewalQueue() {
               </dt>
             </div>
             <div className="pl-6">
-              <dd className="text-h1 tabular">GHS 35</dd>
+              <dd className="text-h1 tabular">GHS 30–50</dd>
               <dt className="mt-1.5 text-eyebrow text-[var(--color-muted)]">
-                adult premium
+                informal annual premium
               </dt>
             </div>
           </dl>
@@ -111,7 +111,7 @@ function RenewalQueue() {
       <Card>
         <CardHeader
           title="Who to renew next"
-          description="Ranked by points earned. A Guardian reaches a year at 3,500."
+          description="Ranked by points earned. A Guardian reaches a year of NHIS cover at 3,500 points."
         />
         {standings.isPending ? (
           <CardBody>
