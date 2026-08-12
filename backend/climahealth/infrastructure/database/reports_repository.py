@@ -3,10 +3,13 @@ from datetime import date
 from sqlalchemy import func, select
 
 from climahealth.infrastructure.database.engine import SessionFactory
-from climahealth.infrastructure.database.tables import CommunityReportRow
+from climahealth.infrastructure.database.tables import CommunityReportRow, ReportProgressRow
 from climahealth.services.reports_service import (
+    STAGE_LABELS,
     CommunityReport,
     ReportPriority,
+    ReportProgressEntry,
+    ReportStage,
     ReportSubmission,
     ReportType,
     VerificationStatus,
@@ -28,6 +31,7 @@ def _to_report(row: CommunityReportRow) -> CommunityReport:
         verified_by=row.verified_by,
         verified_on=row.verified_on,
         priority=ReportPriority(row.priority),
+        stage=ReportStage(row.stage),
     )
 
 
@@ -56,6 +60,7 @@ class PostgresReportStore:
                         verified_by=report.verified_by,
                         verified_on=report.verified_on,
                         priority=report.priority.value,
+                        stage=report.stage.value,
                     )
                 )
 
@@ -126,3 +131,46 @@ class PostgresReportStore:
             row.verified_on = verified_on
             session.flush()
             return _to_report(row)
+
+    def set_stage(
+        self,
+        report_id: str,
+        stage: ReportStage,
+        entry: ReportProgressEntry,
+    ) -> CommunityReport:
+        with self._sessions.begin() as session:
+            row = session.get(CommunityReportRow, report_id)
+            if row is None:
+                raise KeyError(report_id)
+            row.stage = stage.value
+            session.add(
+                ReportProgressRow(
+                    report_id=report_id,
+                    stage=entry.stage.value,
+                    note=entry.note,
+                    actor_name=entry.actor_name,
+                    actor_role=entry.actor_role,
+                    recorded_at=entry.recorded_at,
+                )
+            )
+            session.flush()
+            return _to_report(row)
+
+    def timeline_for(self, report_id: str) -> tuple[ReportProgressEntry, ...]:
+        with self._sessions.begin() as session:
+            rows = session.scalars(
+                select(ReportProgressRow)
+                .where(ReportProgressRow.report_id == report_id)
+                .order_by(ReportProgressRow.entry_id)
+            ).all()
+            return tuple(
+                ReportProgressEntry(
+                    stage=ReportStage(row.stage),
+                    stage_label=STAGE_LABELS[ReportStage(row.stage)],
+                    note=row.note,
+                    actor_name=row.actor_name,
+                    actor_role=row.actor_role,
+                    recorded_at=row.recorded_at,
+                )
+                for row in rows
+            )

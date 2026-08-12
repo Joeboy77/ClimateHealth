@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
+from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
 from climahealth.domain.models import (
@@ -35,6 +36,8 @@ if TYPE_CHECKING:
     from climahealth.services.reports_service import (
         CommunityReport,
         ReportPriority,
+        ReportProgressEntry,
+        ReportStage,
         ReportSubmission,
         VerificationStatus,
     )
@@ -199,6 +202,15 @@ class ReportStore(Protocol):
         verified_on: date,
     ) -> "CommunityReport": ...
 
+    def set_stage(
+        self,
+        report_id: str,
+        stage: "ReportStage",
+        entry: "ReportProgressEntry",
+    ) -> "CommunityReport": ...
+
+    def timeline_for(self, report_id: str) -> tuple["ReportProgressEntry", ...]: ...
+
 
 class GuardianStore(Protocol):
     def enrol(self, user_id: str, display_name: str, district_id: str) -> "Guardian": ...
@@ -237,6 +249,12 @@ class CitizenStore(Protocol):
     def for_district(self, district_id: str) -> tuple["CitizenIdentity", ...]: ...
 
     def phone_numbers_in(self, district_id: str) -> tuple[str, ...]: ...
+
+
+class PhotoStore(Protocol):
+    def save(self, content: bytes, content_type: str) -> str: ...
+
+    def find(self, reference: str) -> "Path | None": ...
 
 
 class PayoutSender(Protocol):

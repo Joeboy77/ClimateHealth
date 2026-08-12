@@ -3,7 +3,7 @@ from enum import StrEnum
 
 from pydantic import Field
 
-from climahealth.services.access import AuthenticatedUser, DistrictAccessDenied
+from climahealth.services.access import AuthenticatedUser, DistrictAccessDenied, UserRole
 from climahealth.services.access_service import ScopeGuard
 from climahealth.services.events import DomainEvent, EventType, NullEventPublisher
 from climahealth.services.models import ServiceModel
@@ -18,6 +18,50 @@ class VerificationStatus(StrEnum):
     PENDING = "pending"
     VERIFIED = "verified"
     REJECTED = "rejected"
+
+
+class ReportStage(StrEnum):
+    """How far along fixing the thing is, which is a different question from whether
+    the report was true. Authenticity is decided once, by somebody who went and looked;
+    progress keeps moving after that.
+    """
+
+    SUBMITTED = "submitted"
+    VALIDATED = "validated"
+    IN_PROGRESS = "in_progress"
+    RESOLVED = "resolved"
+    REJECTED = "rejected"
+
+
+ORDERED_STAGES: tuple[ReportStage, ...] = (
+    ReportStage.SUBMITTED,
+    ReportStage.VALIDATED,
+    ReportStage.IN_PROGRESS,
+    ReportStage.RESOLVED,
+)
+
+STAGE_LABELS: dict[ReportStage, str] = {
+    ReportStage.SUBMITTED: "Submitted",
+    ReportStage.VALIDATED: "Validated on the ground",
+    ReportStage.IN_PROGRESS: "Being worked on",
+    ReportStage.RESOLVED: "Resolved",
+    ReportStage.REJECTED: "Could not be confirmed",
+}
+
+ALLOWED_TRANSITIONS: dict[ReportStage, tuple[ReportStage, ...]] = {
+    ReportStage.SUBMITTED: (ReportStage.VALIDATED, ReportStage.REJECTED),
+    ReportStage.VALIDATED: (ReportStage.IN_PROGRESS, ReportStage.REJECTED),
+    ReportStage.IN_PROGRESS: (ReportStage.RESOLVED,),
+    ReportStage.RESOLVED: (),
+    ReportStage.REJECTED: (),
+}
+
+
+def progress_percent(stage: ReportStage) -> int:
+    """A rejected report is finished, not 25 per cent done, so it reads as complete."""
+    if stage is ReportStage.REJECTED:
+        return 100
+    return round((ORDERED_STAGES.index(stage) + 1) / len(ORDERED_STAGES) * 100)
 
 
 class ReportPriority(StrEnum):
@@ -58,6 +102,17 @@ class CommunityReport(ServiceModel):
     verified_by: str | None = None
     verified_on: date | None = None
     priority: ReportPriority = ReportPriority.ROUTINE
+    stage: ReportStage = ReportStage.SUBMITTED
+
+    @property
+    def photo_url(self) -> str | None:
+        """Cloudinary hands back a URL; the local store hands back a filename that this
+        API serves. Clients should not have to know which one they are looking at."""
+        if self.photo_reference is None:
+            return None
+        if self.photo_reference.startswith("http"):
+            return self.photo_reference
+        return f"/reports/photo/{self.photo_reference}"
 
     @property
     def counts_as_signal(self) -> bool:
@@ -68,6 +123,48 @@ class ReportVerification(ServiceModel):
     report_id: str
     status: VerificationStatus
     priority: ReportPriority = ReportPriority.ROUTINE
+
+
+class ReportProgressEntry(ServiceModel):
+    """One step in a report's life. Append-only: entries are never edited or removed,
+    because the point of a timeline is that it cannot be quietly rewritten."""
+
+    stage: ReportStage
+    stage_label: str
+    note: str | None
+    actor_name: str
+    actor_role: str
+    recorded_at: datetime
+
+
+class ReportProgress(ServiceModel):
+    report_id: str
+    stage: ReportStage
+    stage_label: str
+    percent: int
+    next_stages: tuple[ReportStage, ...]
+    timeline: tuple[ReportProgressEntry, ...]
+
+
+class StageAdvance(ServiceModel):
+    stage: ReportStage
+    note: str | None = Field(default=None, max_length=500)
+
+
+class InvalidStageChange(ValueError):
+    pass
+
+
+class NotAValidator(PermissionError):
+    def __init__(self) -> None:
+        super().__init__(
+            "Only an Ɔhwɛfoɔ who has been to the site, or a coordinator, may validate a report."
+        )
+
+
+class NotAResponder(PermissionError):
+    def __init__(self) -> None:
+        super().__init__("Only an agency responder or a coordinator may move work forward.")
 
 
 class ReportNotFound(LookupError):
@@ -147,6 +244,95 @@ class ReportsService:
             priority=verification.priority,
             verified_by=user.display_name,
             verified_on=self._clock.today(),
+        )
+
+    def advance_stage(
+        self, user: AuthenticatedUser, report_id: str, advance: StageAdvance
+    ) -> ReportProgress:
+        """Move a report one step, and write down who moved it.
+
+        Validation and repair are different jobs held by different people. An Ɔhwɛfoɔ
+        decides whether the thing is real, because they went and stood there; an agency
+        decides when the work has started and finished, because they are doing it.
+        Neither can do the other's step.
+        """
+        report = self._reports.find(report_id)
+        if report is None:
+            raise ReportNotFound(f"Unknown report '{report_id}'")
+        self._scope_guard.resolve_district(user, report.district_id)
+
+        permitted = ALLOWED_TRANSITIONS[report.stage]
+        if advance.stage not in permitted:
+            raise InvalidStageChange(
+                f"A report that is {STAGE_LABELS[report.stage].lower()} cannot become "
+                f"{STAGE_LABELS[advance.stage].lower()}."
+            )
+
+        if advance.stage in (ReportStage.VALIDATED, ReportStage.REJECTED):
+            if not user.validates_in_the_field:
+                raise NotAValidator()
+        elif not (user.coordinates_response or user.role is UserRole.RESPONDER):
+            raise NotAResponder()
+
+        entry = ReportProgressEntry(
+            stage=advance.stage,
+            stage_label=STAGE_LABELS[advance.stage],
+            note=advance.note,
+            actor_name=user.display_name,
+            actor_role=user.role_name,
+            recorded_at=self._clock.now(),
+        )
+        updated = self._reports.set_stage(report_id, advance.stage, entry)
+
+        # Authenticity is decided once, by whoever went and looked, and the rest of the
+        # platform already keys points and community signals off that judgement.
+        if advance.stage is ReportStage.VALIDATED:
+            self._reports.set_verification(
+                report_id=report_id,
+                status=VerificationStatus.VERIFIED,
+                priority=report.priority,
+                verified_by=user.display_name,
+                verified_on=self._clock.today(),
+            )
+        elif advance.stage is ReportStage.REJECTED:
+            self._reports.set_verification(
+                report_id=report_id,
+                status=VerificationStatus.REJECTED,
+                priority=report.priority,
+                verified_by=user.display_name,
+                verified_on=self._clock.today(),
+            )
+
+        self._events.publish(
+            DomainEvent(
+                event_type=EventType.REPORT_SUBMITTED,
+                district_id=report.district_id,
+                resource_id=report_id,
+                summary=f"Report {report_id} is now {STAGE_LABELS[advance.stage].lower()}",
+                occurred_at=datetime.now(UTC),
+            )
+        )
+        return self.progress_for(user, report_id, updated)
+
+    def progress_for(
+        self,
+        user: AuthenticatedUser,
+        report_id: str,
+        report: CommunityReport | None = None,
+    ) -> ReportProgress:
+        resolved = report if report is not None else self._reports.find(report_id)
+        if resolved is None:
+            raise ReportNotFound(f"Unknown report '{report_id}'")
+        if not user.scope.permits(resolved.district_id):
+            raise DistrictAccessDenied(resolved.district_id)
+
+        return ReportProgress(
+            report_id=resolved.report_id,
+            stage=resolved.stage,
+            stage_label=STAGE_LABELS[resolved.stage],
+            percent=progress_percent(resolved.stage),
+            next_stages=ALLOWED_TRANSITIONS[resolved.stage],
+            timeline=self._reports.timeline_for(resolved.report_id),
         )
 
     def find(self, user: AuthenticatedUser, report_id: str) -> CommunityReport:

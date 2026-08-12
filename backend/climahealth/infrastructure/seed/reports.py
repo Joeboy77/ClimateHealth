@@ -4,6 +4,8 @@ from climahealth.infrastructure.seed.incidents import ReportIdentifierSequence
 from climahealth.services.reports_service import (
     CommunityReport,
     ReportPriority,
+    ReportProgressEntry,
+    ReportStage,
     ReportSubmission,
     ReportType,
     VerificationStatus,
@@ -58,6 +60,7 @@ class InMemoryReportStore:
     def __init__(self, reports: tuple[CommunityReport, ...] = SEEDED_REPORTS) -> None:
         self._reports = list(reports)
         self._identifiers = ReportIdentifierSequence()
+        self._timeline: dict[str, list[ReportProgressEntry]] = {}
 
     def add(
         self,
@@ -111,3 +114,21 @@ class InMemoryReportStore:
             self._reports[index] = updated
             return updated
         raise KeyError(report_id)
+
+    def set_stage(
+        self,
+        report_id: str,
+        stage: ReportStage,
+        entry: ReportProgressEntry,
+    ) -> CommunityReport:
+        for index, report in enumerate(self._reports):
+            if report.report_id != report_id:
+                continue
+            updated = report.model_copy(update={"stage": stage})
+            self._reports[index] = updated
+            self._timeline.setdefault(report_id, []).append(entry)
+            return updated
+        raise KeyError(report_id)
+
+    def timeline_for(self, report_id: str) -> tuple[ReportProgressEntry, ...]:
+        return tuple(self._timeline.get(report_id, ()))

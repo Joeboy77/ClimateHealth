@@ -15,12 +15,15 @@ EPA_USERNAME = "epa.officer"
 EPA_PASSWORD = "epa-demo-2026"
 NADMO_USERNAME = "nadmo.officer"
 NADMO_PASSWORD = "nadmo-demo-2026"
+FIELD_USERNAME = "ohwefo.madina"
+FIELD_PASSWORD = "ohwefo-demo-2026"
 
 DEMO_ACCOUNTS: tuple[tuple[str, str], ...] = (
     (NATIONAL_USERNAME, NATIONAL_PASSWORD),
     (MADINA_USERNAME, MADINA_PASSWORD),
     (EPA_USERNAME, EPA_PASSWORD),
     (NADMO_USERNAME, NADMO_PASSWORD),
+    (FIELD_USERNAME, FIELD_PASSWORD),
 )
 
 _SALTS = {
@@ -28,6 +31,7 @@ _SALTS = {
     MADINA_USERNAME: "1a3c5e7f9b2d4f6a8c0e2b4d6f8a0c2e",
     EPA_USERNAME: "3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a",
     NADMO_USERNAME: "5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d",
+    FIELD_USERNAME: "7d9f1b3d5a7c9e1f3b5d7f9a1c3e5b7d",
 }
 
 
@@ -95,6 +99,16 @@ def seeded_users(hasher: Pbkdf2PasswordHasher | None = None) -> tuple[User, ...]
             "Flood Response Coordinator",
             Agency.NADMO,
             UserRole.RESPONDER,
+            "madina",
+        ),
+        build(
+            "user-ohwefo-madina",
+            FIELD_USERNAME,
+            FIELD_PASSWORD,
+            "Afua Nyarko",
+            "Ɔhwɛfoɔ, on-ground officer",
+            Agency.DISTRICT_ASSEMBLY,
+            UserRole.FIELD_OFFICER,
             "madina",
         ),
     )

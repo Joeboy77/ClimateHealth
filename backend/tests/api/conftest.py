@@ -37,6 +37,8 @@ from climahealth.infrastructure.seed.reports import InMemoryReportStore
 from climahealth.infrastructure.seed.users import (
     EPA_PASSWORD,
     EPA_USERNAME,
+    FIELD_PASSWORD,
+    FIELD_USERNAME,
     MADINA_PASSWORD,
     MADINA_USERNAME,
     NADMO_PASSWORD,
@@ -224,6 +226,12 @@ def madina_headers(client) -> dict[str, str]:
 def epa_headers(client) -> dict[str, str]:
     """EPA air quality officer: national scope, responder role."""
     return {"Authorization": f"Bearer {token_for(client, EPA_USERNAME, EPA_PASSWORD)}"}
+
+
+@pytest.fixture
+def ohwefo_headers(client) -> dict[str, str]:
+    """Ɔhwɛfoɔ: the on-ground officer for Madina who validates what citizens report."""
+    return {"Authorization": f"Bearer {token_for(client, FIELD_USERNAME, FIELD_PASSWORD)}"}
 
 
 @pytest.fixture
