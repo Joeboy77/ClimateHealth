@@ -1,39 +1,44 @@
+from uuid import uuid4
+
 from climahealth.services.access import AuthenticatedUser
 from climahealth.services.gamification_service import GamificationService
-from climahealth.services.ports import CitizenStore, PayoutSender
+from climahealth.services.ports import CitizenStore, Clock, NhisRenewalStore
 from climahealth.services.rewards import (
-    MobileMoneyNetwork,
-    Redemption,
+    POINTS_PER_NHIS_YEAR,
+    NhisRenewal,
+    NhisStatus,
     RedemptionRefused,
-    network_for_number,
     quote_for,
 )
 
+MONTHS_OF_COVER = 12
+
 
 class RewardsService:
-    """Turning points into mobile money.
+    """Turning points into NHIS cover.
 
-    Two rules the whole service exists to hold: a Guardian under 18 is never paid, and
-    points are only spent if the transfer actually succeeded.
+    No money moves. The platform cannot renew NHIS itself, so a claim records that a
+    Guardian has earned a year and hands that to Ghana Health Service, who do the
+    renewal and confirm it. Calling a request a renewal would be the platform lying on
+    behalf of a government scheme.
+
+    Two rules the service exists to hold: an under-18 never claims, because they are
+    already exempt from premiums, and points are only spent once the claim is recorded.
     """
 
     def __init__(
         self,
         gamification: GamificationService,
         citizens: CitizenStore,
-        payouts: PayoutSender,
+        renewals: NhisRenewalStore,
+        clock: Clock,
     ) -> None:
         self._gamification = gamification
         self._citizens = citizens
-        self._payouts = payouts
+        self._renewals = renewals
+        self._clock = clock
 
-    def redeem(
-        self,
-        user: AuthenticatedUser,
-        user_id: str,
-        mobile_money_number: str,
-        network: MobileMoneyNetwork | None = None,
-    ) -> Redemption:
+    def redeem(self, user: AuthenticatedUser, user_id: str) -> NhisRenewal:
         guardian = self._gamification.resolve(user, user_id)
         citizen = self._citizens.find(guardian.user_id)
         if citizen is None:
@@ -41,21 +46,28 @@ class RewardsService:
 
         quote = quote_for(guardian.points, citizen.age_band)
         if not quote.can_redeem:
-            raise RedemptionRefused(quote.reason or "This reward cannot be taken yet")
+            raise RedemptionRefused(quote.reason or "This reward cannot be claimed yet")
 
-        resolved = network or network_for_number(mobile_money_number)
-        if resolved is None:
-            raise RedemptionRefused("That number does not look like a Ghanaian mobile money number")
-
-        redemption = self._payouts.pay(
+        renewal = NhisRenewal(
+            reference=f"NHIS-{uuid4().hex[:10].upper()}",
             user_id=guardian.user_id,
-            recipient=mobile_money_number,
-            network=resolved,
-            cedis=quote.cedis,
-            points_spent=quote.redeemable_points,
+            display_name=guardian.display_name,
+            district_id=guardian.district_id,
+            points_spent=POINTS_PER_NHIS_YEAR,
+            months_of_cover=MONTHS_OF_COVER,
+            status=NhisStatus.REQUESTED,
+            requested_on=self._clock.today(),
         )
+        self._renewals.record(renewal)
+        self._gamification.spend(guardian.user_id, POINTS_PER_NHIS_YEAR)
+        return renewal
 
-        if redemption.points_spent > 0:
-            self._gamification.spend(guardian.user_id, redemption.points_spent)
+    def claims_for(self, district_id: str | None = None) -> tuple[NhisRenewal, ...]:
+        return self._renewals.all_renewals(district_id)
 
-        return redemption
+    def confirm(self, reference: str) -> NhisRenewal:
+        """Ghana Health Service marks a renewal as actually done."""
+        confirmed = self._renewals.confirm(reference)
+        if confirmed is None:
+            raise RedemptionRefused(f"Unknown renewal '{reference}'")
+        return confirmed

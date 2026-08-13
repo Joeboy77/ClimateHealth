@@ -604,6 +604,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/guardian/leaderboard/standings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Guardian Leaderboard
+         * @description Who has earned the most points, and who is nearly at a year of NHIS cover.
+         *
+         *     Ghana Health Service only. It carries phone numbers so an officer can reach a
+         *     Guardian about their renewal, and a list of names and numbers is not something
+         *     every agency on the platform needs to see.
+         */
+        get: operations["guardian_leaderboard_guardian_leaderboard_standings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/citizens/age-bands": {
         parameters: {
             query?: never;
@@ -885,7 +909,7 @@ export interface paths {
         };
         /**
          * Get Quote
-         * @description What this Guardian's points are worth in cedis today.
+         * @description How close this Guardian is to a year of NHIS cover.
          */
         get: operations["get_quote_rewards_quote__user_id__get"];
         put?: never;
@@ -907,10 +931,11 @@ export interface paths {
         put?: never;
         /**
          * Redeem
-         * @description Turn points into mobile money.
+         * @description Claim a year of NHIS cover with earned points.
          *
-         *     Points are only spent if the money actually moved, so a failed transfer costs the
-         *     Guardian nothing.
+         *     This records a claim; it does not renew anything. Ghana Health Service does the
+         *     renewal and confirms it, because the platform cannot issue cover on a government
+         *     scheme's behalf and should not say that it has.
          */
         post: operations["redeem_rewards_redeem_post"];
         delete?: never;
@@ -1616,6 +1641,8 @@ export interface components {
             language: components["schemas"]["NarrationLanguage"];
             wording: components["schemas"]["WordingProvenance"];
             confidence: components["schemas"]["ConfidenceMode"];
+            season: components["schemas"]["Season"];
+            climate: components["schemas"]["ClimateSnapshotResponse"];
             /** Top Risks */
             top_risks: components["schemas"]["ForecastRiskResponse"][];
         };
@@ -1666,6 +1693,32 @@ export interface components {
             /** Missions Completed */
             missions_completed: number;
             streak: components["schemas"]["Streak"];
+        };
+        /**
+         * GuardianStanding
+         * @description One row of the Ghana Health Service renewal queue.
+         */
+        GuardianStanding: {
+            /** User Id */
+            user_id: string;
+            /** Display Name */
+            display_name: string;
+            /** District Id */
+            district_id: string;
+            /** Phone Number */
+            phone_number: string | null;
+            /** Points */
+            points: number;
+            /** Points Required */
+            points_required: number;
+            /** Points Remaining */
+            points_remaining: number;
+            /** Percent Of A Year */
+            percent_of_a_year: number;
+            /** Streak Days */
+            streak_days: number;
+            /** Is Minor */
+            is_minor: boolean;
         };
         /**
          * GuardianTier
@@ -1861,12 +1914,6 @@ export interface components {
             total_points: number;
         };
         /**
-         * MobileMoneyNetwork
-         * @description Moolre transfer channels.
-         * @enum {string}
-         */
-        MobileMoneyNetwork: "1" | "6" | "7";
-        /**
          * NarrationAudience
          * @enum {string}
          */
@@ -1889,6 +1936,38 @@ export interface components {
             /** Distance Km */
             distance_km: number;
         };
+        /** NhisRenewal */
+        NhisRenewal: {
+            /** Reference */
+            reference: string;
+            /** User Id */
+            user_id: string;
+            /** Display Name */
+            display_name: string;
+            /** District Id */
+            district_id: string;
+            /** Points Spent */
+            points_spent: number;
+            /** Months Of Cover */
+            months_of_cover: number;
+            status: components["schemas"]["NhisStatus"];
+            /**
+             * Requested On
+             * Format: date
+             */
+            requested_on: string;
+        };
+        /**
+         * NhisStatus
+         * @description Where a renewal has got to.
+         *
+         *     Requested is not renewed. The platform cannot issue NHIS cover itself; it tells
+         *     Ghana Health Service who has earned it, and an officer does the renewal. Saying
+         *     "renewed" before that happened would be the platform lying on behalf of a
+         *     government scheme.
+         * @enum {string}
+         */
+        NhisStatus: "requested" | "confirmed";
         /** PathwayResponse */
         PathwayResponse: {
             condition: components["schemas"]["HealthCondition"];
@@ -1909,12 +1988,6 @@ export interface components {
             /** Supporting Agencies */
             supporting_agencies: string[];
         };
-        /**
-         * PayoutMode
-         * @description Whether a redemption actually moves money.
-         * @enum {string}
-         */
-        PayoutMode: "preview" | "live";
         /**
          * PhotoUploaded
          * @description What the phone keeps and sends with the report itself.
@@ -2072,56 +2145,30 @@ export interface components {
          * @enum {string}
          */
         ReadinessStatus: "ready" | "stretched" | "critical" | "emergency";
-        /** Redemption */
-        Redemption: {
-            /** Reference */
-            reference: string;
-            /** Points Spent */
-            points_spent: number;
-            /** Cedis */
-            cedis: string;
-            /** Recipient */
-            recipient: string;
-            network: components["schemas"]["MobileMoneyNetwork"];
-            /** Network Name */
-            network_name: string;
-            /** Accepted */
-            accepted: boolean;
-            mode: components["schemas"]["PayoutMode"];
-            /** Provider Code */
-            provider_code: string;
-            /** Provider Message */
-            provider_message: string;
-            /** Transaction Id */
-            transaction_id?: string | null;
-        };
         /**
-         * RedemptionQuote
-         * @description What a Guardian's points are worth, and whether they can take it yet.
+         * RenewalQuote
+         * @description What a Guardian's points are worth in NHIS cover, and whether they can claim.
          */
-        RedemptionQuote: {
+        RenewalQuote: {
             /** Points */
             points: number;
-            /** Redeemable Points */
-            redeemable_points: number;
-            /** Cedis */
-            cedis: string;
-            /** Minimum Points */
-            minimum_points: number;
-            /** Points Per Cedi */
-            points_per_cedi: number;
+            /** Points Required */
+            points_required: number;
+            /** Points Remaining */
+            points_remaining: number;
+            /** Percent Of A Year */
+            percent_of_a_year: number;
+            /** Approximate Days Of Use Remaining */
+            approximate_days_of_use_remaining: number;
             /** Can Redeem */
             can_redeem: boolean;
             /** Reason */
             reason?: string | null;
         };
-        /** RedemptionRequest */
-        RedemptionRequest: {
+        /** RenewalRequest */
+        RenewalRequest: {
             /** User Id */
             user_id: string;
-            /** Mobile Money Number */
-            mobile_money_number: string;
-            network?: components["schemas"]["MobileMoneyNetwork"] | null;
         };
         /**
          * ReportPriority
@@ -3543,6 +3590,37 @@ export interface operations {
             };
         };
     };
+    guardian_leaderboard_guardian_leaderboard_standings_get: {
+        parameters: {
+            query?: {
+                district_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianStanding"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_age_bands_citizens_age_bands_get: {
         parameters: {
             query?: never;
@@ -3948,7 +4026,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RedemptionQuote"];
+                    "application/json": components["schemas"]["RenewalQuote"];
                 };
             };
             /** @description Validation Error */
@@ -3971,7 +4049,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RedemptionRequest"];
+                "application/json": components["schemas"]["RenewalRequest"];
             };
         };
         responses: {
@@ -3981,7 +4059,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Redemption"];
+                    "application/json": components["schemas"]["NhisRenewal"];
                 };
             };
             /** @description Validation Error */

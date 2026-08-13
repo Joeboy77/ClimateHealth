@@ -20,8 +20,8 @@ import type {
   QuizResult,
   PreventionRecord,
   QuizSession,
-  Redemption,
-  RedemptionQuote,
+  NhisRenewal,
+  RenewalQuote,
   ReportSubmission,
   SessionResult,
   RiskList,
@@ -202,13 +202,13 @@ export const api = {
     }),
 
   rewardQuote: (token: string, userId: string) =>
-    request<RedemptionQuote>(`/rewards/quote/${userId}`, { token }),
+    request<RenewalQuote>(`/rewards/quote/${userId}`, { token }),
 
-  redeem: (token: string, userId: string, mobileMoneyNumber: string) =>
-    request<Redemption>("/rewards/redeem", {
+  claimNhisRenewal: (token: string, userId: string) =>
+    request<NhisRenewal>("/rewards/redeem", {
       method: "POST",
       token,
-      body: { user_id: userId, mobile_money_number: mobileMoneyNumber },
+      body: { user_id: userId },
     }),
 
   lessonToday: (token: string, districtId: string) =>

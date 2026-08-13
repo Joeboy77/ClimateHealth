@@ -8,6 +8,7 @@ from climahealth.services.access import AuthenticatedUser, DistrictAccessDenied
 from climahealth.services.citizens import GuardianTier
 from climahealth.services.models import District, ServiceModel
 from climahealth.services.ports import (
+    CitizenStore,
     Clock,
     GuardianStore,
     QuizRepository,
@@ -22,6 +23,7 @@ from climahealth.services.quiz_session import (
     points_for,
     streak_state_on,
 )
+from climahealth.services.rewards import POINTS_PER_NHIS_YEAR, percent_of_a_year
 from climahealth.services.risk_service import RiskService
 
 QUIZ_CORRECT_POINTS = 20
@@ -57,6 +59,21 @@ class Guardian(ServiceModel):
     streak: Streak = Streak(current_days=0, longest_days=0)
     completed_mission_ids: tuple[str, ...] = ()
     answered_question_ids: tuple[str, ...] = ()
+
+
+class GuardianStanding(ServiceModel):
+    """One row of the Ghana Health Service renewal queue."""
+
+    user_id: str
+    display_name: str
+    district_id: str
+    phone_number: str | None
+    points: int
+    points_required: int
+    points_remaining: int
+    percent_of_a_year: int
+    streak_days: int
+    is_minor: bool
 
 
 class GuardianProfile(ServiceModel):
@@ -218,6 +235,47 @@ class GamificationService:
             missions_completed=len(guardian.completed_mission_ids),
             streak=streak_state_on(guardian.streak, self._clock.today()),
         )
+
+    def leaderboard(
+        self,
+        citizens: "CitizenStore",
+        district_id: str | None = None,
+        limit: int = 50,
+    ) -> tuple["GuardianStanding", ...]:
+        """Who has earned the most, and who is nearly at a year of NHIS cover.
+
+        Ordered by points, because the question Ghana Health Service is asking is who
+        to renew next. It carries the phone number so an officer can reach the person
+        about their renewal, which is the only reason it is here.
+        """
+        districts = [district_id] if district_id is not None else None
+        standings: list[GuardianStanding] = []
+        for guardian in self._guardians.all_guardians():
+            if districts is not None and guardian.district_id not in districts:
+                continue
+            citizen = citizens.find(guardian.user_id)
+            # Only people who actually registered. Seeded demonstration guardians and
+            # staff accounts have no citizen record, and a renewal queue listing them
+            # would be offering NHIS cover to rows that are not people.
+            if citizen is None:
+                continue
+            standings.append(
+                GuardianStanding(
+                    user_id=guardian.user_id,
+                    display_name=guardian.display_name,
+                    district_id=guardian.district_id,
+                    phone_number=citizens.phone_number_for(guardian.user_id),
+                    points=guardian.points,
+                    points_required=POINTS_PER_NHIS_YEAR,
+                    points_remaining=max(0, POINTS_PER_NHIS_YEAR - guardian.points),
+                    percent_of_a_year=percent_of_a_year(guardian.points),
+                    streak_days=guardian.streak.current_days,
+                    is_minor=citizen.is_minor,
+                )
+            )
+
+        standings.sort(key=lambda standing: standing.points, reverse=True)
+        return tuple(standings[:limit])
 
     def rewards_for(self, user: AuthenticatedUser, user_id: str) -> RewardLadder:
         guardian = self._resolve_guardian(user, user_id)

@@ -1,7 +1,6 @@
 from datetime import date
 
 from fastapi import APIRouter, HTTPException, status
-from pydantic import Field
 
 from climahealth.api.dependencies import ContainerDependency, CurrentUser, PermittedDistrict
 from climahealth.api.schemas.common import ApiModel
@@ -16,10 +15,9 @@ from climahealth.services.quiz_session import (
     streak_state_on,
 )
 from climahealth.services.rewards import (
-    MobileMoneyNetwork,
-    Redemption,
-    RedemptionQuote,
+    NhisRenewal,
     RedemptionRefused,
+    RenewalQuote,
     quote_for,
 )
 
@@ -113,39 +111,35 @@ def submit_session(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
 
 
-@router.get("/rewards/quote/{user_id}", response_model=RedemptionQuote)
-def get_quote(user_id: str, user: CurrentUser, container: ContainerDependency) -> RedemptionQuote:
-    """What this Guardian's points are worth in cedis today."""
+@router.get("/rewards/quote/{user_id}", response_model=RenewalQuote)
+def get_quote(user_id: str, user: CurrentUser, container: ContainerDependency) -> RenewalQuote:
+    """How close this Guardian is to a year of NHIS cover."""
     guardian = container.gamification_service.resolve(user, user_id)
     citizen = container.citizen_service.find(guardian.user_id)
-    age_band = citizen.age_band if citizen is not None else None
-    if age_band is None:
+    if citizen is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="This account is not a registered Guardian",
         )
-    return quote_for(guardian.points, age_band)
+    return quote_for(guardian.points, citizen.age_band)
 
 
-class RedemptionRequest(ApiModel):
+class RenewalRequest(ApiModel):
     user_id: str
-    mobile_money_number: str = Field(min_length=9, max_length=15)
-    network: MobileMoneyNetwork | None = None
 
 
-@router.post("/rewards/redeem", response_model=Redemption)
+@router.post("/rewards/redeem", response_model=NhisRenewal)
 def redeem(
-    request: RedemptionRequest, user: CurrentUser, container: ContainerDependency
-) -> Redemption:
-    """Turn points into mobile money.
+    request: RenewalRequest, user: CurrentUser, container: ContainerDependency
+) -> NhisRenewal:
+    """Claim a year of NHIS cover with earned points.
 
-    Points are only spent if the money actually moved, so a failed transfer costs the
-    Guardian nothing.
+    This records a claim; it does not renew anything. Ghana Health Service does the
+    renewal and confirms it, because the platform cannot issue cover on a government
+    scheme's behalf and should not say that it has.
     """
     try:
-        return container.rewards_service.redeem(
-            user, request.user_id, request.mobile_money_number, request.network
-        )
+        return container.rewards_service.redeem(user, request.user_id)
     except RedemptionRefused as error:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
     except GuardianNotFound as error:

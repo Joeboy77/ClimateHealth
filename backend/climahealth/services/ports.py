@@ -1,5 +1,4 @@
 from datetime import date, datetime
-from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
 
@@ -41,7 +40,7 @@ if TYPE_CHECKING:
         ReportSubmission,
         VerificationStatus,
     )
-    from climahealth.services.rewards import MobileMoneyNetwork, Redemption
+    from climahealth.services.rewards import NhisRenewal
     from climahealth.services.sms_alerts import SenderIdStatus, SmsDelivery
     from climahealth.services.stock import ResourceStock
     from climahealth.services.ussd import UssdSession
@@ -215,6 +214,8 @@ class ReportStore(Protocol):
 class GuardianStore(Protocol):
     def enrol(self, user_id: str, display_name: str, district_id: str) -> "Guardian": ...
 
+    def all_guardians(self) -> tuple["Guardian", ...]: ...
+
     def find(self, user_id: str) -> "Guardian | None": ...
 
     def for_district(self, district_id: str) -> tuple["Guardian", ...]: ...
@@ -244,6 +245,8 @@ class CitizenStore(Protocol):
 
     def credentials_for(self, user_id: str) -> "CitizenCredentials | None": ...
 
+    def phone_number_for(self, user_id: str) -> str | None: ...
+
     def phone_number_taken(self, phone_number: str) -> bool: ...
 
     def for_district(self, district_id: str) -> tuple["CitizenIdentity", ...]: ...
@@ -257,18 +260,12 @@ class PhotoStore(Protocol):
     def find(self, reference: str) -> "Path | None": ...
 
 
-class PayoutSender(Protocol):
-    @property
-    def pays_for_real(self) -> bool: ...
+class NhisRenewalStore(Protocol):
+    def record(self, renewal: "NhisRenewal") -> None: ...
 
-    def pay(
-        self,
-        user_id: str,
-        recipient: str,
-        network: "MobileMoneyNetwork",
-        cedis: "Decimal",
-        points_spent: int,
-    ) -> "Redemption": ...
+    def all_renewals(self, district_id: str | None = None) -> tuple["NhisRenewal", ...]: ...
+
+    def confirm(self, reference: str) -> "NhisRenewal | None": ...
 
 
 class SmsSender(Protocol):
