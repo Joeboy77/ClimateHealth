@@ -39,7 +39,8 @@
         }
       ],
       "expo-secure-store",
-      "expo-audio"
+      "expo-audio",
+      "expo-asset"
     ],
     "scheme": "dawuro",
     "newArchEnabled": true,
