@@ -12,31 +12,25 @@ Editing the .pptx in PowerPoint is fine; a rebuild overwrites it.
 
 ## Running order
 
-**Core, about 5 minutes.** Speaker notes are on every slide.
+Twelve slides, about five minutes. Speaker notes on every slide.
 
 | # | Slide | Time |
 |---|---|---|
 | 1 | Title | 10s |
-| 2 | The problem: 6.7m cases, 11,635 deaths | 30s |
-| 3 | The gap: the lag window | 30s |
-| 4 | Our solution: three front doors | 25s |
-| 5 | **Why anybody acts: weather vs health** | 45s |
-| 6 | The brain: rules, not a guess | 35s |
-| 7 | National picture (live) | 30s |
-| 8 | Agency views (EPA on dust) | 20s |
-| 9 | The Ɔhwɛfoɔ validation loop | 35s |
-| 10 | The app | 20s |
-| 11 | Accessibility | 30s |
-| 12 | The NHIS renewal queue | 20s |
-| 13 | Rewards that are fundable | 25s |
-| 14 | **Why they come back** | 30s |
-| 15 | Reach: app, USSD, SMS | 20s |
-| 16 | Three criticisms, three answers | 35s |
-| 17 | Close and the ask | 20s |
+| 2 | The problem: burden and the lag window | 40s |
+| 3 | **Why anybody acts: weather vs health** | 45s |
+| 4 | The solution, and why the engine is defensible | 40s |
+| 5 | The agency platform: national + EPA | 35s |
+| 6 | The Ɔhwɛfoɔ validation loop | 40s |
+| 7 | The app, and who it is for | 30s |
+| 8 | Reach: USSD live on Africa's Talking | 30s |
+| 9 | Rewards, the queue, and why they return | 40s |
+| 10 | Three criticisms, three answers, the ask | 45s |
+| 11 | Close | 15s |
+| 12 | Backup: sources and known limits | — |
 
-**Hold back for Q&A:** 18 (sources) and 19 (architecture and known limits).
-
-Slide 5 is the one to protect. If you are running over, cut 10 first, then 8, then 15.
+Slide 3 is the one to protect. If you are over, trim words on 7 and 9 rather than
+cutting a slide; every remaining slide carries something a judge asked for.
 
 ## Screenshots
 
@@ -54,7 +48,12 @@ are kept in `screenshots/originals/`.
 | `m3-finish.png` | Run finished, 4 of 5, +85 XP |
 | `m4-report.png` | Report a hazard |
 | `m5-twi.png` | The same forecast in Twi |
-| `m6-language.png` | Language picker, on the accessibility slide |
+| `m6-language.png` | Language picker (spare, not currently placed) |
+| `m3-finish.png` | Run finished, 4 of 5 (spare) |
+| `m4-report.png` | Report a hazard (spare) |
+| `u1-region.png` | USSD: choose region |
+| `u2-district.png` | USSD: choose district |
+| `u3-warning.png` | USSD: today's warning delivered |
 
 ## Sources
 
