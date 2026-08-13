@@ -8,7 +8,7 @@
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Joeboy77%2FClimateHealth-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Joeboy77/ClimateHealth)
 [![Web App](https://img.shields.io/badge/Web_Console-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://climate-health-seven.vercel.app/)
-[![Mobile APK](https://img.shields.io/badge/Mobile_APK-Expo_Build-4630EB?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/accounts/kkbaidu/projects/dawuro/builds/e4de8a9c-3b58-410a-baed-7b138f76556b)
+[![Mobile APK](https://img.shields.io/badge/Mobile_APK-Expo_Build-4630EB?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/accounts/kkbaidu/projects/dawuro/builds/50bf6b45-6f8d-4a92-96c7-1cc6f049ca32)
 [![Backend API](https://img.shields.io/badge/Backend_API-Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://climatehealth.onrender.com)
 [![Build Status](https://img.shields.io/badge/Tests-449%20Passed-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/Joeboy77/ClimateHealth)
 
