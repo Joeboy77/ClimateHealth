@@ -85,6 +85,7 @@ from climahealth.services.ports import (
 )
 from climahealth.services.readiness_service import ReadinessService
 from climahealth.services.reports_service import ReportsService
+from climahealth.services.response_cache import StaleWhileRevalidateCache
 from climahealth.services.rewards_service import RewardsService
 from climahealth.services.risk_service import RiskService
 from climahealth.services.tickets import InMemoryTicketStore
@@ -115,6 +116,7 @@ class Container:
     public_limiter: SlidingWindowLimiter
     photo_store: PhotoStore
     citizen_store: CitizenStore
+    response_cache: StaleWhileRevalidateCache
 
 
 def build_photo_store(settings: Settings) -> PhotoStore:
@@ -298,4 +300,5 @@ def build_container(settings: Settings | None = None) -> Container:
         public_limiter=SlidingWindowLimiter(),
         photo_store=build_photo_store(resolved_settings),
         citizen_store=citizen_store,
+        response_cache=StaleWhileRevalidateCache(),
     )

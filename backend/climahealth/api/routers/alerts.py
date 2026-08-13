@@ -15,8 +15,14 @@ router = APIRouter(tags=["alerts"])
 
 @router.get("/alerts", response_model=list[Alert])
 def list_alerts(user: CurrentUser, container: ContainerDependency) -> list[Alert]:
-    """List active alerts for every district the caller may see."""
-    return list(container.alerts_service.active_alerts(user))
+    """List active alerts for every district the caller may see.
+
+    Served from the last computed answer, refreshed behind the response.
+    """
+    key = f"alerts:{user.scope.level.value}:{user.scope.district_id or 'all'}"
+    return container.response_cache.get_or_compute(
+        key, lambda: list(container.alerts_service.active_alerts(user))
+    )
 
 
 @router.get("/alerts/{alert_id}", response_model=Alert)

@@ -62,6 +62,7 @@ from climahealth.services.models import District
 from climahealth.services.outreach_service import OutreachService
 from climahealth.services.readiness_service import ReadinessService
 from climahealth.services.reports_service import ReportsService
+from climahealth.services.response_cache import StaleWhileRevalidateCache
 from climahealth.services.rewards_service import RewardsService
 from climahealth.services.risk_service import RiskService
 from climahealth.services.tickets import InMemoryTicketStore
@@ -183,6 +184,7 @@ def container(override_provider, context_provider) -> Container:
         public_limiter=SlidingWindowLimiter(),
         photo_store=LocalPhotoStore(Path(mkdtemp())),
         citizen_store=citizen_store,
+        response_cache=StaleWhileRevalidateCache(enabled=False),
         citizen_service=CitizenService(
             citizens=citizen_store,
             districts=InMemoryDistrictRepository(),

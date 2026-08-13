@@ -52,9 +52,17 @@ def detail(report: DistrictRiskReport) -> DistrictDetailResponse:
 def list_districts(
     user: CurrentUser, container: ContainerDependency
 ) -> list[DistrictSummaryResponse]:
-    """List districts visible to the caller with their overall risk level."""
+    """List districts visible to the caller with their overall risk level.
+
+    Served from the last computed answer so nobody waits on a national sweep. If it
+    has gone stale it is recomputed behind this response, not in front of it.
+    """
     visible = container.scope_guard.visible_districts(user)
-    return [summarise(report) for report in container.risk_service.reports_for(visible)]
+    key = f"districts:{user.scope.level.value}:{user.scope.district_id or 'all'}"
+    return container.response_cache.get_or_compute(
+        key,
+        lambda: [summarise(report) for report in container.risk_service.reports_for(visible)],
+    )
 
 
 @router.get("/districts/{district_id}", response_model=DistrictDetailResponse)

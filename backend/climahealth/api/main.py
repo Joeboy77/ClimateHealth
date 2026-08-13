@@ -53,7 +53,16 @@ def warm_climate_cache(container: Container) -> None:
     A failure here is not fatal. The sweep happens again on the first request.
     """
     try:
-        container.risk_service.reports_for(container.district_repository.all_districts())
+        from climahealth.api.routers.districts import summarise
+
+        districts = container.district_repository.all_districts()
+        # Fill the answer the dashboard asks for first, not merely the climate behind
+        # it, so the first officer to sign in is served from memory rather than waiting
+        # on a national sweep.
+        container.response_cache.warm(
+            "districts:national:all",
+            lambda: [summarise(report) for report in container.risk_service.reports_for(districts)],
+        )
     except Exception:
         logger.warning("Could not warm the climate cache at startup", exc_info=True)
 
